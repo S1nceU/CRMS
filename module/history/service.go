@@ -1,14 +1,17 @@
 package history
 
-import "github.com/S1nceU/CRMS/model"
+import (
+	"github.com/S1nceU/CRMS/model"
+	"time"
+)
 
 type Service interface {
-	ListHistories() ([]model.History, error)                 // Get all History
-	GetHistoryByID(in int) ([]model.History, error)          // Get History by ID
-	GetHistoriesForDate(in string) ([]model.History, error)  // Get History by Date
-	GetHistoryByHistoryId(in int) (*model.History, error)    // Get History by HistoryId
-	CreateHistory(in *model.History) (*model.History, error) // Create a new History
-	UpdateHistory(in *model.History) (*model.History, error) // Update History data
-	DeleteHistory(in int) error                              // Delete History by ID
-	DeleteHistoriesByCustomer(in int) error                  // Delete History by CustomerID
+	ListHistories() ([]model.History, error)                   // Get all History
+	GetHistoryByID(in int) ([]model.History, error)            // Get History by ID
+	GetHistoriesForDate(in time.Time) ([]model.History, error) // Get History by Date
+	GetHistoryByHistoryId(in int) (*model.History, error)      // Get History by HistoryId
+	CreateHistory(in *model.History) (*model.History, error)   // Create a new History
+	UpdateHistory(in *model.History) (*model.History, error)   // Update History data
+	DeleteHistory(in int) error                                // Delete History by ID
+	DeleteHistoriesByCustomer(in int) error                    // Delete History by CustomerID
 }

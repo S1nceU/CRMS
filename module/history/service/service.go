@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/S1nceU/CRMS/model"
 	"github.com/S1nceU/CRMS/module/history"
+	"time"
 )
 
 type HistoryService struct {
@@ -56,7 +57,7 @@ func (u *HistoryService) GetHistoryByID(in int) ([]model.History, error) {
 	return out, err
 }
 
-func (u *HistoryService) GetHistoriesForDate(in string) ([]model.History, error) {
+func (u *HistoryService) GetHistoriesForDate(in time.Time) ([]model.History, error) {
 	var err error
 	var point []*model.History
 	var out []model.History
@@ -66,7 +67,7 @@ func (u *HistoryService) GetHistoriesForDate(in string) ([]model.History, error)
 	if point, err = u.repo.GetHistoriesForDate(newHistory); err != nil {
 		return nil, err
 	} else if len(point) == 0 {
-		return nil, errors.New("error CRMS : There was no customer in " + in)
+		return nil, errors.New("error CRMS : There was no customer in " + in.Format("2006-01-02"))
 	}
 	for i := 0; i < len(point); i++ {
 		out = append(out, *point[i])
@@ -103,7 +104,7 @@ func (u *HistoryService) CreateHistory(in *model.History) (*model.History, error
 	if in.CustomerId == 0 {
 		return nil, errors.New("error CRMS : History Info is incomplete")
 	}
-	if in.Date == "" {
+	if in.Date.IsZero() {
 		return nil, errors.New("error CRMS : History Info is incomplete")
 	}
 	if in.NumberOfPeople == 0 {
@@ -144,7 +145,7 @@ func (u *HistoryService) UpdateHistory(in *model.History) (*model.History, error
 	if in.CustomerId == 0 {
 		return nil, errors.New("error CRMS : History Info is incomplete")
 	}
-	if in.Date == "" {
+	if in.Date.IsZero() {
 		return nil, errors.New("error CRMS : History Info is incomplete")
 	}
 	if in.NumberOfPeople == 0 {

@@ -6,6 +6,7 @@ import (
 	"github.com/S1nceU/CRMS/module/history"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"time"
 )
 
 type CustomerHandler struct {
@@ -81,14 +82,15 @@ func (u *CustomerHandler) GetCustomerByID(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customer [post]
 func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
-	json := model.Customer{}
+	json := model.CustomerRequest{}
 	if err := c.BindJSON(&json); err != nil {
 		c.JSON(400, gin.H{
 			"Message": err.Error(),
 		})
 		return
 	}
-	createCustomer, err := u.customerSer.CreateCustomer(&json)
+	createCustomer := transformToCustomer(json)
+	createCustomer, err := u.customerSer.CreateCustomer(createCustomer)
 	if err != nil {
 		if err.Error() == "error CRMS : This customer is already existed" {
 			c.JSON(200, gin.H{
@@ -120,14 +122,15 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customer [put]
 func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
-	json := model.Customer{}
+	json := model.CustomerRequest{}
 	if err := c.BindJSON(&json); err != nil {
 		c.JSON(400, gin.H{
 			"Message": err.Error(),
 		})
 		return
 	}
-	modifyCustomer, err := u.customerSer.UpdateCustomer(&json)
+	modifyCustomer := transformToCustomer(json)
+	modifyCustomer, err := u.customerSer.UpdateCustomer(modifyCustomer)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(200, gin.H{
@@ -181,4 +184,23 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"Message": "Delete success",
 	})
+}
+
+func transformToCustomer(requestData model.CustomerRequest) *model.Customer {
+	birthday, _ := time.Parse("2006-01-02", requestData.Birthday)
+	c := &model.Customer{
+		Name:        requestData.Name,
+		Gender:      requestData.Gender,
+		Birthday:    birthday,
+		ID:          requestData.ID,
+		Address:     requestData.Address,
+		PhoneNumber: requestData.PhoneNumber,
+		CarNumber:   requestData.CarNumber,
+		Citizenship: requestData.Citizenship,
+		Note:        requestData.Note,
+	}
+	if requestData.CustomerId != 0 {
+		c.CustomerId = requestData.CustomerId
+	}
+	return c
 }

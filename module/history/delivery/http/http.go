@@ -5,6 +5,7 @@ import (
 	"github.com/S1nceU/CRMS/module/history"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"time"
 )
 
 type HistoryHandler struct {
@@ -82,14 +83,15 @@ func (u *HistoryHandler) GetHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [post]
 func (u *HistoryHandler) CreateHistory(c *gin.Context) {
-	json := model.History{}
+	json := model.HistoryRequest{}
 	if err := c.BindJSON(&json); err != nil {
 		c.JSON(400, gin.H{
 			"Message": err.Error(),
 		})
 		return
 	}
-	createHistory, err := u.ser.CreateHistory(&json)
+	createHistory := transformToHistory(json)
+	createHistory, err := u.ser.CreateHistory(createHistory)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(200, gin.H{
@@ -121,14 +123,15 @@ func (u *HistoryHandler) CreateHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [put]
 func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
-	json := model.History{}
+	json := model.HistoryRequest{}
 	if err := c.BindJSON(&json); err != nil {
 		c.JSON(400, gin.H{
 			"Message": err.Error(),
 		})
 		return
 	}
-	modifyHistory, err := u.ser.UpdateHistory(&json)
+	modifyHistory := transformToHistory(json)
+	modifyHistory, err := u.ser.UpdateHistory(modifyHistory)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this history" {
 			c.JSON(200, gin.H{
@@ -182,4 +185,20 @@ func (u *HistoryHandler) DeleteHistory(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"Message": "Delete success",
 	})
+}
+
+func transformToHistory(requestData model.HistoryRequest) *model.History {
+	date, _ := time.Parse("2006-01-02", requestData.Date)
+	h := &model.History{
+		CustomerId:     requestData.CustomerId,
+		Date:           date,
+		NumberOfPeople: requestData.NumberOfPeople,
+		Price:          requestData.Price,
+		Room:           requestData.Room,
+		Note:           requestData.Note,
+	}
+	if requestData.HistoryId != 0 {
+		h.HistoryId = requestData.HistoryId
+	}
+	return h
 }

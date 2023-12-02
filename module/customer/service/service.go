@@ -81,7 +81,7 @@ func (u *CustomerService) CreateCustomer(in *model.Customer) (*model.Customer, e
 	if in.Gender != "Male" && in.Gender != "Female" {
 		return nil, errors.New("error CRMS : Customer Info is incomplete")
 	}
-	if in.Birthday == "" {
+	if in.Birthday.IsZero() {
 		return nil, errors.New("error CRMS : Customer Info is incomplete")
 	}
 	if in.ID == "" {
@@ -104,13 +104,18 @@ func (u *CustomerService) CreateCustomer(in *model.Customer) (*model.Customer, e
 func (u *CustomerService) UpdateCustomer(in *model.Customer) (*model.Customer, error) {
 	var err error
 	var newCustomer *model.Customer
+
+	if _, err = u.GetCustomerByCustomerId(in.CustomerId); err != nil {
+		return nil, err
+	}
+
 	if in.Name == "" {
 		return nil, errors.New("error CRMS : Customer Info is incomplete")
 	}
 	if in.Gender != "Male" && in.Gender != "Female" {
 		return nil, errors.New("error CRMS : Customer Info is incomplete")
 	}
-	if in.Birthday == "" {
+	if in.Birthday.IsZero() {
 		return nil, errors.New("error CRMS : Customer Info is incomplete")
 	}
 	if in.ID == "" {
@@ -120,9 +125,6 @@ func (u *CustomerService) UpdateCustomer(in *model.Customer) (*model.Customer, e
 		return nil, errors.New("error CRMS : Customer Info is incomplete")
 	}
 
-	if _, err = u.GetCustomerByCustomerId(in.CustomerId); err != nil {
-		return nil, err
-	}
 	if newCustomer, err = u.repo.UpdateCustomer(in); err != nil {
 		return nil, err
 	}
