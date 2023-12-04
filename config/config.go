@@ -26,7 +26,7 @@ type Config struct {
 func Init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("./config")
 
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {

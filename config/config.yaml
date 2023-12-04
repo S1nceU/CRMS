@@ -1,0 +1,12 @@
+# Server Config
+MODE: "debug"
+PORT: 8080
+
+# Database Config
+DATABASE:
+  USERNAME: "root"
+  PASSWORD: "password"
+  NETWORK: "tcp"
+  SERVER: "127.0.0.2"
+  PORT: 3306
+  DATABASE: "crms"
