@@ -22,3 +22,8 @@ type HistoryRequest struct {
 	Room           string `json:"Room"`
 	Note           string `json:"Note"`
 }
+
+type DuringRequest struct {
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
+}

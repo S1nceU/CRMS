@@ -72,3 +72,10 @@ func (u *HistoryRepository) DeleteHistoriesByCustomer(in *model.History) error {
 	err = u.orm.Where("customer_id = ?", in.CustomerId).Delete(&in).Error
 	return err
 }
+
+func (u *HistoryRepository) GetHistoryForDuring(in1 *model.History, in2 *model.History) ([]*model.History, error) {
+	var err error
+	var out []*model.History
+	err = u.orm.Where("date >= ? AND date <= ?", in1.Date, in2.Date).Find(&out).Error
+	return out, err
+}

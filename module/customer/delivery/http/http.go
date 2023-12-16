@@ -5,6 +5,7 @@ import (
 	"github.com/S1nceU/CRMS/module/customer"
 	"github.com/S1nceU/CRMS/module/history"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -37,12 +38,12 @@ func NewCustomerHandler(e *gin.Engine, customerSer customer.Service, historySer 
 func (u *CustomerHandler) ListCustomers(c *gin.Context) {
 	customerList, err := u.customerSer.ListCustomers()
 	if err != nil {
-		c.JSON(500, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"Message": "Internal Error!",
 		})
 		return
 	}
-	c.JSON(200, customerList)
+	c.JSON(http.StatusOK, customerList)
 }
 
 // GetCustomerByID @Summary GetCustomerByID
@@ -58,18 +59,18 @@ func (u *CustomerHandler) GetCustomerByID(c *gin.Context) {
 	customerData, err := u.customerSer.GetCustomerByID(iD)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		} else {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		}
 	}
-	c.JSON(200, customerData)
+	c.JSON(http.StatusCreated, customerData)
 }
 
 // CreateCustomer @Summary CreateCustomer
@@ -77,14 +78,14 @@ func (u *CustomerHandler) GetCustomerByID(c *gin.Context) {
 // @Tags Customer
 // @Accept json
 // @Produce application/json
-// @Param Customer body model.Customer true "Customer Information"
+// @Param Customer body model.CustomerRequest true "Customer Information"
 // @Success 200 {object} model.Customer
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customer [post]
 func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 	json := model.CustomerRequest{}
 	if err := c.BindJSON(&json); err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
 		})
 		return
@@ -93,23 +94,23 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 	createCustomer, err := u.customerSer.CreateCustomer(createCustomer)
 	if err != nil {
 		if err.Error() == "error CRMS : This customer is already existed" {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		} else if err.Error() == "error CRMS : Customer Info is incomplete" {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		} else {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		}
 	}
-	c.JSON(200, createCustomer)
+	c.JSON(http.StatusOK, createCustomer)
 }
 
 // ModifyCustomer @Summary ModifyCustomer
@@ -117,14 +118,14 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 // @Tags Customer
 // @Accept json
 // @Produce application/json
-// @Param Customer body model.Customer true "Customer Information"
+// @Param Customer body model.CustomerRequest true "Customer Information"
 // @Success 200 {object} model.Customer
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customer [put]
 func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
 	json := model.CustomerRequest{}
 	if err := c.BindJSON(&json); err != nil {
-		c.JSON(400, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
 		})
 		return
@@ -133,23 +134,23 @@ func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
 	modifyCustomer, err := u.customerSer.UpdateCustomer(modifyCustomer)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		} else if err.Error() == "error CRMS : Customer Info is incomplete" {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		} else {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		}
 	}
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"Customer info": modifyCustomer,
 		"Message":       "Modify success",
 	})
@@ -170,24 +171,24 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 	err = u.customerSer.DeleteCustomer(customerId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		} else {
-			c.JSON(500, gin.H{
+			c.JSON(http.StatusInternalServerError, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		}
 	}
-	c.JSON(200, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"Message": "Delete success",
 	})
 }
 
 func transformToCustomer(requestData model.CustomerRequest) *model.Customer {
-	birthday, _ := time.Parse("2006-01-02", requestData.Birthday)
+	birthday, _ := time.ParseInLocation("2006-01-02", requestData.Birthday, time.Local)
 	c := &model.Customer{
 		Name:        requestData.Name,
 		Gender:      requestData.Gender,

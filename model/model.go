@@ -19,7 +19,7 @@ type Customer struct {
 type History struct {
 	HistoryId      int       `json:"HistoryId"      gorm:"primary_key;auto_increase; not null"`
 	CustomerId     int       `json:"CustomerId"     gorm:"column:Customer_id; not null"`
-	Date           time.Time `json:"Date"           gorm:"column:Sate; not null"`
+	Date           time.Time `json:"Date"           gorm:"column:Date; not null"`
 	NumberOfPeople int       `json:"NumberOfPeople" gorm:"column:NumberOfPeople; not null"`
 	Price          int       `json:"Price"          gorm:"column:Price; not null"`
 	Room           string    `json:"Room"           gorm:"column:Room; not null"`

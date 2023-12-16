@@ -5,21 +5,22 @@ import (
 	"github.com/S1nceU/CRMS/config"
 	_ "github.com/S1nceU/CRMS/docs"
 	"github.com/S1nceU/CRMS/model"
-
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-
-	_customerHandlerHttpDelivery "github.com/S1nceU/CRMS/module/customer/delivery/http"
 	_customerRepo "github.com/S1nceU/CRMS/module/customer/repository"
 	_customerSer "github.com/S1nceU/CRMS/module/customer/service"
 
-	_historyHandlerHttpDelivery "github.com/S1nceU/CRMS/module/history/delivery/http"
 	_historyRepo "github.com/S1nceU/CRMS/module/history/repository"
 	_historySer "github.com/S1nceU/CRMS/module/history/service"
+
+	_customerHandlerHttpDelivery "github.com/S1nceU/CRMS/module/customer/delivery/http"
+	_historyHandlerHttpDelivery "github.com/S1nceU/CRMS/module/history/delivery/http"
+
+	"github.com/S1nceU/CRMS/route"
 )
 
 var swagHandler gin.HandlerFunc
@@ -83,6 +84,8 @@ func main() {
 	_customerHandlerHttpDelivery.NewCustomerHandler(server, customerSer, historySer)
 	_historyHandlerHttpDelivery.NewHistoryHandler(server, historySer)
 
+	route.NewRoute(server)
+
 	if swagHandler != nil {
 		server.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
@@ -90,4 +93,5 @@ func main() {
 	if err != nil {
 		return
 	}
+
 }

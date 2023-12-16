@@ -1,0 +1,32 @@
+<!-- CRMS Index page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRMS</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>CRMS</h1>
+            <p>Customer Relationship Management System</p>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Customers</h2>
+                <p>View and manage customers</p>
+                <a href="{% url 'customers' %}" class="btn btn-default">View Customers</a>
+            </div>
+            <div class="col-md-6">
+                <h2>Products</h2>
+                <p>View and manage products</p>
+                <a href="{% url 'products' %}" class="btn btn-default">View Products</a>
+            </div>
+        </div>
+    </div>
+    <h1>{{.msg.ID}}</h1>
+</body>
+</html>

@@ -76,7 +76,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Customer"
+                            "$ref": "#/definitions/model.CustomerRequest"
                         }
                     }
                 ],
@@ -113,7 +113,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.Customer"
+                            "$ref": "#/definitions/model.CustomerRequest"
                         }
                     }
                 ],
@@ -143,7 +143,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Customer Id",
+                        "description": "Customer id",
                         "name": "CustomerId",
                         "in": "query",
                         "required": true
@@ -205,7 +205,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Customer Id",
+                        "description": "Customer id",
                         "name": "CustomerId",
                         "in": "query",
                         "required": true
@@ -244,7 +244,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.History"
+                            "$ref": "#/definitions/model.HistoryRequest"
                         }
                     }
                 ],
@@ -278,7 +278,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.History"
+                            "$ref": "#/definitions/model.HistoryRequest"
                         }
                     }
                 ],
@@ -308,7 +308,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "History Id",
+                        "description": "History id",
                         "name": "HistoryId",
                         "in": "query",
                         "required": true
@@ -319,6 +319,42 @@ const docTemplate = `{
                         "description": "Message\": \"Delete success",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyForDuring": {
+            "post": {
+                "description": "Get History For During",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "description": "History Information",
+                        "name": "History",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DuringRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.History"
                         }
                     },
                     "500": {
@@ -398,7 +434,79 @@ const docTemplate = `{
                 }
             }
         },
+        "model.CustomerRequest": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "Birthday": {
+                    "type": "string"
+                },
+                "CarNumber": {
+                    "type": "string"
+                },
+                "Citizenship": {
+                    "type": "string"
+                },
+                "CustomerId": {
+                    "type": "integer"
+                },
+                "Gender": {
+                    "type": "string"
+                },
+                "ID": {
+                    "type": "string"
+                },
+                "Name": {
+                    "type": "string"
+                },
+                "Note": {
+                    "type": "string"
+                },
+                "PhoneNumber": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DuringRequest": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                }
+            }
+        },
         "model.History": {
+            "type": "object",
+            "properties": {
+                "CustomerId": {
+                    "type": "integer"
+                },
+                "Date": {
+                    "type": "string"
+                },
+                "HistoryId": {
+                    "type": "integer"
+                },
+                "Note": {
+                    "type": "string"
+                },
+                "NumberOfPeople": {
+                    "type": "integer"
+                },
+                "Price": {
+                    "type": "integer"
+                },
+                "Room": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.HistoryRequest": {
             "type": "object",
             "properties": {
                 "CustomerId": {

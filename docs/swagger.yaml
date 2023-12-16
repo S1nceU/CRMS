@@ -25,7 +25,54 @@ definitions:
       history:
         $ref: '#/definitions/model.History'
     type: object
+  model.CustomerRequest:
+    properties:
+      Address:
+        type: string
+      Birthday:
+        type: string
+      CarNumber:
+        type: string
+      Citizenship:
+        type: string
+      CustomerId:
+        type: integer
+      Gender:
+        type: string
+      ID:
+        type: string
+      Name:
+        type: string
+      Note:
+        type: string
+      PhoneNumber:
+        type: string
+    type: object
+  model.DuringRequest:
+    properties:
+      endDate:
+        type: string
+      startDate:
+        type: string
+    type: object
   model.History:
+    properties:
+      CustomerId:
+        type: integer
+      Date:
+        type: string
+      HistoryId:
+        type: integer
+      Note:
+        type: string
+      NumberOfPeople:
+        type: integer
+      Price:
+        type: integer
+      Room:
+        type: string
+    type: object
+  model.HistoryRequest:
     properties:
       CustomerId:
         type: integer
@@ -60,7 +107,7 @@ paths:
     delete:
       description: Delete Customer by CustomerId
       parameters:
-      - description: Customer Id
+      - description: Customer id
         in: query
         name: CustomerId
         required: true
@@ -110,7 +157,7 @@ paths:
         name: Customer
         required: true
         schema:
-          $ref: '#/definitions/model.Customer'
+          $ref: '#/definitions/model.CustomerRequest'
       produces:
       - application/json
       responses:
@@ -134,7 +181,7 @@ paths:
         name: Customer
         required: true
         schema:
-          $ref: '#/definitions/model.Customer'
+          $ref: '#/definitions/model.CustomerRequest'
       produces:
       - application/json
       responses:
@@ -170,7 +217,7 @@ paths:
     delete:
       description: Delete History by HistoryId
       parameters:
-      - description: History Id
+      - description: History id
         in: query
         name: HistoryId
         required: true
@@ -191,7 +238,7 @@ paths:
     get:
       description: Get History by CustomerId
       parameters:
-      - description: Customer Id
+      - description: Customer id
         in: query
         name: CustomerId
         required: true
@@ -217,7 +264,7 @@ paths:
         name: History
         required: true
         schema:
-          $ref: '#/definitions/model.History'
+          $ref: '#/definitions/model.HistoryRequest'
       produces:
       - application/json
       responses:
@@ -241,7 +288,30 @@ paths:
         name: History
         required: true
         schema:
-          $ref: '#/definitions/model.History'
+          $ref: '#/definitions/model.HistoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.History'
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - History
+  /historyForDuring:
+    post:
+      description: Get History For During
+      parameters:
+      - description: History Information
+        in: body
+        name: History
+        required: true
+        schema:
+          $ref: '#/definitions/model.DuringRequest'
       produces:
       - application/json
       responses:

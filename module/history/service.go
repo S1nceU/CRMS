@@ -14,4 +14,5 @@ type Service interface {
 	UpdateHistory(in *model.History) (*model.History, error)   // Update History data
 	DeleteHistory(in int) error                                // Delete History by ID
 	DeleteHistoriesByCustomer(in int) error                    // Delete History by CustomerID
+	GetHistoryForDuring(in1 string, in2 string) ([]model.History, error)
 }
