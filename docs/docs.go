@@ -140,15 +140,6 @@ const docTemplate = `{
                 "tags": [
                     "Customer"
                 ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Customer id",
-                        "name": "CustomerId",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Message\": \"Delete success",
@@ -305,15 +296,6 @@ const docTemplate = `{
                 "tags": [
                     "History"
                 ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "History id",
-                        "name": "HistoryId",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Message\": \"Delete success",
@@ -412,7 +394,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "CustomerId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "Gender": {
                     "type": "string"
@@ -430,7 +412,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "history": {
-                    "$ref": "#/definitions/model.History"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.History"
+                    }
                 }
             }
         },
@@ -450,7 +435,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "CustomerId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "Gender": {
                     "type": "string"
@@ -484,13 +469,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "CustomerId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "Date": {
                     "type": "string"
                 },
                 "HistoryId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "Note": {
                     "type": "string"
@@ -510,13 +495,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "CustomerId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "Date": {
                     "type": "string"
                 },
                 "HistoryId": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "Note": {
                     "type": "string"

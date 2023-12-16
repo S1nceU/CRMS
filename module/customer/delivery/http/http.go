@@ -5,8 +5,8 @@ import (
 	"github.com/S1nceU/CRMS/module/customer"
 	"github.com/S1nceU/CRMS/module/history"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -160,13 +160,13 @@ func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
 // @Description Delete Customer by CustomerId
 // @Tags Customer
 // @Produce application/json
-// @Param CustomerId query string true "Customer id"
+// @Param CustomerId query uuid.UUID true "Customer id"
 // @Success 200 {object} string "Message": "Delete success"
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customer [delete]
 func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 	var err error
-	customerId, _ := strconv.Atoi(c.Query("CustomerId"))
+	customerId := uuid.MustParse(c.Query("CustomerId"))
 	err = u.historySer.DeleteHistoriesByCustomer(customerId)
 	err = u.customerSer.DeleteCustomer(customerId)
 	if err != nil {
@@ -200,7 +200,7 @@ func transformToCustomer(requestData model.CustomerRequest) *model.Customer {
 		Citizenship: requestData.Citizenship,
 		Note:        requestData.Note,
 	}
-	if requestData.CustomerId != 0 {
+	if requestData.CustomerId != uuid.Nil {
 		c.CustomerId = requestData.CustomerId
 	}
 	return c

@@ -1,9 +1,12 @@
 package model
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type Customer struct {
-	CustomerId  int       `json:"CustomerId"  gorm:"primary_key; auto_increase;not null"`
+	CustomerId  uuid.UUID `json:"CustomerId"  gorm:"primary_key; not null; type:varchar(36);"`
 	Name        string    `json:"Name"        gorm:"column:Name; not null"`
 	Gender      string    `json:"Gender"      gorm:"column:Gender; not null"`
 	Birthday    time.Time `json:"Birthday"    gorm:"column:Birthday; not null"`
@@ -13,12 +16,12 @@ type Customer struct {
 	CarNumber   string    `json:"CarNumber"   gorm:"column:CarNumber"`
 	Citizenship string    `json:"Citizenship" gorm:"column:Citizenship; not null"`
 	Note        string    `json:"Note"        gorm:"column:Note"`
-	History     History   `                   gorm:"foreignKey:CustomerId"`
+	History     []History `                   gorm:"foreignKey:CustomerId"`
 }
 
 type History struct {
-	HistoryId      int       `json:"HistoryId"      gorm:"primary_key;auto_increase; not null"`
-	CustomerId     int       `json:"CustomerId"     gorm:"column:Customer_id; not null"`
+	HistoryId      uuid.UUID `json:"HistoryId"      gorm:"primary_key; not null; type:varchar(36);"`
+	CustomerId     uuid.UUID `json:"CustomerId"     gorm:"column:Customer_id; not null; type:varchar(36);"`
 	Date           time.Time `json:"Date"           gorm:"column:Date; not null"`
 	NumberOfPeople int       `json:"NumberOfPeople" gorm:"column:NumberOfPeople; not null"`
 	Price          int       `json:"Price"          gorm:"column:Price; not null"`

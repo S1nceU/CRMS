@@ -4,8 +4,8 @@ import (
 	"github.com/S1nceU/CRMS/model"
 	"github.com/S1nceU/CRMS/module/history"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -53,8 +53,8 @@ func (u *HistoryHandler) ListHistories(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [get]
 func (u *HistoryHandler) GetHistory(c *gin.Context) {
-	customerId, _ := strconv.Atoi(c.Query("CustomerId"))
-	historyData, err := u.ser.GetHistoryByID(customerId)
+	customerId := uuid.MustParse(c.Query("CustomerId"))
+	historyData, err := u.ser.GetHistoryByCustomerId(customerId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -178,12 +178,12 @@ func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
 // @Description Delete History by HistoryId
 // @Tags History
 // @Produce application/json
-// @Param HistoryId query string true "History id"
+// @Param HistoryId query uuid.UUID true "History id"
 // @Success 200 {object} string "Message": "Delete success"
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [delete]
 func (u *HistoryHandler) DeleteHistory(c *gin.Context) {
-	historyId, _ := strconv.Atoi(c.Query("HistoryId"))
+	historyId := uuid.MustParse(c.Query("HistoryId"))
 	err := u.ser.DeleteHistory(historyId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this history" {
@@ -265,7 +265,7 @@ func transformToHistory(requestData model.HistoryRequest) (*model.History, error
 		Room:           requestData.Room,
 		Note:           requestData.Note,
 	}
-	if requestData.HistoryId != 0 {
+	if requestData.HistoryId != uuid.Nil {
 		h.HistoryId = requestData.HistoryId
 	}
 	return h, nil

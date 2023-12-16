@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/S1nceU/CRMS/model"
 	"github.com/S1nceU/CRMS/module/customer"
+	"github.com/google/uuid"
 )
 
 type CustomerService struct {
@@ -52,13 +53,13 @@ func (u *CustomerService) GetCustomerByID(in string) (*model.Customer, error) {
 	}
 	if newCustomer, err = u.repo.GetCustomerByID(newCustomer); err != nil {
 		return nil, err
-	} else if newCustomer.CustomerId == 0 {
+	} else if newCustomer.CustomerId == uuid.Nil {
 		return nil, errors.New("error CRMS : There is no this customer")
 	}
 	return newCustomer, err
 }
 
-func (u *CustomerService) GetCustomerByCustomerId(in int) (*model.Customer, error) {
+func (u *CustomerService) GetCustomerByCustomerId(in uuid.UUID) (*model.Customer, error) {
 	var err error
 	newCustomer := &model.Customer{
 		CustomerId: in,
@@ -93,9 +94,10 @@ func (u *CustomerService) CreateCustomer(in *model.Customer) (*model.Customer, e
 
 	if newCustomer, err = u.repo.GetCustomerByID(in); err != nil {
 		return nil, err
-	} else if newCustomer.CustomerId != 0 {
+	} else if newCustomer.CustomerId != uuid.Nil {
 		return nil, errors.New("error CRMS : This customer is already existed")
 	} else {
+		in.CustomerId = uuid.New()
 		newCustomer, err = u.repo.CreateCustomer(newCustomer)
 		return newCustomer, err
 	}
@@ -131,7 +133,7 @@ func (u *CustomerService) UpdateCustomer(in *model.Customer) (*model.Customer, e
 	return newCustomer, err
 }
 
-func (u *CustomerService) DeleteCustomer(in int) error {
+func (u *CustomerService) DeleteCustomer(in uuid.UUID) error {
 	var err error
 	newCustomer := &model.Customer{
 		CustomerId: in,

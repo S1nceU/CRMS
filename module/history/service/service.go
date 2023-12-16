@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/S1nceU/CRMS/model"
 	"github.com/S1nceU/CRMS/module/history"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -30,7 +31,7 @@ func (u *HistoryService) ListHistories() ([]model.History, error) {
 	return out, err
 }
 
-func (u *HistoryService) GetHistoryByID(in int) ([]model.History, error) {
+func (u *HistoryService) GetHistoryByCustomerId(in uuid.UUID) ([]model.History, error) {
 	var err error
 	var point []*model.History
 	var out []model.History
@@ -75,14 +76,14 @@ func (u *HistoryService) GetHistoriesForDate(in time.Time) ([]model.History, err
 	return out, err
 }
 
-func (u *HistoryService) GetHistoryByHistoryId(in int) (*model.History, error) {
+func (u *HistoryService) GetHistoryByHistoryId(in uuid.UUID) (*model.History, error) {
 	var err error
 	newHistory := &model.History{
 		HistoryId: in,
 	}
 	if newHistory, err = u.repo.GetHistoryByHistoryId(newHistory); err != nil {
 		return nil, err
-	} else if newHistory.CustomerId == 0 {
+	} else if newHistory.CustomerId == uuid.Nil {
 		return nil, errors.New("error CRMS : There is no this history")
 	}
 	return newHistory, err
@@ -101,7 +102,7 @@ func (u *HistoryService) CreateHistory(in *model.History) (*model.History, error
 	if newCustomer.Name == "" {
 		return nil, errors.New("error CRMS : There is no this customer")
 	}
-	if in.CustomerId == 0 {
+	if in.CustomerId == uuid.Nil {
 		return nil, errors.New("error CRMS : History Info is incomplete")
 	}
 	if in.Date.IsZero() {
@@ -117,6 +118,7 @@ func (u *HistoryService) CreateHistory(in *model.History) (*model.History, error
 	if _, err = u.repo.GetHistoriesByCustomer(in); err != nil {
 		return nil, err
 	}
+	in.HistoryId = uuid.New()
 	if newHistory, err = u.repo.CreateHistory(in); err != nil {
 		return nil, err
 	}
@@ -139,10 +141,10 @@ func (u *HistoryService) UpdateHistory(in *model.History) (*model.History, error
 	if newCustomer.Name == "" {
 		return nil, errors.New("error CRMS : There is no this customer")
 	}
-	if newHistory.CustomerId == 0 {
+	if newHistory.CustomerId == uuid.Nil {
 		return nil, errors.New("error CRMS : There is no this history")
 	}
-	if in.CustomerId == 0 {
+	if in.CustomerId == uuid.Nil {
 		return nil, errors.New("error CRMS : History Info is incomplete")
 	}
 	if in.Date.IsZero() {
@@ -164,7 +166,7 @@ func (u *HistoryService) UpdateHistory(in *model.History) (*model.History, error
 	return newHistory, err
 }
 
-func (u *HistoryService) DeleteHistory(in int) error {
+func (u *HistoryService) DeleteHistory(in uuid.UUID) error {
 	var err error
 	newHistory := &model.History{
 		HistoryId: in,
@@ -178,12 +180,12 @@ func (u *HistoryService) DeleteHistory(in int) error {
 	return nil
 }
 
-func (u *HistoryService) DeleteHistoriesByCustomer(in int) error {
+func (u *HistoryService) DeleteHistoriesByCustomer(in uuid.UUID) error {
 	var err error
 	newHistory := &model.History{
 		CustomerId: in,
 	}
-	if _, err = u.GetHistoryByID(newHistory.CustomerId); err != nil {
+	if _, err = u.GetHistoryByCustomerId(newHistory.CustomerId); err != nil {
 		return err
 	}
 	if err = u.repo.DeleteHistoriesByCustomer(newHistory); err != nil {
