@@ -20,11 +20,15 @@ func NewCustomerHandler(e *gin.Engine, customerSer customer.Service, historySer 
 		customerSer: customerSer,
 		historySer:  historySer,
 	}
-	e.GET("/api/customerList", handler.ListCustomers)
-	e.GET("/api/customer", handler.GetCustomerByID)
-	e.POST("/api/customer", handler.CreateCustomer)
-	e.PUT("/api/customer", handler.ModifyCustomer)
-	e.DELETE("/api/customer", handler.DeleteCustomer)
+	api := e.Group("/api")
+	{
+		api.GET("/customerList", handler.ListCustomers)
+		api.GET("/customer", handler.GetCustomerByID)
+		api.POST("/customer", handler.CreateCustomer)
+		api.PUT("/customer", handler.ModifyCustomer)
+		api.DELETE("/customer", handler.DeleteCustomer)
+	}
+
 }
 
 // ListCustomers @Summary ListCustomers

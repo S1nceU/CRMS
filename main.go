@@ -5,20 +5,20 @@ import (
 	"github.com/S1nceU/CRMS/config"
 	_ "github.com/S1nceU/CRMS/docs"
 	"github.com/S1nceU/CRMS/model"
+	_customerHandlerHttpDelivery "github.com/S1nceU/CRMS/module/customer/delivery/http"
+	_historyHandlerHttpDelivery "github.com/S1nceU/CRMS/module/history/delivery/http"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"strconv"
 
 	_customerRepo "github.com/S1nceU/CRMS/module/customer/repository"
 	_customerSer "github.com/S1nceU/CRMS/module/customer/service"
 
 	_historyRepo "github.com/S1nceU/CRMS/module/history/repository"
 	_historySer "github.com/S1nceU/CRMS/module/history/service"
-
-	_customerHandlerHttpDelivery "github.com/S1nceU/CRMS/module/customer/delivery/http"
-	_historyHandlerHttpDelivery "github.com/S1nceU/CRMS/module/history/delivery/http"
 
 	"github.com/S1nceU/CRMS/route"
 )
@@ -89,9 +89,8 @@ func main() {
 	if swagHandler != nil {
 		server.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
-	err := server.Run(":8080")
+	err := server.Run(":" + strconv.Itoa(config.Val.Port))
 	if err != nil {
 		return
 	}
-
 }

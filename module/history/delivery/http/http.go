@@ -17,12 +17,16 @@ func NewHistoryHandler(e *gin.Engine, ser history.Service) {
 	handler := &HistoryHandler{
 		ser: ser,
 	}
-	e.GET("/api/historyList", handler.ListHistories)
-	e.GET("/api/history", handler.GetHistory)
-	e.POST("/api/history", handler.CreateHistory)
-	e.PUT("/api/history", handler.ModifyHistory)
-	e.DELETE("/api/history", handler.DeleteHistory)
-	e.POST("/api/historyForDuring", handler.GetHistoryForDuring)
+	api := e.Group("/api")
+	{
+		api.GET("/historyList", handler.ListHistories)
+		api.GET("/history", handler.GetHistory)
+		api.POST("/history", handler.CreateHistory)
+		api.PUT("/history", handler.ModifyHistory)
+		api.DELETE("/history", handler.DeleteHistory)
+		api.POST("/historyForDuring", handler.GetHistoryForDuring)
+	}
+
 }
 
 // ListHistories @Summary ListHistories
