@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"log"
 )
 
 var Val Config
@@ -44,5 +45,5 @@ func Init() {
 	if err := viper.Unmarshal(&Val); err != nil {
 		panic(fmt.Errorf("unable to decode into struct, %v", err))
 	}
-	fmt.Println("Read config.yaml successfully")
+	log.Println("Read config.yaml successfully")
 }

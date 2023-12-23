@@ -10,7 +10,7 @@ type Customer struct {
 	Name        string    `json:"Name"        gorm:"column:Name; not null"`
 	Gender      string    `json:"Gender"      gorm:"column:Gender; not null"`
 	Birthday    time.Time `json:"Birthday"    gorm:"column:Birthday; not null"`
-	ID          string    `json:"ID"          gorm:"column:ID; type:varchar(100); uniqueIndex; not null"`
+	ID          string    `json:"ID"          gorm:"column:ID; not null; type:varchar(100); uniqueIndex; "`
 	Address     string    `json:"Address"     gorm:"column:Address"`
 	PhoneNumber string    `json:"PhoneNumber" gorm:"column:PhoneNumber"`
 	CarNumber   string    `json:"CarNumber"   gorm:"column:CarNumber"`

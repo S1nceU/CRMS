@@ -27,8 +27,8 @@ func NewCustomerHandler(e *gin.Engine, customerSer customer.Service, historySer 
 		api.POST("/customer", handler.CreateCustomer)
 		api.PUT("/customer", handler.ModifyCustomer)
 		api.DELETE("/customer", handler.DeleteCustomer)
+		api.GET("/customerName", handler.GetCustomerByCustomerName)
 	}
-
 }
 
 // ListCustomers @Summary ListCustomers
@@ -74,7 +74,7 @@ func (u *CustomerHandler) GetCustomerByID(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusCreated, customerData)
+	c.JSON(http.StatusOK, customerData)
 }
 
 // CreateCustomer @Summary CreateCustomer
@@ -114,7 +114,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusOK, createCustomer)
+	c.JSON(http.StatusCreated, createCustomer)
 }
 
 // ModifyCustomer @Summary ModifyCustomer
@@ -189,6 +189,38 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"Message": "Delete success",
 	})
+}
+
+// GetCustomerByCustomerName @Summary GetCustomerByCustomerName
+// @Description Get Customer by CustomerName
+// @Tags Customer
+// @Produce application/json
+// @Param CustomerName query string true "Customer name"
+// @Success 200 {object} string "Message": "Delete success"
+// @Failure 500 {string} string "{"Message": err.Error()}"
+// @Router /customerName [get]
+func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
+	customerName := c.Query("CustomerName")
+	customerData, err := u.customerSer.GetCustomerByCustomerName(customerName)
+	if err != nil {
+		if err.Error() == "error CRMS : Customer Info is incomplete" {
+			c.JSON(http.StatusOK, gin.H{
+				"Message": err.Error(),
+			})
+			return
+		} else if err.Error() == "error CRMS : There is no this customer" {
+			c.JSON(http.StatusOK, gin.H{
+				"Message": err.Error(),
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Message": err.Error(),
+			})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, customerData)
 }
 
 func transformToCustomer(requestData model.CustomerRequest) *model.Customer {

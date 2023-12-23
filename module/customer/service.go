@@ -13,4 +13,5 @@ type Service interface {
 	CreateCustomer(in *model.Customer) (*model.Customer, error)    // Create a new Customer
 	UpdateCustomer(in *model.Customer) (*model.Customer, error)    // Update customer data
 	DeleteCustomer(in uuid.UUID) error                             // Delete Customer by customer_id
+	GetCustomerByCustomerName(in string) ([]model.Customer, error) // Get Customer by customer_name
 }

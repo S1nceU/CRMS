@@ -184,6 +184,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/customerName": {
+            "get": {
+                "description": "Get Customer by CustomerName",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Customer name",
+                        "name": "CustomerName",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message\": \"Delete success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/history": {
             "get": {
                 "description": "Get History by CustomerId",

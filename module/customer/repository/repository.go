@@ -61,3 +61,10 @@ func (u *CustomerRepository) DeleteCustomer(in *model.Customer) error {
 	err = u.orm.Where("customer_id = ?", in.CustomerId).Delete(&in).Error
 	return err
 }
+
+func (u *CustomerRepository) GetCustomerByCustomerName(in *model.Customer) ([]*model.Customer, error) {
+	var err error
+	var out []*model.Customer
+	err = u.orm.Where("Name LIKE ?", "%"+in.Name+"%").Find(&out).Error
+	return out, err
+}

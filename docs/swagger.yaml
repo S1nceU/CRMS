@@ -209,6 +209,28 @@ paths:
             type: string
       tags:
       - Customer
+  /customerName:
+    get:
+      description: Get Customer by CustomerName
+      parameters:
+      - description: Customer name
+        in: query
+        name: CustomerName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Message": "Delete success'
+          schema:
+            type: string
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - Customer
   /history:
     delete:
       description: Delete History by HistoryId

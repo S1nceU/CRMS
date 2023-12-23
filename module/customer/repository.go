@@ -10,4 +10,5 @@ type Repository interface {
 	CreateCustomer(in *model.Customer) (*model.Customer, error)                // Create a new Customer
 	UpdateCustomer(in *model.Customer) (*model.Customer, error)                // Update Customer data
 	DeleteCustomer(in *model.Customer) error                                   // Delete Customer by CustomerId
+	GetCustomerByCustomerName(in *model.Customer) ([]*model.Customer, error)   // Get Customer by CustomerName
 }

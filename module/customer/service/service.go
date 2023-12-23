@@ -146,3 +146,28 @@ func (u *CustomerService) DeleteCustomer(in uuid.UUID) error {
 	}
 	return nil
 }
+
+func (u *CustomerService) GetCustomerByCustomerName(in string) ([]model.Customer, error) {
+	var err error
+	var point []*model.Customer
+	var out []model.Customer
+
+	if in == "" {
+		return nil, errors.New("error CRMS : Customer Info is incomplete")
+	}
+
+	newCustomer := &model.Customer{
+		Name: in,
+	}
+	if point, err = u.repo.GetCustomerByCustomerName(newCustomer); err != nil {
+		return nil, err
+	}
+	if len(point) == 0 {
+		return nil, errors.New("error CRMS : There is no this customer")
+	}
+
+	for i := 0; i < len(point); i++ {
+		out = append(out, *point[i])
+	}
+	return out, err
+}

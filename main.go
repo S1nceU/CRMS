@@ -1,26 +1,33 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"strconv"
+	"time"
+
 	"github.com/S1nceU/CRMS/config"
 	_ "github.com/S1nceU/CRMS/docs"
 	"github.com/S1nceU/CRMS/model"
+
 	_customerHandlerHttpDelivery "github.com/S1nceU/CRMS/module/customer/delivery/http"
+	_customerRepo "github.com/S1nceU/CRMS/module/customer/repository"
+	_customerSer "github.com/S1nceU/CRMS/module/customer/service"
 	_historyHandlerHttpDelivery "github.com/S1nceU/CRMS/module/history/delivery/http"
+	_historyRepo "github.com/S1nceU/CRMS/module/history/repository"
+	_historySer "github.com/S1nceU/CRMS/module/history/service"
+	"github.com/S1nceU/CRMS/route"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"strconv"
-
-	_customerRepo "github.com/S1nceU/CRMS/module/customer/repository"
-	_customerSer "github.com/S1nceU/CRMS/module/customer/service"
-
-	_historyRepo "github.com/S1nceU/CRMS/module/history/repository"
-	_historySer "github.com/S1nceU/CRMS/module/history/service"
-
-	"github.com/S1nceU/CRMS/route"
 )
 
 var swagHandler gin.HandlerFunc
@@ -60,9 +67,9 @@ func main() {
 		config.Val.DatabaseConfig.Database,
 	)
 	if db, dbErr = gorm.Open(mysql.Open(dsn), &gorm.Config{}); dbErr != nil {
-		panic("使用 gorm 連線 DB 發生錯誤，原因為 " + dbErr.Error())
+		log.Fatal("There was an error connecting to the DB using gorm, due to " + dbErr.Error())
 	} else {
-		fmt.Println("Connect to DB successfully")
+		log.Println("Connect to DB successfully")
 		var err error
 		if err = db.AutoMigrate(&model.Customer{}); err != nil {
 			return
@@ -73,7 +80,7 @@ func main() {
 	}
 
 	gin.SetMode(config.Val.Mode)
-	server := gin.Default()
+	router := gin.Default()
 
 	customerRepo := _customerRepo.NewCustomerRepository(db)
 	historyRepo := _historyRepo.NewHistoryRepository(db)
@@ -81,16 +88,36 @@ func main() {
 	customerSer := _customerSer.NewCustomerService(customerRepo)
 	historySer := _historySer.NewHistoryService(historyRepo)
 
-	_customerHandlerHttpDelivery.NewCustomerHandler(server, customerSer, historySer)
-	_historyHandlerHttpDelivery.NewHistoryHandler(server, historySer)
+	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer, historySer)
+	_historyHandlerHttpDelivery.NewHistoryHandler(router, historySer)
 
-	route.NewRoute(server)
+	route.NewRoute(router)
 
 	if swagHandler != nil {
-		server.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
-	err := server.Run(":" + strconv.Itoa(config.Val.Port))
-	if err != nil {
-		return
+
+	server := &http.Server{
+		Addr:    ":" + strconv.Itoa(config.Val.Port),
+		Handler: router,
 	}
+
+	log.Println("Server is running")
+	go func() {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
+	log.Println("Server exiting")
 }
