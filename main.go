@@ -81,6 +81,7 @@ func main() {
 
 	gin.SetMode(config.Val.Mode)
 	router := gin.Default()
+	router.Use(route.Cors())
 
 	customerRepo := _customerRepo.NewCustomerRepository(db)
 	historyRepo := _historyRepo.NewHistoryRepository(db)
@@ -90,8 +91,6 @@ func main() {
 
 	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer, historySer)
 	_historyHandlerHttpDelivery.NewHistoryHandler(router, historySer)
-
-	router.Use(route.Cors())
 
 	route.NewRoute(router)
 
