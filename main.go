@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/S1nceU/CRMS/cors"
 	"log"
 	"net/http"
 	"os"
@@ -90,6 +91,8 @@ func main() {
 
 	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer, historySer)
 	_historyHandlerHttpDelivery.NewHistoryHandler(router, historySer)
+
+	router.Use(cors.Cors())
 
 	route.NewRoute(router)
 
