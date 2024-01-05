@@ -28,6 +28,7 @@ func NewCustomerHandler(e *gin.Engine, customerSer customer.Service, historySer 
 		api.PUT("/customer", handler.ModifyCustomer)
 		api.DELETE("/customer", handler.DeleteCustomer)
 		api.GET("/customerName", handler.GetCustomerByCustomerName)
+		api.GET("/customerCitizenship", handler.ListCustomersByCitizenship)
 	}
 }
 
@@ -202,6 +203,37 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
 	customerName := c.Query("CustomerName")
 	customerData, err := u.customerSer.GetCustomerByCustomerName(customerName)
+	if err != nil {
+		if err.Error() == "error CRMS : Customer Info is incomplete" {
+			c.JSON(http.StatusOK, gin.H{
+				"Message": err.Error(),
+			})
+			return
+		} else if err.Error() == "error CRMS : There is no this customer" {
+			c.JSON(http.StatusOK, gin.H{
+				"Message": err.Error(),
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Message": err.Error(),
+			})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, customerData)
+}
+
+// ListCustomersByCitizenship @Summary ListCustomersByCitizenship
+// @Description Get all Customers by citizenship
+// @Tags Customer
+// @Produce application/json
+// @Param Citizenship query string true "Citizenship" example(Taiwan)
+// @Success 200 {object} []model.Customer
+// @Failure 500 {string} string "{"Message": err.Error()}"
+func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
+	citizenship := c.Query("Citizenship")
+	customerData, err := u.customerSer.ListCustomersByCitizenship(citizenship)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{

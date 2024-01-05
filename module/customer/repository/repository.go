@@ -68,3 +68,10 @@ func (u *CustomerRepository) GetCustomerByCustomerName(in *model.Customer) ([]*m
 	err = u.orm.Where("Name LIKE ?", "%"+in.Name+"%").Find(&out).Error
 	return out, err
 }
+
+func (u *CustomerRepository) GetCustomerByCustomerPhone(in *model.Customer) ([]*model.Customer, error) {
+	var err error
+	var out []*model.Customer
+	err = u.orm.Where("PhoneNumber LIKE ?", "%"+in.PhoneNumber+"%").Find(&out).Error
+	return out, err
+}
