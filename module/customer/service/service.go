@@ -61,7 +61,9 @@ func (u *CustomerService) GetCustomerByID(in string) (*model.Customer, error) {
 
 func (u *CustomerService) GetCustomerByCustomerId(in uuid.UUID) (*model.Customer, error) {
 	var err error
-	newCustomer := &model.Customer{
+	var newCustomer *model.Customer
+
+	newCustomer = &model.Customer{
 		CustomerId: in,
 	}
 	if newCustomer, err = u.repo.GetCustomerByCustomerId(newCustomer); err != nil {
