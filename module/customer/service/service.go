@@ -19,37 +19,72 @@ func NewCustomerService(repo customer.Repository) customer.Service {
 
 func (u *CustomerService) ListCustomers() ([]model.Customer, error) {
 	var err error
-	var point []*model.Customer
-	var out []model.Customer
-	if point, err = u.repo.ListCustomers(); err != nil {
+	var customers []*model.Customer
+	if customers, err = u.repo.ListCustomers(); err != nil {
 		return nil, err
 	}
-	for i := 0; i < len(point); i++ {
-		out = append(out, *point[i])
-	}
-	return out, err
+	return convertToSliceOfCustomer(customers), err
 }
 
-func (u *CustomerService) ListCustomersByCitizenship(in string) ([]model.Customer, error) {
+func (u *CustomerService) ListCustomersByCitizenship(citizenship string) ([]model.Customer, error) {
 	var err error
-	var point []*model.Customer
-	var out []model.Customer
+	var customers []*model.Customer
 	newCustomer := &model.Customer{
-		Citizenship: in,
+		Citizenship: citizenship,
 	}
-	if point, err = u.repo.ListCustomersForCitizenship(newCustomer); err != nil {
+	if customers, err = u.repo.ListCustomersForCitizenship(newCustomer); err != nil {
 		return nil, err
 	}
-	for i := 0; i < len(point); i++ {
-		out = append(out, *point[i])
-	}
-	return out, err
+	return convertToSliceOfCustomer(customers), err
 }
 
-func (u *CustomerService) GetCustomerByID(in string) (*model.Customer, error) {
+func (u *CustomerService) ListCustomersByCustomerName(name string) ([]model.Customer, error) {
+	var err error
+	var customers []*model.Customer
+
+	if name == "" {
+		return nil, errors.New("error CRMS : Customer Info is incomplete")
+	}
+
+	newCustomer := &model.Customer{
+		Name: name,
+	}
+	if customers, err = u.repo.ListCustomersByCustomerName(newCustomer); err != nil {
+		return nil, err
+	}
+	if len(customers) == 0 {
+		return nil, errors.New("error CRMS : There is no this customer")
+	}
+
+	return convertToSliceOfCustomer(customers), err
+}
+
+func (u *CustomerService) ListCustomersByCustomerPhone(phone string) ([]model.Customer, error) {
+	var err error
+	var customers []*model.Customer
+
+	if phone == "" {
+		return nil, errors.New("error CRMS : Customer Info is incomplete")
+	}
+
+	newCustomer := &model.Customer{
+		PhoneNumber: phone,
+	}
+
+	if customers, err = u.repo.ListCustomersByCustomerPhone(newCustomer); err != nil {
+		return nil, err
+	}
+	if len(customers) == 0 {
+		return nil, errors.New("error CRMS : There is no this customer")
+	}
+
+	return convertToSliceOfCustomer(customers), err
+}
+
+func (u *CustomerService) GetCustomerByID(id string) (*model.Customer, error) {
 	var err error
 	newCustomer := &model.Customer{
-		ID: in,
+		ID: id,
 	}
 	if newCustomer, err = u.repo.GetCustomerByID(newCustomer); err != nil {
 		return nil, err
@@ -59,12 +94,12 @@ func (u *CustomerService) GetCustomerByID(in string) (*model.Customer, error) {
 	return newCustomer, err
 }
 
-func (u *CustomerService) GetCustomerByCustomerId(in uuid.UUID) (*model.Customer, error) {
+func (u *CustomerService) GetCustomerByCustomerId(customerId uuid.UUID) (*model.Customer, error) {
 	var err error
 	var newCustomer *model.Customer
 
 	newCustomer = &model.Customer{
-		CustomerId: in,
+		CustomerId: customerId,
 	}
 	if newCustomer, err = u.repo.GetCustomerByCustomerId(newCustomer); err != nil {
 		return nil, err
@@ -74,71 +109,47 @@ func (u *CustomerService) GetCustomerByCustomerId(in uuid.UUID) (*model.Customer
 	return newCustomer, err
 }
 
-func (u *CustomerService) CreateCustomer(in *model.Customer) (*model.Customer, error) {
+func (u *CustomerService) CreateCustomer(customer *model.Customer) (*model.Customer, error) {
 	var err error
 	var newCustomer *model.Customer
 
-	if in.Name == "" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
-	}
-	if in.Gender != "Male" && in.Gender != "Female" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
-	}
-	if in.Birthday.IsZero() {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
-	}
-	if in.ID == "" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
-	}
-	if in.Citizenship == "" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
+	if err = validateCustomerInfo(customer); err != nil {
+		return nil, err
 	}
 
-	if newCustomer, err = u.repo.GetCustomerByID(in); err != nil {
+	if newCustomer, err = u.repo.GetCustomerByID(customer); err != nil {
 		return nil, err
 	} else if newCustomer.CustomerId != uuid.Nil {
 		return nil, errors.New("error CRMS : This customer is already existed")
 	} else {
-		in.CustomerId = uuid.New()
+		customer.CustomerId = uuid.New()
 		newCustomer, err = u.repo.CreateCustomer(newCustomer)
 		return newCustomer, err
 	}
 }
 
-func (u *CustomerService) UpdateCustomer(in *model.Customer) (*model.Customer, error) {
+func (u *CustomerService) UpdateCustomer(customer *model.Customer) (*model.Customer, error) {
 	var err error
 	var newCustomer *model.Customer
 
-	if _, err = u.GetCustomerByCustomerId(in.CustomerId); err != nil {
+	if _, err = u.GetCustomerByCustomerId(customer.CustomerId); err != nil {
 		return nil, err
 	}
 
-	if in.Name == "" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
-	}
-	if in.Gender != "Male" && in.Gender != "Female" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
-	}
-	if in.Birthday.IsZero() {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
-	}
-	if in.ID == "" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
-	}
-	if in.Citizenship == "" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
+	if err = validateCustomerInfo(customer); err != nil {
+		return nil, err
 	}
 
-	if newCustomer, err = u.repo.UpdateCustomer(in); err != nil {
+	if newCustomer, err = u.repo.UpdateCustomer(customer); err != nil {
 		return nil, err
 	}
 	return newCustomer, err
 }
 
-func (u *CustomerService) DeleteCustomer(in uuid.UUID) error {
+func (u *CustomerService) DeleteCustomer(customerId uuid.UUID) error {
 	var err error
 	newCustomer := &model.Customer{
-		CustomerId: in,
+		CustomerId: customerId,
 	}
 	if _, err = u.GetCustomerByCustomerId(newCustomer.CustomerId); err != nil {
 		return err
@@ -149,53 +160,29 @@ func (u *CustomerService) DeleteCustomer(in uuid.UUID) error {
 	return nil
 }
 
-func (u *CustomerService) GetCustomerByCustomerName(in string) ([]model.Customer, error) {
-	var err error
-	var point []*model.Customer
-	var out []model.Customer
-
-	if in == "" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
+func convertToSliceOfCustomer(customers []*model.Customer) []model.Customer {
+	var customersSlice []model.Customer
+	for i := 0; i < len(customers); i++ {
+		customersSlice = append(customersSlice, *customers[i])
 	}
-
-	newCustomer := &model.Customer{
-		Name: in,
-	}
-	if point, err = u.repo.GetCustomerByCustomerName(newCustomer); err != nil {
-		return nil, err
-	}
-	if len(point) == 0 {
-		return nil, errors.New("error CRMS : There is no this customer")
-	}
-
-	for i := 0; i < len(point); i++ {
-		out = append(out, *point[i])
-	}
-	return out, err
+	return customersSlice
 }
 
-func (u *CustomerService) GetCustomerByCustomerPhone(in string) ([]model.Customer, error) {
-	var err error
-	var point []*model.Customer
-	var out []model.Customer
-
-	if in == "" {
-		return nil, errors.New("error CRMS : Customer Info is incomplete")
+func validateCustomerInfo(customer *model.Customer) error {
+	if customer.Name == "" {
+		return errors.New("error CRMS : Customer Info is incomplete")
 	}
-
-	newCustomer := &model.Customer{
-		PhoneNumber: in,
+	if customer.Gender != "Male" && customer.Gender != "Female" {
+		return errors.New("error CRMS : Customer Info is incomplete")
 	}
-
-	if point, err = u.repo.GetCustomerByCustomerPhone(newCustomer); err != nil {
-		return nil, err
+	if customer.Birthday.IsZero() {
+		return errors.New("error CRMS : Customer Info is incomplete")
 	}
-	if len(point) == 0 {
-		return nil, errors.New("error CRMS : There is no this customer")
+	if customer.ID == "" {
+		return errors.New("error CRMS : Customer Info is incomplete")
 	}
-
-	for i := 0; i < len(point); i++ {
-		out = append(out, *point[i])
+	if customer.Citizenship == "" {
+		return errors.New("error CRMS : Customer Info is incomplete")
 	}
-	return out, err
+	return nil
 }

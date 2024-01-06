@@ -92,15 +92,15 @@ func (u *HistoryHandler) GetHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [post]
 func (u *HistoryHandler) CreateHistory(c *gin.Context) {
-	json := model.HistoryRequest{}
-	if err := c.BindJSON(&json); err != nil {
+	request := model.HistoryRequest{}
+	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
 		})
 		return
 	}
 	var err error
-	createHistory, err := transformToHistory(json)
+	createHistory, err := transformToHistory(request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -139,15 +139,15 @@ func (u *HistoryHandler) CreateHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [put]
 func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
-	json := model.HistoryRequest{}
-	if err := c.BindJSON(&json); err != nil {
+	request := model.HistoryRequest{}
+	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
 		})
 		return
 	}
 	var err error
-	modifyHistory, err := transformToHistory(json)
+	modifyHistory, err := transformToHistory(request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -219,17 +219,17 @@ func (u *HistoryHandler) DeleteHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyForDuring [post]
 func (u *HistoryHandler) GetHistoryForDuring(c *gin.Context) {
-	json := model.DuringRequest{}
-	if err := c.BindJSON(&json); err != nil {
+	request := model.DuringRequest{}
+	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
 		})
 		return
 	}
 
-	duringHistory, err := u.ser.GetHistoryForDuring(json.StartDate, json.EndDate)
+	duringHistory, err := u.ser.ListHistoriesForDuring(request.StartDate, request.EndDate)
 	if err != nil {
-		if err.Error() == "error CRMS : There is not any history between "+json.StartDate+" to "+json.EndDate {
+		if err.Error() == "error CRMS : There is not any history between "+request.StartDate+" to "+request.EndDate {
 			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
@@ -275,7 +275,7 @@ func (u *HistoryHandler) GetHistoriesForDate(c *gin.Context) {
 		})
 		return
 	}
-	historyList, err := u.ser.GetHistoriesForDate(request.Date)
+	historyList, err := u.ser.ListHistoriesForDate(request.Date)
 	if err != nil {
 		if err.Error() == "error CRMS : There is not any history" {
 			c.JSON(http.StatusOK, gin.H{
@@ -323,14 +323,9 @@ func (u *HistoryHandler) GetHistoryByCustomerId(c *gin.Context) {
 		})
 		return
 	}
-	historyData, err := u.ser.GetHistoryByCustomerId(request.CustomerId)
+	historyData, err := u.ser.ListHistoriesByCustomerId(request.CustomerId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
-			c.JSON(http.StatusOK, gin.H{
-				"Message": err.Error(),
-			})
-			return
-		} else if err.Error() == "error CRMS : There is not any history" {
 			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})

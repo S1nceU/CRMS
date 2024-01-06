@@ -62,8 +62,8 @@ func (u *CustomerHandler) ListCustomers(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customer [get]
 func (u *CustomerHandler) GetCustomerByID(c *gin.Context) {
-	iD := c.Query("ID")
-	customerData, err := u.customerSer.GetCustomerByID(iD)
+	id := c.Query("ID")
+	customerData, err := u.customerSer.GetCustomerByID(id)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -97,9 +97,14 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 		})
 		return
 	}
-	createCustomer := transformToCustomer(request)
-
-	createCustomer, err := u.customerSer.CreateCustomer(createCustomer)
+	createCustomer, err := transformToCustomer(request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return
+	}
+	createCustomer, err = u.customerSer.CreateCustomer(createCustomer)
 	if err != nil {
 		if err.Error() == "error CRMS : This customer is already existed" {
 			c.JSON(http.StatusOK, gin.H{
@@ -131,15 +136,21 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customer [put]
 func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
-	json := model.CustomerRequest{}
-	if err := c.BindJSON(&json); err != nil {
+	request := model.CustomerRequest{}
+	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
 		})
 		return
 	}
-	modifyCustomer := transformToCustomer(json)
-	modifyCustomer, err := u.customerSer.UpdateCustomer(modifyCustomer)
+	modifyCustomer, err := transformToCustomer(request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return
+	}
+	modifyCustomer, err = u.customerSer.UpdateCustomer(modifyCustomer)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -176,6 +187,19 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 	var err error
 	customerId := uuid.MustParse(c.Query("CustomerId"))
 	err = u.historySer.DeleteHistoriesByCustomer(customerId)
+	if err != nil {
+		if err.Error() == "error CRMS : There is no this customer" {
+			c.JSON(http.StatusOK, gin.H{
+				"Message": err.Error(),
+			})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"Message": err.Error(),
+			})
+			return
+		}
+	}
 	err = u.customerSer.DeleteCustomer(customerId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
@@ -205,7 +229,7 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 // @Router /customerName [get]
 func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
 	customerName := c.Query("CustomerName")
-	customerData, err := u.customerSer.GetCustomerByCustomerName(customerName)
+	customerData, err := u.customerSer.ListCustomersByCustomerName(customerName)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{
@@ -269,7 +293,7 @@ func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
 // @Router /customerPhone [get]
 func (u *CustomerHandler) GetCustomerByCustomerPhone(c *gin.Context) {
 	customerPhone := c.Query("CustomerPhone")
-	customerData, err := u.customerSer.GetCustomerByCustomerPhone(customerPhone)
+	customerData, err := u.customerSer.ListCustomersByCustomerPhone(customerPhone)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{
@@ -330,8 +354,11 @@ func (u *CustomerHandler) GetCustomerByCustomerID(c *gin.Context) {
 	c.JSON(http.StatusOK, customerData)
 }
 
-func transformToCustomer(requestData model.CustomerRequest) *model.Customer {
-	birthday, _ := time.ParseInLocation("2006-01-02", requestData.Birthday, time.Local)
+func transformToCustomer(requestData model.CustomerRequest) (*model.Customer, error) {
+	birthday, err := time.ParseInLocation("2006-01-02", requestData.Birthday, time.Local)
+	if err != nil {
+		return nil, err
+	}
 	c := &model.Customer{
 		Name:        requestData.Name,
 		Gender:      requestData.Gender,
@@ -342,9 +369,7 @@ func transformToCustomer(requestData model.CustomerRequest) *model.Customer {
 		CarNumber:   requestData.CarNumber,
 		Citizenship: requestData.Citizenship,
 		Note:        requestData.Note,
+		CustomerId:  requestData.CustomerId,
 	}
-	if requestData.CustomerId != uuid.Nil {
-		c.CustomerId = requestData.CustomerId
-	}
-	return c
+	return c, nil
 }

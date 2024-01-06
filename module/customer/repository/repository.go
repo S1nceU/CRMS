@@ -17,61 +17,49 @@ func NewCustomerRepository(orm *gorm.DB) customer.Repository {
 }
 
 func (u *CustomerRepository) ListCustomers() ([]*model.Customer, error) {
-	var err error
-	var in []*model.Customer
-	err = u.orm.Find(&in).Error
-	return in, err
+	var customers []*model.Customer
+	err := u.orm.Find(&customers).Error
+	return customers, err
 }
 
-func (u *CustomerRepository) ListCustomersForCitizenship(in *model.Customer) ([]*model.Customer, error) {
-	var err error
-	var out []*model.Customer
-	if err = u.orm.Where("Citizenship = ?", in.Citizenship).Find(&out).Error; err != nil {
-		return nil, err
-	}
-	return out, err
+func (u *CustomerRepository) ListCustomersForCitizenship(customer *model.Customer) ([]*model.Customer, error) {
+	var customers []*model.Customer
+	err := u.orm.Where("Citizenship = ?", customer.Citizenship).Find(&customers).Error
+	return customers, err
 }
 
-func (u *CustomerRepository) GetCustomerByID(in *model.Customer) (*model.Customer, error) {
-	var err error
-	err = u.orm.Where("ID = ?", in.ID).Find(&in).Error
-	return in, err
+func (u *CustomerRepository) ListCustomersByCustomerName(customer *model.Customer) ([]*model.Customer, error) {
+	var customers []*model.Customer
+	err := u.orm.Where("Name LIKE ?", "%"+customer.Name+"%").Find(&customers).Error
+	return customers, err
 }
 
-func (u *CustomerRepository) GetCustomerByCustomerId(in *model.Customer) (*model.Customer, error) {
-	var err error
-	err = u.orm.Where("customer_id = ?", in.CustomerId).Find(&in).Error
-	return in, err
+func (u *CustomerRepository) ListCustomersByCustomerPhone(customer *model.Customer) ([]*model.Customer, error) {
+	var customers []*model.Customer
+	err := u.orm.Where("PhoneNumber LIKE ?", "%"+customer.PhoneNumber+"%").Find(&customers).Error
+	return customers, err
 }
 
-func (u *CustomerRepository) CreateCustomer(in *model.Customer) (*model.Customer, error) {
-	var err error
-	err = u.orm.Create(in).Error
-	return in, err
+func (u *CustomerRepository) GetCustomerByID(customer *model.Customer) (*model.Customer, error) {
+	err := u.orm.Where("ID = ?", customer.ID).Find(&customer).Error
+	return customer, err
 }
 
-func (u *CustomerRepository) UpdateCustomer(in *model.Customer) (*model.Customer, error) {
-	var err error
-	err = u.orm.Model(in).Where("customer_id = ?", in.CustomerId).Updates(&in).Error
-	return in, err
+func (u *CustomerRepository) GetCustomerByCustomerId(customer *model.Customer) (*model.Customer, error) {
+	err := u.orm.Where("customer_id = ?", customer.CustomerId).Find(&customer).Error
+	return customer, err
 }
 
-func (u *CustomerRepository) DeleteCustomer(in *model.Customer) error {
-	var err error
-	err = u.orm.Where("customer_id = ?", in.CustomerId).Delete(&in).Error
-	return err
+func (u *CustomerRepository) CreateCustomer(customer *model.Customer) (*model.Customer, error) {
+	err := u.orm.Create(customer).Error
+	return customer, err
 }
 
-func (u *CustomerRepository) GetCustomerByCustomerName(in *model.Customer) ([]*model.Customer, error) {
-	var err error
-	var out []*model.Customer
-	err = u.orm.Where("Name LIKE ?", "%"+in.Name+"%").Find(&out).Error
-	return out, err
+func (u *CustomerRepository) UpdateCustomer(customer *model.Customer) (*model.Customer, error) {
+	err := u.orm.Model(customer).Where("customer_id = ?", customer.CustomerId).Updates(&customer).Error
+	return customer, err
 }
 
-func (u *CustomerRepository) GetCustomerByCustomerPhone(in *model.Customer) ([]*model.Customer, error) {
-	var err error
-	var out []*model.Customer
-	err = u.orm.Where("PhoneNumber LIKE ?", "%"+in.PhoneNumber+"%").Find(&out).Error
-	return out, err
+func (u *CustomerRepository) DeleteCustomer(customer *model.Customer) error {
+	return u.orm.Where("customer_id = ?", customer.CustomerId).Delete(&customer).Error
 }
