@@ -15,6 +15,10 @@ type CustomerRequest struct {
 	Note        string    `json:"Note"`
 }
 
+type CustomerIdRequest struct {
+	CustomerId uuid.UUID `json:"CustomerId"`
+}
+
 type HistoryRequest struct {
 	HistoryId      uuid.UUID `json:"HistoryId"`
 	CustomerId     uuid.UUID `json:"CustomerId"`
@@ -28,4 +32,12 @@ type HistoryRequest struct {
 type DuringRequest struct {
 	StartDate string `json:"startDate"`
 	EndDate   string `json:"endDate"`
+}
+
+type DateRequest struct {
+	Date string `json:"Date"`
+}
+
+type HistoryIdRequest struct {
+	HistoryId uuid.UUID `json:"HistoryId"`
 }

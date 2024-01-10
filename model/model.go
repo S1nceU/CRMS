@@ -25,6 +25,6 @@ type History struct {
 	Date           time.Time `json:"Date"           gorm:"column:Date; not null"`
 	NumberOfPeople int       `json:"NumberOfPeople" gorm:"column:NumberOfPeople; not null"`
 	Price          int       `json:"Price"          gorm:"column:Price; not null"`
-	Room           string    `json:"Room"           gorm:"column:Room; not null"`
 	Note           string    `json:"Note"           gorm:"column:Note"`
+	Room           string    `json:"Room"           gorm:"column:Room; not null"`
 }

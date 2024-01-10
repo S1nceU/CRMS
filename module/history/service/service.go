@@ -21,20 +21,15 @@ func NewHistoryService(repo history.Repository) history.Service {
 func (u *HistoryService) ListHistories() ([]model.History, error) {
 	var err error
 	var point []*model.History
-	var out []model.History
-	if point, err = u.repo.GetAllHistories(); err != nil {
+	if point, err = u.repo.ListHistories(); err != nil {
 		return nil, err
 	}
-	for i := 0; i < len(point); i++ {
-		out = append(out, *point[i])
-	}
-	return out, err
+	return convertToSliceOfHistory(point), err
 }
 
-func (u *HistoryService) GetHistoryByCustomerId(in uuid.UUID) ([]model.History, error) {
+func (u *HistoryService) ListHistoriesByCustomerId(in uuid.UUID) ([]model.History, error) {
 	var err error
 	var point []*model.History
-	var out []model.History
 	newHistory := &model.History{
 		CustomerId: in,
 	}
@@ -47,33 +42,71 @@ func (u *HistoryService) GetHistoryByCustomerId(in uuid.UUID) ([]model.History, 
 		return nil, errors.New("error CRMS : There is no this customer")
 	}
 
-	if point, err = u.repo.GetHistoriesByCustomer(newHistory); err != nil {
+	if point, err = u.repo.ListHistoriesByCustomer(newHistory); err != nil {
 		return nil, err
 	} else if len(point) == 0 {
-		return nil, errors.New("error CRMS : There is not any history")
+		return nil, nil
 	}
-	for i := 0; i < len(point); i++ {
-		out = append(out, *point[i])
-	}
-	return out, err
+	return convertToSliceOfHistory(point), err
 }
 
-func (u *HistoryService) GetHistoriesForDate(in time.Time) ([]model.History, error) {
+func (u *HistoryService) ListHistoriesForDate(in string) ([]model.History, error) {
 	var err error
 	var point []*model.History
-	var out []model.History
-	newHistory := &model.History{
-		Date: in,
+	var date time.Time
+	if date, err = time.ParseInLocation("2006-01-02", in, time.Local); err != nil {
+		return nil, errors.New("error CRMS : Date is incomplete")
 	}
-	if point, err = u.repo.GetHistoriesForDate(newHistory); err != nil {
+	if date.After(time.Now()) {
+		return nil, errors.New("error CRMS : Date is after today")
+	}
+	newHistory := &model.History{
+		Date: date,
+	}
+	if point, err = u.repo.ListHistoriesForDate(newHistory); err != nil {
 		return nil, err
 	} else if len(point) == 0 {
-		return nil, errors.New("error CRMS : There was no customer in " + in.Format("2006-01-02"))
+		return nil, errors.New("error CRMS : There was no customer in " + date.Format("2006-01-02"))
 	}
-	for i := 0; i < len(point); i++ {
-		out = append(out, *point[i])
+
+	return convertToSliceOfHistory(point), err
+}
+
+func (u *HistoryService) ListHistoriesForDuring(in1 string, in2 string) ([]model.History, error) {
+	var err error
+	var point []*model.History
+	var date1 time.Time
+	var date2 time.Time
+
+	if date1, err = time.ParseInLocation("2006-01-02", in1, time.Local); err != nil {
+		return nil, errors.New("error CRMS : Date is incomplete")
 	}
-	return out, err
+	if date2, err = time.ParseInLocation("2006-01-02", in2, time.Local); err != nil {
+		return nil, errors.New("error CRMS : Date is incomplete")
+	}
+
+	if date1.After(date2) {
+		return nil, errors.New("error CRMS : Start date is after end date")
+	}
+	if date2.After(time.Now()) {
+		return nil, errors.New("error CRMS : End date is after today")
+	}
+
+	date2 = date2.Add(time.Hour * 24)
+
+	newHistory1 := &model.History{
+		Date: date1,
+	}
+	newHistory2 := &model.History{
+		Date: date2,
+	}
+	if point, err = u.repo.ListHistoriesForDuring(newHistory1, newHistory2); len(point) == 0 {
+		return nil, errors.New("error CRMS : There is not any history between " + date1.Format("2006-01-02") + " to " + date2.Format("2006-01-02"))
+	} else if err != nil {
+		return nil, err
+	}
+
+	return convertToSliceOfHistory(point), err
 }
 
 func (u *HistoryService) GetHistoryByHistoryId(in uuid.UUID) (*model.History, error) {
@@ -102,20 +135,11 @@ func (u *HistoryService) CreateHistory(in *model.History) (*model.History, error
 	if newCustomer.Name == "" {
 		return nil, errors.New("error CRMS : There is no this customer")
 	}
-	if in.CustomerId == uuid.Nil {
-		return nil, errors.New("error CRMS : History Info is incomplete")
-	}
-	if in.Date.IsZero() {
-		return nil, errors.New("error CRMS : History Info is incomplete")
-	}
-	if in.NumberOfPeople == 0 {
-		return nil, errors.New("error CRMS : History Info is incomplete")
-	}
-	if in.Price == 0 {
-		return nil, errors.New("error CRMS : History Info is incomplete")
+	if err = validateHistoryInfo(in); err != nil {
+		return nil, err
 	}
 
-	if _, err = u.repo.GetHistoriesByCustomer(in); err != nil {
+	if _, err = u.repo.ListHistoriesByCustomer(in); err != nil {
 		return nil, err
 	}
 	in.HistoryId = uuid.New()
@@ -144,17 +168,8 @@ func (u *HistoryService) UpdateHistory(in *model.History) (*model.History, error
 	if newHistory.CustomerId == uuid.Nil {
 		return nil, errors.New("error CRMS : There is no this history")
 	}
-	if in.CustomerId == uuid.Nil {
-		return nil, errors.New("error CRMS : History Info is incomplete")
-	}
-	if in.Date.IsZero() {
-		return nil, errors.New("error CRMS : History Info is incomplete")
-	}
-	if in.NumberOfPeople == 0 {
-		return nil, errors.New("error CRMS : History Info is incomplete")
-	}
-	if in.Price == 0 {
-		return nil, errors.New("error CRMS : History Info is incomplete")
+	if err = validateHistoryInfo(in); err != nil {
+		return nil, err
 	}
 	if _, err = u.GetHistoryByHistoryId(in.HistoryId); err != nil {
 		return nil, err
@@ -185,7 +200,7 @@ func (u *HistoryService) DeleteHistoriesByCustomer(in uuid.UUID) error {
 	newHistory := &model.History{
 		CustomerId: in,
 	}
-	if _, err = u.GetHistoryByCustomerId(newHistory.CustomerId); err != nil {
+	if _, err = u.ListHistoriesByCustomerId(newHistory.CustomerId); err != nil {
 		return err
 	}
 	if err = u.repo.DeleteHistoriesByCustomer(newHistory); err != nil {
@@ -194,43 +209,26 @@ func (u *HistoryService) DeleteHistoriesByCustomer(in uuid.UUID) error {
 	return nil
 }
 
-func (u *HistoryService) GetHistoryForDuring(in1 string, in2 string) ([]model.History, error) {
-	var err error
-	var point []*model.History
-	var out []model.History
-	var date1 time.Time
-	var date2 time.Time
+func convertToSliceOfHistory(histories []*model.History) []model.History {
+	var historiesSlice []model.History
+	for i := 0; i < len(histories); i++ {
+		historiesSlice = append(historiesSlice, *histories[i])
+	}
+	return historiesSlice
+}
 
-	if date1, err = time.ParseInLocation("2006-01-02", in1, time.Local); err != nil {
-		return nil, errors.New("error CRMS : Date is incomplete")
+func validateHistoryInfo(history *model.History) error {
+	if history.CustomerId == uuid.Nil {
+		return errors.New("error CRMS : History Info is incomplete")
 	}
-	if date2, err = time.ParseInLocation("2006-01-02", in2, time.Local); err != nil {
-		return nil, errors.New("error CRMS : Date is incomplete")
+	if history.Date.IsZero() {
+		return errors.New("error CRMS : History Info is incomplete")
 	}
-
-	if date1.After(date2) {
-		return nil, errors.New("error CRMS : Start date is after end date")
+	if history.NumberOfPeople == 0 {
+		return errors.New("error CRMS : History Info is incomplete")
 	}
-	if date2.After(time.Now()) {
-		return nil, errors.New("error CRMS : End date is after today")
+	if history.Price == 0 {
+		return errors.New("error CRMS : History Info is incomplete")
 	}
-
-	date2 = date2.Add(time.Hour * 24)
-
-	newHistory1 := &model.History{
-		Date: date1,
-	}
-	newHistory2 := &model.History{
-		Date: date2,
-	}
-	if point, err = u.repo.GetHistoryForDuring(newHistory1, newHistory2); len(point) == 0 {
-		return nil, errors.New("error CRMS : There is not any history between " + date1.Format("2006-01-02") + " to " + date2.Format("2006-01-02"))
-	} else if err != nil {
-		return nil, err
-	}
-
-	for i := 0; i < len(point); i++ {
-		out = append(out, *point[i])
-	}
-	return out, err
+	return nil
 }

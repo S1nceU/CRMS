@@ -27,6 +27,11 @@ definitions:
           $ref: '#/definitions/model.History'
         type: array
     type: object
+  model.CustomerIdRequest:
+    properties:
+      CustomerId:
+        type: string
+    type: object
   model.CustomerRequest:
     properties:
       Address:
@@ -48,6 +53,11 @@ definitions:
       Note:
         type: string
       PhoneNumber:
+        type: string
+    type: object
+  model.DateRequest:
+    properties:
+      Date:
         type: string
     type: object
   model.DuringRequest:
@@ -72,6 +82,11 @@ definitions:
       Price:
         type: integer
       Room:
+        type: string
+    type: object
+  model.HistoryIdRequest:
+    properties:
+      HistoryId:
         type: string
     type: object
   model.HistoryRequest:
@@ -191,6 +206,56 @@ paths:
             type: string
       tags:
       - Customer
+  /customerCitizenship:
+    get:
+      description: Get all Customers by citizenship
+      parameters:
+      - description: Citizenship
+        example: Taiwan
+        in: query
+        name: Citizenship
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Customer'
+            type: array
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - Customer
+  /customerID:
+    post:
+      description: Get Customer by CustomerID
+      parameters:
+      - description: Customer id
+        in: body
+        name: CustomerId
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Customer'
+            type: array
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - Customer
   /customerList:
     get:
       consumes:
@@ -231,28 +296,14 @@ paths:
             type: string
       tags:
       - Customer
-  /history:
-    delete:
-      description: Delete History by HistoryId
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'Message": "Delete success'
-          schema:
-            type: string
-        "500":
-          description: '{"Message": err.Error()}'
-          schema:
-            type: string
-      tags:
-      - History
+  /customerPhone:
     get:
-      description: Get History by CustomerId
+      description: Get Customer by CustomerPhone
       parameters:
-      - description: Customer id
+      - description: Customer phone
+        example: "0912345678"
         in: query
-        name: CustomerId
+        name: CustomerPhone
         required: true
         type: string
       produces:
@@ -261,7 +312,31 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.History'
+            items:
+              $ref: '#/definitions/model.Customer'
+            type: array
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - Customer
+  /history:
+    delete:
+      description: Delete History by HistoryId
+      parameters:
+      - description: History id
+        in: query
+        name: HistoryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Message": "Delete success'
+          schema:
+            type: string
         "500":
           description: '{"Message": err.Error()}'
           schema:
@@ -310,6 +385,75 @@ paths:
             $ref: '#/definitions/model.History'
         "500":
           description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - History
+  /historyByCustomerId:
+    post:
+      description: Get History By CustomerId
+      parameters:
+      - description: History Information
+        in: body
+        name: History
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.History'
+        "500":
+          description: 'Message": err.Error()'
+          schema:
+            type: string
+      tags:
+      - History
+  /historyByHistoryId:
+    post:
+      description: Get History by HistoryId
+      parameters:
+      - description: History id
+        in: body
+        name: HistoryId
+        required: true
+        schema:
+          $ref: '#/definitions/model.HistoryIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.History'
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - History
+  /historyForDate:
+    post:
+      description: Get Histories For Date
+      parameters:
+      - description: History Information
+        in: body
+        name: History
+        required: true
+        schema:
+          $ref: '#/definitions/model.DateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.History'
+        "500":
+          description: 'Message": err.Error()'
           schema:
             type: string
       tags:
