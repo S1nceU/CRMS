@@ -126,7 +126,7 @@ func (u *HistoryHandler) CreateHistory(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusCreated, createHistory)
+	c.JSON(http.StatusOK, createHistory)
 }
 
 // ModifyHistory @Summary ModifyHistory

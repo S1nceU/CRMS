@@ -77,6 +77,12 @@ func main() {
 		if err = db.AutoMigrate(&model.History{}); err != nil {
 			return
 		}
+		if err = db.AutoMigrate(&model.User{}); err != nil {
+			return
+		}
+		if err = db.AutoMigrate(&model.Citizenship{}); err != nil {
+			return
+		}
 	}
 
 	gin.SetMode(config.Val.Mode)

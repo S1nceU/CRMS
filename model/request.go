@@ -11,12 +11,16 @@ type CustomerRequest struct {
 	Address     string    `json:"Address"`
 	PhoneNumber string    `json:"PhoneNumber"`
 	CarNumber   string    `json:"CarNumber"`
-	Citizenship string    `json:"Citizenship"`
+	Citizenship int       `json:"Citizenship"`
 	Note        string    `json:"Note"`
 }
 
 type CustomerIdRequest struct {
 	CustomerId uuid.UUID `json:"CustomerId"`
+}
+
+type CustomerCitizenshipRequest struct {
+	Citizenship int `json:"Citizenship"`
 }
 
 type HistoryRequest struct {

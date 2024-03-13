@@ -27,7 +27,7 @@ func NewCustomerHandler(e *gin.Engine, customerSer customer.Service, historySer 
 		api.POST("/customer", handler.CreateCustomer)
 		api.PUT("/customer", handler.ModifyCustomer)
 		api.DELETE("/customer", handler.DeleteCustomer)
-		api.GET("/customerName", handler.GetCustomerByCustomerName)
+		api.POST("/customerName", handler.GetCustomerByCustomerName)
 		api.GET("/customerCitizenship", handler.ListCustomersByCitizenship)
 		api.GET("/customerPhone", handler.GetCustomerByCustomerPhone)
 		api.POST("/customerID", handler.GetCustomerByCustomerID)
@@ -123,7 +123,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusCreated, createCustomer)
+	c.JSON(http.StatusOK, createCustomer)
 }
 
 // ModifyCustomer @Summary ModifyCustomer
@@ -226,7 +226,7 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 // @Param CustomerName query string true "Customer name"
 // @Success 200 {object} string "Message": "Delete success"
 // @Failure 500 {string} string "{"Message": err.Error()}"
-// @Router /customerName [get]
+// @Router /customerName [post]
 func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
 	customerName := c.Query("CustomerName")
 	customerData, err := u.customerSer.ListCustomersByCustomerName(customerName)
@@ -260,8 +260,14 @@ func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerCitizenship [get]
 func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
-	citizenship := c.Query("Citizenship")
-	customerData, err := u.customerSer.ListCustomersByCitizenship(citizenship)
+	request := model.CustomerCitizenshipRequest{}
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return
+	}
+	customerData, err := u.customerSer.ListCustomersByCitizenship(request.Citizenship)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{

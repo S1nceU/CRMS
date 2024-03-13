@@ -6,17 +6,17 @@ import (
 )
 
 type Customer struct {
-	CustomerId  uuid.UUID `json:"CustomerId"  gorm:"primary_key; not null; type:varchar(36);"`
-	Name        string    `json:"Name"        gorm:"column:Name; not null"`
-	Gender      string    `json:"Gender"      gorm:"column:Gender; not null"`
-	Birthday    time.Time `json:"Birthday"    gorm:"column:Birthday; not null"`
-	ID          string    `json:"ID"          gorm:"column:ID; not null; type:varchar(100); uniqueIndex; "`
-	Address     string    `json:"Address"     gorm:"column:Address"`
-	PhoneNumber string    `json:"PhoneNumber" gorm:"column:PhoneNumber"`
-	CarNumber   string    `json:"CarNumber"   gorm:"column:CarNumber"`
-	Citizenship string    `json:"Citizenship" gorm:"column:Citizenship; not null"`
-	Note        string    `json:"Note"        gorm:"column:Note"`
-	History     []History `                   gorm:"foreignKey:CustomerId"`
+	CustomerId  uuid.UUID `json:"CustomerId"    gorm:"primary_key; not null; type:varchar(36);"`
+	Name        string    `json:"Name"          gorm:"column:Name; not null"`
+	Gender      string    `json:"Gender"        gorm:"column:Gender; not null"`
+	Birthday    time.Time `json:"Birthday"      gorm:"column:Birthday; not null"`
+	ID          string    `json:"ID"            gorm:"column:ID; not null; type:varchar(100); uniqueIndex; "`
+	Address     string    `json:"Address"       gorm:"column:Address"`
+	PhoneNumber string    `json:"PhoneNumber"   gorm:"column:PhoneNumber"`
+	CarNumber   string    `json:"CarNumber"     gorm:"column:CarNumber"`
+	Note        string    `json:"Note"          gorm:"column:Note"`
+	Citizenship int       `json:"Citizenship"   gorm:"column:Citizenship; not null"`
+	History     []History `                     gorm:"foreignKey:CustomerId"`
 }
 
 type History struct {
@@ -27,4 +27,17 @@ type History struct {
 	Price          int       `json:"Price"          gorm:"column:Price; not null"`
 	Note           string    `json:"Note"           gorm:"column:Note"`
 	Room           string    `json:"Room"           gorm:"column:Room; not null"`
+}
+
+type User struct {
+	UserId   uuid.UUID `json:"UserId"   gorm:"primary_key; not null; type:varchar(36);"`
+	Username string    `json:"Username" gorm:"column:Username; not null; type:varchar(100); uniqueIndex;"`
+	Password string    `json:"Password" gorm:"column:Password; not null; type:varchar(100);"`
+}
+
+type Citizenship struct {
+	CitizenshipId int        `json:"CitizenshipId" gorm:"primary_key; not null;"`
+	Nation        string     `json:"Nation"        gorm:"column:Nation; not null; type:varchar(20); uniqueIndex;"`
+	Alpha3        string     `json:"Alpha3"        gorm:"column:Alpha3; not null; type:varchar(3); uniqueIndex;"`
+	Customer      []Customer `                     gorm:"foreignKey:Citizenship"`
 }

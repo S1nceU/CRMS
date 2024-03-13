@@ -26,7 +26,7 @@ func (u *CustomerService) ListCustomers() ([]model.Customer, error) {
 	return convertToSliceOfCustomer(customers), err
 }
 
-func (u *CustomerService) ListCustomersByCitizenship(citizenship string) ([]model.Customer, error) {
+func (u *CustomerService) ListCustomersByCitizenship(citizenship int) ([]model.Customer, error) {
 	var err error
 	var customers []*model.Customer
 	newCustomer := &model.Customer{
@@ -112,11 +112,9 @@ func (u *CustomerService) GetCustomerByCustomerId(customerId uuid.UUID) (*model.
 func (u *CustomerService) CreateCustomer(customer *model.Customer) (*model.Customer, error) {
 	var err error
 	var newCustomer *model.Customer
-
 	if err = validateCustomerInfo(customer); err != nil {
 		return nil, err
 	}
-
 	if newCustomer, err = u.repo.GetCustomerByID(customer); err != nil {
 		return nil, err
 	} else if newCustomer.CustomerId != uuid.Nil {
@@ -181,7 +179,7 @@ func validateCustomerInfo(customer *model.Customer) error {
 	if customer.ID == "" {
 		return errors.New("error CRMS : Customer Info is incomplete")
 	}
-	if customer.Citizenship == "" {
+	if customer.Citizenship == 0 {
 		return errors.New("error CRMS : Customer Info is incomplete")
 	}
 	return nil
