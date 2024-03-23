@@ -1,9 +1,8 @@
 package http
 
 import (
+	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
-	"github.com/S1nceU/CRMS/module/customer"
-	"github.com/S1nceU/CRMS/module/history"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -11,11 +10,11 @@ import (
 )
 
 type CustomerHandler struct {
-	customerSer customer.Service
-	historySer  history.Service
+	customerSer domain.CustomerService
+	historySer  domain.HistoryService // if frontend can block delete customer when this customer have history, we can remove this line
 }
 
-func NewCustomerHandler(e *gin.Engine, customerSer customer.Service, historySer history.Service) {
+func NewCustomerHandler(e *gin.Engine, customerSer domain.CustomerService, historySer domain.HistoryService) {
 	handler := &CustomerHandler{
 		customerSer: customerSer,
 		historySer:  historySer,
@@ -366,16 +365,16 @@ func transformToCustomer(requestData model.CustomerRequest) (*model.Customer, er
 		return nil, err
 	}
 	c := &model.Customer{
-		Name:        requestData.Name,
-		Gender:      requestData.Gender,
-		Birthday:    birthday,
-		ID:          requestData.ID,
-		Address:     requestData.Address,
-		PhoneNumber: requestData.PhoneNumber,
-		CarNumber:   requestData.CarNumber,
-		Citizenship: requestData.Citizenship,
-		Note:        requestData.Note,
-		CustomerId:  requestData.CustomerId,
+		Name:          requestData.Name,
+		Gender:        requestData.Gender,
+		Birthday:      birthday,
+		ID:            requestData.ID,
+		Address:       requestData.Address,
+		PhoneNumber:   requestData.PhoneNumber,
+		CarNumber:     requestData.CarNumber,
+		CitizenshipId: requestData.Citizenship,
+		Note:          requestData.Note,
+		CustomerId:    requestData.CustomerId,
 	}
 	return c, nil
 }

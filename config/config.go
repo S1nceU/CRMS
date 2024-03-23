@@ -24,6 +24,7 @@ type Config struct {
 	*DatabaseConfig `mapstructure:"DATABASE"`
 }
 
+// Init is a function to read config.yaml
 func Init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")

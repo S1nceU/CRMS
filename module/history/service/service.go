@@ -2,17 +2,17 @@ package service
 
 import (
 	"errors"
+	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
-	"github.com/S1nceU/CRMS/module/history"
 	"github.com/google/uuid"
 	"time"
 )
 
 type HistoryService struct {
-	repo history.Repository
+	repo domain.HistoryRepository
 }
 
-func NewHistoryService(repo history.Repository) history.Service {
+func NewHistoryService(repo domain.HistoryRepository) domain.HistoryService {
 	return &HistoryService{
 		repo: repo,
 	}
@@ -219,16 +219,16 @@ func convertToSliceOfHistory(histories []*model.History) []model.History {
 
 func validateHistoryInfo(history *model.History) error {
 	if history.CustomerId == uuid.Nil {
-		return errors.New("error CRMS : History Info is incomplete")
+		return errors.New("error CRMS : HistoryService Info is incomplete")
 	}
 	if history.Date.IsZero() {
-		return errors.New("error CRMS : History Info is incomplete")
+		return errors.New("error CRMS : HistoryService Info is incomplete")
 	}
 	if history.NumberOfPeople == 0 {
-		return errors.New("error CRMS : History Info is incomplete")
+		return errors.New("error CRMS : HistoryService Info is incomplete")
 	}
 	if history.Price == 0 {
-		return errors.New("error CRMS : History Info is incomplete")
+		return errors.New("error CRMS : HistoryService Info is incomplete")
 	}
 	return nil
 }

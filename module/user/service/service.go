@@ -1,16 +1,16 @@
-package repository
+package service
 
 import (
+	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
-	"github.com/S1nceU/CRMS/module/user"
 	"github.com/google/uuid"
 )
 
 type UserService struct {
-	repo user.Repository
+	repo domain.UserRepository
 }
 
-func NewUserService(repo user.Repository) user.Service {
+func NewUserService(repo domain.UserRepository) domain.UserService {
 	return &UserService{
 		repo: repo,
 	}
@@ -37,6 +37,20 @@ func (u *UserService) DeleteUser(userId uuid.UUID) error {
 	return err
 }
 
-func (u *UserService) Login(user *model.User) (*model.User, error) {
-	return u.repo.GetUserByUsername(user)
+func (u *UserService) GetUserByUserId(userId uuid.UUID) (*model.User, error) {
+	var err error
+	newUser := &model.User{
+		UserId: userId,
+	}
+	newUser, err = u.repo.GetUserByUserId(newUser)
+	return newUser, err
+}
+
+func (u *UserService) GetUserByUsername(username string) (*model.User, error) {
+	var err error
+	newUser := &model.User{
+		Username: username,
+	}
+	newUser, err = u.repo.GetUserByUsername(newUser)
+	return newUser, err
 }

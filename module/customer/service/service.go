@@ -2,16 +2,16 @@ package service
 
 import (
 	"errors"
+	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
-	"github.com/S1nceU/CRMS/module/customer"
 	"github.com/google/uuid"
 )
 
 type CustomerService struct {
-	repo customer.Repository
+	repo domain.CustomerRepository
 }
 
-func NewCustomerService(repo customer.Repository) customer.Service {
+func NewCustomerService(repo domain.CustomerRepository) domain.CustomerService {
 	return &CustomerService{
 		repo: repo,
 	}
@@ -30,9 +30,9 @@ func (u *CustomerService) ListCustomersByCitizenship(citizenship int) ([]model.C
 	var err error
 	var customers []*model.Customer
 	newCustomer := &model.Customer{
-		Citizenship: citizenship,
+		CitizenshipId: citizenship,
 	}
-	if customers, err = u.repo.ListCustomersForCitizenship(newCustomer); err != nil {
+	if customers, err = u.repo.ListCustomersByCitizenship(newCustomer); err != nil {
 		return nil, err
 	}
 	return convertToSliceOfCustomer(customers), err
@@ -179,7 +179,7 @@ func validateCustomerInfo(customer *model.Customer) error {
 	if customer.ID == "" {
 		return errors.New("error CRMS : Customer Info is incomplete")
 	}
-	if customer.Citizenship == 0 {
+	if customer.CitizenshipId == 0 {
 		return errors.New("error CRMS : Customer Info is incomplete")
 	}
 	return nil

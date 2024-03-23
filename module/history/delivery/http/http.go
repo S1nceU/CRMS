@@ -1,8 +1,8 @@
 package http
 
 import (
+	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
-	"github.com/S1nceU/CRMS/module/history"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -10,10 +10,10 @@ import (
 )
 
 type HistoryHandler struct {
-	ser history.Service
+	ser domain.HistoryService
 }
 
-func NewHistoryHandler(e *gin.Engine, ser history.Service) {
+func NewHistoryHandler(e *gin.Engine, ser domain.HistoryService) {
 	handler := &HistoryHandler{
 		ser: ser,
 	}
@@ -32,9 +32,9 @@ func NewHistoryHandler(e *gin.Engine, ser history.Service) {
 }
 
 // ListHistories @Summary ListHistories
-// @Description Get all History
+// @Description Get all HistoryService
 // @Accept json
-// @Tags History
+// @Tags HistoryService
 // @Produce application/json
 // @Success 200 {object} model.History
 // @Failure 500 {string} string "{"Message": "Internal Error!"}"
@@ -51,10 +51,10 @@ func (u *HistoryHandler) ListHistories(c *gin.Context) {
 }
 
 // GetHistory @Summary GetHistory
-// @Description Get History by HistoryId
-// @Tags History
+// @Description Get HistoryService by HistoryId
+// @Tags HistoryService
 // @Produce application/json
-// @Param HistoryId body model.HistoryIdRequest true "History id" example: "f1b9d7c0-9f0f-4f1a-8f1a-4f1a9f0f4f1a"
+// @Param HistoryId body model.HistoryIdRequest true "HistoryService id" example: "f1b9d7c0-9f0f-4f1a-8f1a-4f1a9f0f4f1a"
 // @Success 200 {object} model.History
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyByHistoryId [post]
@@ -84,10 +84,10 @@ func (u *HistoryHandler) GetHistory(c *gin.Context) {
 }
 
 // CreateHistory @Summary CreateHistory
-// @Description Create a new History
-// @Tags History
+// @Description Create a new HistoryService
+// @Tags HistoryService
 // @Produce application/json
-// @Param History body model.HistoryRequest true "History Information" example: {"CustomerId": "00000000-0000-0000-0000-000000000000", "Date": "2020-01-01", "NumberOfPeople": 1, "Price": 1000, "Room": "101", "Note": "test"}
+// @Param HistoryService body model.HistoryRequest true "HistoryService Information" example: {"CustomerId": "00000000-0000-0000-0000-000000000000", "Date": "2020-01-01", "NumberOfPeople": 1, "Price": 1000, "Room": "101", "Note": "test"}
 // @Success 200 {object} model.History
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [post]
@@ -114,7 +114,7 @@ func (u *HistoryHandler) CreateHistory(c *gin.Context) {
 				"Message": err.Error(),
 			})
 			return
-		} else if err.Error() == "error CRMS : History Info is incomplete" {
+		} else if err.Error() == "error CRMS : HistoryService Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
@@ -130,11 +130,11 @@ func (u *HistoryHandler) CreateHistory(c *gin.Context) {
 }
 
 // ModifyHistory @Summary ModifyHistory
-// @Description Modify History
-// @Tags History
+// @Description Modify HistoryService
+// @Tags HistoryService
 // @Accept json
 // @Produce application/json
-// @Param History body model.HistoryRequest true "History Information" example: {"HistoryId": "00000000-0000-0000-0000-000000000000", "CustomerId": "00000000-0000-0000-0000-000000000000", "Date": "2020-01-01", "NumberOfPeople": 1, "Price": 10000, "Room": "101", "Note": "test"}
+// @Param HistoryService body model.HistoryRequest true "HistoryService Information" example: {"HistoryId": "00000000-0000-0000-0000-000000000000", "CustomerId": "00000000-0000-0000-0000-000000000000", "Date": "2020-01-01", "NumberOfPeople": 1, "Price": 10000, "Room": "101", "Note": "test"}
 // @Success 200 {object} model.History
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [put]
@@ -166,7 +166,7 @@ func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
 				"Message": err.Error(),
 			})
 			return
-		} else if err.Error() == "error CRMS : History Info is incomplete" {
+		} else if err.Error() == "error CRMS : HistoryService Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
@@ -182,10 +182,10 @@ func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
 }
 
 // DeleteHistory @Summary DeleteHistory
-// @Description Delete History by HistoryId
-// @Tags History
+// @Description Delete HistoryService by HistoryId
+// @Tags HistoryService
 // @Produce application/json
-// @Param HistoryId query string true "History id"
+// @Param HistoryId query string true "HistoryService id"
 // @Success 200 {object} string "Message": "Delete success"
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /history [delete]
@@ -211,10 +211,10 @@ func (u *HistoryHandler) DeleteHistory(c *gin.Context) {
 }
 
 // GetHistoryForDuring @Summary GetHistoryForDuring
-// @Description Get History For During
-// @Tags History
+// @Description Get HistoryService For During
+// @Tags HistoryService
 // @Produce application/json
-// @Param History body model.DuringRequest true "History Information" example: {"startDate": "2020-01-01", "endDate": "2020-01-02"}
+// @Param HistoryService body model.DuringRequest true "HistoryService Information" example: {"startDate": "2020-01-01", "endDate": "2020-01-02"}
 // @Success 200 {object} model.History
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyForDuring [post]
@@ -261,9 +261,9 @@ func (u *HistoryHandler) GetHistoryForDuring(c *gin.Context) {
 
 // GetHistoriesForDate @Summary GetHistoriesForDate
 // @Description Get Histories For Date
-// @Tags History
+// @Tags HistoryService
 // @Produce application/json
-// @Param History body model.DateRequest true "History Information" example: {"Date": "2020-01-01"}
+// @Param HistoryService body model.DateRequest true "HistoryService Information" example: {"Date": "2020-01-01"}
 // @Success 200 {object} model.History
 // @Failure 500 {string} string "Message": err.Error()"
 // @Router /historyForDate [post]
@@ -308,10 +308,10 @@ func (u *HistoryHandler) GetHistoriesForDate(c *gin.Context) {
 }
 
 // GetHistoryByCustomerId @Summary GetHistoryByCustomerId
-// @Description Get History By CustomerId
-// @Tags History
+// @Description Get HistoryService By CustomerId
+// @Tags HistoryService
 // @Produce application/json
-// @Param History body model.CustomerIdRequest true "History Information" example: {"CustomerId": "00000000-0000-0000-0000-000000000000"}
+// @Param HistoryService body model.CustomerIdRequest true "HistoryService Information" example: {"CustomerId": "00000000-0000-0000-0000-000000000000"}
 // @Success 200 {object} model.History
 // @Failure 500 {string} string "Message": err.Error()"
 // @Router /historyByCustomerId [post]
