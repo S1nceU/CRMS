@@ -1,5 +1,5 @@
 # Server Config
-MODE: "debug"
+MODE: "release"
 PORT: 8080
 
 # Database Config

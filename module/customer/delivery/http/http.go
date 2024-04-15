@@ -1,35 +1,33 @@
 package http
 
 import (
+	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
-	"github.com/S1nceU/CRMS/module/customer"
-	"github.com/S1nceU/CRMS/module/history"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
 
 type CustomerHandler struct {
-	customerSer customer.Service
-	historySer  history.Service
+	customerSer domain.CustomerService
+	historySer  domain.HistoryService // if frontend can block delete customer when this customer have history, we can remove this line
 }
 
-func NewCustomerHandler(e *gin.Engine, customerSer customer.Service, historySer history.Service) {
+func NewCustomerHandler(e *gin.Engine, customerSer domain.CustomerService, historySer domain.HistoryService) {
 	handler := &CustomerHandler{
 		customerSer: customerSer,
 		historySer:  historySer,
 	}
 	api := e.Group("/api")
 	{
-		api.GET("/customerList", handler.ListCustomers)
-		api.GET("/customer", handler.GetCustomerByID)
-		api.POST("/customer", handler.CreateCustomer)
-		api.PUT("/customer", handler.ModifyCustomer)
-		api.DELETE("/customer", handler.DeleteCustomer)
-		api.GET("/customerName", handler.GetCustomerByCustomerName)
-		api.GET("/customerCitizenship", handler.ListCustomersByCitizenship)
-		api.GET("/customerPhone", handler.GetCustomerByCustomerPhone)
+		api.POST("/customerList", handler.ListCustomers)
+		api.POST("/customerNationalId", handler.GetCustomerByNationalId)
+		api.POST("/customerCre", handler.CreateCustomer)
+		api.POST("/customerMod", handler.ModifyCustomer)
+		api.POST("/customerDel", handler.DeleteCustomer)
+		api.POST("/customerName", handler.GetCustomerByCustomerName)
+		api.POST("/customerCitizenship", handler.ListCustomersByCitizenship)
+		api.POST("/customerPhone", handler.GetCustomerByCustomerPhone)
 		api.POST("/customerID", handler.GetCustomerByCustomerID)
 	}
 }
@@ -41,7 +39,7 @@ func NewCustomerHandler(e *gin.Engine, customerSer customer.Service, historySer 
 // @Produce application/json
 // @Success 200 {object} model.Customer
 // @Failure 500 {string} string "{"Message": "Internal Error!"}"
-// @Router /customerList [get]
+// @Router /customerList [post]
 func (u *CustomerHandler) ListCustomers(c *gin.Context) {
 	customerList, err := u.customerSer.ListCustomers()
 	if err != nil {
@@ -53,17 +51,23 @@ func (u *CustomerHandler) ListCustomers(c *gin.Context) {
 	c.JSON(http.StatusOK, customerList)
 }
 
-// GetCustomerByID @Summary GetCustomerByID
+// GetCustomerByNationalId @Summary GetCustomerByNationalId
 // @Description Get Customer by ID
 // @Tags Customer
 // @Produce application/json
-// @Param ID query string true "Customer ID" example(L123546789)
+// @Param ID body model.CustomerNationalIdRequest true "National ID"
 // @Success 200 {object} model.Customer
 // @Failure 500 {string} string "{"Message": err.Error()}"
-// @Router /customer [get]
-func (u *CustomerHandler) GetCustomerByID(c *gin.Context) {
-	id := c.Query("ID")
-	customerData, err := u.customerSer.GetCustomerByID(id)
+// @Router /customerNationalId [post]
+func (u *CustomerHandler) GetCustomerByNationalId(c *gin.Context) {
+	request := model.CustomerNationalIdRequest{}
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return
+	}
+	customerData, err := u.customerSer.GetCustomerByNationalId(request.NationalId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -88,7 +92,7 @@ func (u *CustomerHandler) GetCustomerByID(c *gin.Context) {
 // @Param Customer body model.CustomerRequest true "Customer Information"
 // @Success 200 {object} model.Customer
 // @Failure 500 {string} string "{"Message": err.Error()}"
-// @Router /customer [post]
+// @Router /customerCre [post]
 func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 	request := model.CustomerRequest{}
 	if err := c.BindJSON(&request); err != nil {
@@ -123,7 +127,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusCreated, createCustomer)
+	c.JSON(http.StatusOK, createCustomer)
 }
 
 // ModifyCustomer @Summary ModifyCustomer
@@ -134,7 +138,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 // @Param Customer body model.CustomerRequest true "Customer Information"
 // @Success 200 {object} model.Customer
 // @Failure 500 {string} string "{"Message": err.Error()}"
-// @Router /customer [put]
+// @Router /customerMod [post]
 func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
 	request := model.CustomerRequest{}
 	if err := c.BindJSON(&request); err != nil {
@@ -179,14 +183,19 @@ func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
 // @Description Delete Customer by CustomerId
 // @Tags Customer
 // @Produce application/json
-// @Param CustomerId query uuid.UUID true "Customer id"
+// @Param CustomerId body model.CustomerIdRequest true "Customer ID"
 // @Success 200 {object} string "Message": "Delete success"
 // @Failure 500 {string} string "{"Message": err.Error()}"
-// @Router /customer [delete]
+// @Router /customerDel [post]
 func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
-	var err error
-	customerId := uuid.MustParse(c.Query("CustomerId"))
-	err = u.historySer.DeleteHistoriesByCustomer(customerId)
+	request := model.CustomerIdRequest{}
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return
+	}
+	err := u.historySer.DeleteHistoriesByCustomer(request.CustomerId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -200,7 +209,7 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 			return
 		}
 	}
-	err = u.customerSer.DeleteCustomer(customerId)
+	err = u.customerSer.DeleteCustomer(request.CustomerId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -223,13 +232,19 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 // @Description Get Customer by CustomerName
 // @Tags Customer
 // @Produce application/json
-// @Param CustomerName query string true "Customer name"
+// @Param Name body model.CustomerNameRequest true "Customer Name"
 // @Success 200 {object} string "Message": "Delete success"
 // @Failure 500 {string} string "{"Message": err.Error()}"
-// @Router /customerName [get]
+// @Router /customerName [post]
 func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
-	customerName := c.Query("CustomerName")
-	customerData, err := u.customerSer.ListCustomersByCustomerName(customerName)
+	request := model.CustomerNameRequest{}
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return
+	}
+	customerData, err := u.customerSer.ListCustomersByCustomerName(request.Name)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{
@@ -255,13 +270,20 @@ func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
 // @Description Get all Customers by citizenship
 // @Tags Customer
 // @Produce application/json
-// @Param Citizenship query string true "Citizenship" example(Taiwan)
+// @Param Citizenship body model.CustomerCitizenshipRequest true "Citizenship"
 // @Success 200 {object} []model.Customer
 // @Failure 500 {string} string "{"Message": err.Error()}"
-// @Router /customerCitizenship [get]
+// @Router /customerCitizenship [post]
 func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
-	citizenship := c.Query("Citizenship")
-	customerData, err := u.customerSer.ListCustomersByCitizenship(citizenship)
+	request := model.CustomerCitizenshipRequest{}
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return
+	}
+
+	customerData, err := u.customerSer.ListCustomersByCitizenship(request.Citizenship)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{
@@ -287,13 +309,19 @@ func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
 // @Description Get Customer by CustomerPhone
 // @Tags Customer
 // @Produce application/json
-// @Param CustomerPhone query string true "Customer phone" example(0912345678)
+// @Param CustomerPhone body model.CustomerPhoneRequest true "Customer Phone"
 // @Success 200 {object} []model.Customer
 // @Failure 500 {string} string "{"Message": err.Error()}"
-// @Router /customerPhone [get]
+// @Router /customerPhone [post]
 func (u *CustomerHandler) GetCustomerByCustomerPhone(c *gin.Context) {
-	customerPhone := c.Query("CustomerPhone")
-	customerData, err := u.customerSer.ListCustomersByCustomerPhone(customerPhone)
+	request := model.CustomerPhoneRequest{}
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return
+	}
+	customerData, err := u.customerSer.ListCustomersByCustomerPhone(request.PhoneNumber)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{
@@ -331,7 +359,6 @@ func (u *CustomerHandler) GetCustomerByCustomerID(c *gin.Context) {
 		})
 		return
 	}
-
 	customerData, err := u.customerSer.GetCustomerByCustomerId(request.CustomerId)
 	if err != nil {
 		if err.Error() == "error CRMS : Invalid request" {
@@ -360,16 +387,16 @@ func transformToCustomer(requestData model.CustomerRequest) (*model.Customer, er
 		return nil, err
 	}
 	c := &model.Customer{
-		Name:        requestData.Name,
-		Gender:      requestData.Gender,
-		Birthday:    birthday,
-		ID:          requestData.ID,
-		Address:     requestData.Address,
-		PhoneNumber: requestData.PhoneNumber,
-		CarNumber:   requestData.CarNumber,
-		Citizenship: requestData.Citizenship,
-		Note:        requestData.Note,
-		CustomerId:  requestData.CustomerId,
+		Name:          requestData.Name,
+		Gender:        requestData.Gender,
+		Birthday:      birthday,
+		NationalId:    requestData.NationalId,
+		Address:       requestData.Address,
+		PhoneNumber:   requestData.PhoneNumber,
+		CarNumber:     requestData.CarNumber,
+		CitizenshipId: requestData.Citizenship,
+		Note:          requestData.Note,
+		Id:            requestData.CustomerId,
 	}
 	return c, nil
 }

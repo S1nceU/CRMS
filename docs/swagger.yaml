@@ -1,5 +1,28 @@
 basePath: /api
 definitions:
+  model.Citizenship:
+    properties:
+      Alpha3:
+        type: string
+      Id:
+        type: integer
+      Nation:
+        type: string
+      customer:
+        items:
+          $ref: '#/definitions/model.Customer'
+        type: array
+    type: object
+  model.CitizenshipNameRequest:
+    properties:
+      CitizenshipName:
+        type: string
+    type: object
+  model.CitizenshipRequest:
+    properties:
+      CitizenshipId:
+        type: integer
+    type: object
   model.Customer:
     properties:
       Address:
@@ -8,28 +31,48 @@ definitions:
         type: string
       CarNumber:
         type: string
-      Citizenship:
-        type: string
-      CustomerId:
-        type: string
+      CitizenshipId:
+        type: integer
       Gender:
         type: string
-      ID:
+      Id:
         type: string
       Name:
+        type: string
+      NationalId:
         type: string
       Note:
         type: string
       PhoneNumber:
         type: string
-      history:
+      histories:
         items:
           $ref: '#/definitions/model.History'
         type: array
     type: object
+  model.CustomerCitizenshipRequest:
+    properties:
+      Citizenship:
+        type: integer
+    type: object
   model.CustomerIdRequest:
     properties:
       CustomerId:
+        type: string
+    type: object
+  model.CustomerNameRequest:
+    properties:
+      Name:
+        type: string
+    type: object
+  model.CustomerNationalIdRequest:
+    properties:
+      NationalId:
+        type: string
+    type: object
+  model.CustomerPhoneRequest:
+    properties:
+      PhoneNumber:
         type: string
     type: object
   model.CustomerRequest:
@@ -41,14 +84,14 @@ definitions:
       CarNumber:
         type: string
       Citizenship:
-        type: string
+        type: integer
       CustomerId:
         type: string
       Gender:
         type: string
-      ID:
-        type: string
       Name:
+        type: string
+      NationalId:
         type: string
       Note:
         type: string
@@ -73,7 +116,7 @@ definitions:
         type: string
       Date:
         type: string
-      HistoryId:
+      Id:
         type: string
       Note:
         type: string
@@ -82,6 +125,11 @@ definitions:
       Price:
         type: integer
       Room:
+        type: string
+    type: object
+  model.HistoryCustomerIdRequest:
+    properties:
+      CustomerId:
         type: string
     type: object
   model.HistoryIdRequest:
@@ -120,44 +168,90 @@ info:
   title: CRMS_Swagger
   version: "1.0"
 paths:
-  /customer:
-    delete:
-      description: Delete Customer by CustomerId
-      produces:
+  /citizenshipId:
+    post:
+      consumes:
       - application/json
-      responses:
-        "200":
-          description: 'Message": "Delete success'
-          schema:
-            type: string
-        "500":
-          description: '{"Message": err.Error()}'
-          schema:
-            type: string
-      tags:
-      - Customer
-    get:
-      description: Get Customer by ID
+      description: Get citizenship by ID
       parameters:
-      - description: Customer ID
-        example: L123546789
-        in: query
-        name: ID
+      - description: Citizenship ID
+        in: body
+        name: CitizenshipId
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/model.CitizenshipRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Customer'
+            $ref: '#/definitions/model.Citizenship'
+      tags:
+      - Citizenship
+  /citizenshipNation:
+    post:
+      consumes:
+      - application/json
+      description: Get citizenship by CitizenshipName
+      parameters:
+      - description: Citizenship Nation
+        in: body
+        name: CitizenshipNation
+        required: true
+        schema:
+          $ref: '#/definitions/model.CitizenshipNameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Citizenship'
+      tags:
+      - Citizenship
+  /citizenships:
+    post:
+      consumes:
+      - application/json
+      description: List all citizenships
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Citizenship'
+            type: array
+      tags:
+      - Citizenship
+  /customerCitizenship:
+    post:
+      description: Get all Customers by citizenship
+      parameters:
+      - description: Citizenship
+        in: body
+        name: Citizenship
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerCitizenshipRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Customer'
+            type: array
         "500":
           description: '{"Message": err.Error()}'
           schema:
             type: string
       tags:
       - Customer
+  /customerCre:
     post:
       consumes:
       - application/json
@@ -182,49 +276,23 @@ paths:
             type: string
       tags:
       - Customer
-    put:
-      consumes:
-      - application/json
-      description: Modify Customer
+  /customerDel:
+    post:
+      description: Delete Customer by CustomerId
       parameters:
-      - description: Customer Information
+      - description: Customer ID
         in: body
-        name: Customer
+        name: CustomerId
         required: true
         schema:
-          $ref: '#/definitions/model.CustomerRequest'
+          $ref: '#/definitions/model.CustomerIdRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Customer'
-        "500":
-          description: '{"Message": err.Error()}'
+          description: 'Message": "Delete success'
           schema:
             type: string
-      tags:
-      - Customer
-  /customerCitizenship:
-    get:
-      description: Get all Customers by citizenship
-      parameters:
-      - description: Citizenship
-        example: Taiwan
-        in: query
-        name: Citizenship
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Customer'
-            type: array
         "500":
           description: '{"Message": err.Error()}'
           schema:
@@ -257,7 +325,7 @@ paths:
       tags:
       - Customer
   /customerList:
-    get:
+    post:
       consumes:
       - application/json
       description: Get all Customer
@@ -274,15 +342,41 @@ paths:
             type: string
       tags:
       - Customer
+  /customerMod:
+    post:
+      consumes:
+      - application/json
+      description: Modify Customer
+      parameters:
+      - description: Customer Information
+        in: body
+        name: Customer
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Customer'
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - Customer
   /customerName:
-    get:
+    post:
       description: Get Customer by CustomerName
       parameters:
-      - description: Customer name
-        in: query
-        name: CustomerName
+      - description: Customer Name
+        in: body
+        name: Name
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/model.CustomerNameRequest'
       produces:
       - application/json
       responses:
@@ -296,16 +390,39 @@ paths:
             type: string
       tags:
       - Customer
+  /customerNationalId:
+    post:
+      description: Get Customer by ID
+      parameters:
+      - description: National ID
+        in: body
+        name: ID
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerNationalIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Customer'
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - Customer
   /customerPhone:
-    get:
+    post:
       description: Get Customer by CustomerPhone
       parameters:
-      - description: Customer phone
-        example: "0912345678"
-        in: query
+      - description: Customer Phone
+        in: body
         name: CustomerPhone
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/model.CustomerPhoneRequest'
       produces:
       - application/json
       responses:
@@ -321,102 +438,11 @@ paths:
             type: string
       tags:
       - Customer
-  /history:
-    delete:
-      description: Delete History by HistoryId
-      parameters:
-      - description: History id
-        in: query
-        name: HistoryId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'Message": "Delete success'
-          schema:
-            type: string
-        "500":
-          description: '{"Message": err.Error()}'
-          schema:
-            type: string
-      tags:
-      - History
-    post:
-      description: Create a new History
-      parameters:
-      - description: History Information
-        in: body
-        name: History
-        required: true
-        schema:
-          $ref: '#/definitions/model.HistoryRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.History'
-        "500":
-          description: '{"Message": err.Error()}'
-          schema:
-            type: string
-      tags:
-      - History
-    put:
-      consumes:
-      - application/json
-      description: Modify History
-      parameters:
-      - description: History Information
-        in: body
-        name: History
-        required: true
-        schema:
-          $ref: '#/definitions/model.HistoryRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.History'
-        "500":
-          description: '{"Message": err.Error()}'
-          schema:
-            type: string
-      tags:
-      - History
-  /historyByCustomerId:
-    post:
-      description: Get History By CustomerId
-      parameters:
-      - description: History Information
-        in: body
-        name: History
-        required: true
-        schema:
-          $ref: '#/definitions/model.CustomerIdRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.History'
-        "500":
-          description: 'Message": err.Error()'
-          schema:
-            type: string
-      tags:
-      - History
   /historyByHistoryId:
     post:
-      description: Get History by HistoryId
+      description: Get HistoryService by HistoryId
       parameters:
-      - description: History id
+      - description: HistoryService id
         in: body
         name: HistoryId
         required: true
@@ -435,13 +461,82 @@ paths:
             type: string
       tags:
       - History
+  /historyCre:
+    post:
+      description: Create a new HistoryService
+      parameters:
+      - description: HistoryService Information
+        in: body
+        name: HistoryService
+        required: true
+        schema:
+          $ref: '#/definitions/model.HistoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.History'
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - History
+  /historyCustomerId:
+    post:
+      description: Get HistoryService By CustomerId
+      parameters:
+      - description: HistoryService Information
+        in: body
+        name: HistoryService
+        required: true
+        schema:
+          $ref: '#/definitions/model.HistoryCustomerIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.History'
+        "500":
+          description: 'Message": err.Error()'
+          schema:
+            type: string
+      tags:
+      - History
+  /historyDel:
+    post:
+      description: Delete HistoryService by HistoryId
+      parameters:
+      - description: HistoryService id
+        in: body
+        name: HistoryId
+        required: true
+        schema:
+          $ref: '#/definitions/model.HistoryIdRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Message": "Delete success'
+          schema:
+            type: string
+        "500":
+          description: '{"Message": err.Error()}'
+          schema:
+            type: string
+      tags:
+      - History
   /historyForDate:
     post:
       description: Get Histories For Date
       parameters:
-      - description: History Information
+      - description: HistoryService Information
         in: body
-        name: History
+        name: HistoryService
         required: true
         schema:
           $ref: '#/definitions/model.DateRequest'
@@ -460,11 +555,11 @@ paths:
       - History
   /historyForDuring:
     post:
-      description: Get History For During
+      description: Get HistoryService For During
       parameters:
-      - description: History Information
+      - description: HistoryService Information
         in: body
-        name: History
+        name: HistoryService
         required: true
         schema:
           $ref: '#/definitions/model.DuringRequest'
@@ -482,10 +577,10 @@ paths:
       tags:
       - History
   /historyList:
-    get:
+    post:
       consumes:
       - application/json
-      description: Get all History
+      description: Get all HistoryService
       produces:
       - application/json
       responses:
@@ -495,6 +590,31 @@ paths:
             $ref: '#/definitions/model.History'
         "500":
           description: '{"Message": "Internal Error!"}'
+          schema:
+            type: string
+      tags:
+      - History
+  /historyMod:
+    post:
+      consumes:
+      - application/json
+      description: Modify HistoryService
+      parameters:
+      - description: HistoryService Information
+        in: body
+        name: HistoryService
+        required: true
+        schema:
+          $ref: '#/definitions/model.HistoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.History'
+        "500":
+          description: '{"Message": err.Error()}'
           schema:
             type: string
       tags:

@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
-	"github.com/S1nceU/CRMS/module/customer"
 	"gorm.io/gorm"
 )
 
@@ -10,7 +10,7 @@ type CustomerRepository struct {
 	orm *gorm.DB
 }
 
-func NewCustomerRepository(orm *gorm.DB) customer.Repository {
+func NewCustomerRepository(orm *gorm.DB) domain.CustomerRepository {
 	return &CustomerRepository{
 		orm: orm,
 	}
@@ -22,9 +22,9 @@ func (u *CustomerRepository) ListCustomers() ([]*model.Customer, error) {
 	return customers, err
 }
 
-func (u *CustomerRepository) ListCustomersForCitizenship(customer *model.Customer) ([]*model.Customer, error) {
+func (u *CustomerRepository) ListCustomersByCitizenship(customer *model.Customer) ([]*model.Customer, error) {
 	var customers []*model.Customer
-	err := u.orm.Where("Citizenship = ?", customer.Citizenship).Find(&customers).Error
+	err := u.orm.Where("CitizenshipId = ?", customer.CitizenshipId).Find(&customers).Error
 	return customers, err
 }
 
@@ -40,13 +40,13 @@ func (u *CustomerRepository) ListCustomersByCustomerPhone(customer *model.Custom
 	return customers, err
 }
 
-func (u *CustomerRepository) GetCustomerByID(customer *model.Customer) (*model.Customer, error) {
-	err := u.orm.Where("ID = ?", customer.ID).Find(&customer).Error
+func (u *CustomerRepository) GetCustomerByNationalId(customer *model.Customer) (*model.Customer, error) {
+	err := u.orm.Where("NationalId = ?", customer.NationalId).Find(&customer).Error
 	return customer, err
 }
 
 func (u *CustomerRepository) GetCustomerByCustomerId(customer *model.Customer) (*model.Customer, error) {
-	err := u.orm.Where("customer_id = ?", customer.CustomerId).Find(&customer).Error
+	err := u.orm.Where("Id = ?", customer.Id).Find(&customer).Error
 	return customer, err
 }
 
@@ -56,10 +56,10 @@ func (u *CustomerRepository) CreateCustomer(customer *model.Customer) (*model.Cu
 }
 
 func (u *CustomerRepository) UpdateCustomer(customer *model.Customer) (*model.Customer, error) {
-	err := u.orm.Model(customer).Where("customer_id = ?", customer.CustomerId).Updates(&customer).Error
+	err := u.orm.Model(customer).Where("Id = ?", customer.Id).Updates(&customer).Error
 	return customer, err
 }
 
 func (u *CustomerRepository) DeleteCustomer(customer *model.Customer) error {
-	return u.orm.Where("customer_id = ?", customer.CustomerId).Delete(&customer).Error
+	return u.orm.Where("Id = ?", customer.Id).Delete(&customer).Error
 }

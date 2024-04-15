@@ -2,17 +2,17 @@ package service
 
 import (
 	"errors"
+	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
-	"github.com/S1nceU/CRMS/module/history"
 	"github.com/google/uuid"
 	"time"
 )
 
 type HistoryService struct {
-	repo history.Repository
+	repo domain.HistoryRepository
 }
 
-func NewHistoryService(repo history.Repository) history.Service {
+func NewHistoryService(repo domain.HistoryRepository) domain.HistoryService {
 	return &HistoryService{
 		repo: repo,
 	}
@@ -34,7 +34,7 @@ func (u *HistoryService) ListHistoriesByCustomerId(in uuid.UUID) ([]model.Histor
 		CustomerId: in,
 	}
 	newCustomer := &model.Customer{
-		CustomerId: in,
+		Id: in,
 	}
 	if newCustomer, err = u.repo.ConfirmCustomerExistence(newCustomer); err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (u *HistoryService) ListHistoriesForDuring(in1 string, in2 string) ([]model
 func (u *HistoryService) GetHistoryByHistoryId(in uuid.UUID) (*model.History, error) {
 	var err error
 	newHistory := &model.History{
-		HistoryId: in,
+		Id: in,
 	}
 	if newHistory, err = u.repo.GetHistoryByHistoryId(newHistory); err != nil {
 		return nil, err
@@ -126,7 +126,7 @@ func (u *HistoryService) CreateHistory(in *model.History) (*model.History, error
 	var err error
 	var newHistory *model.History
 	newCustomer := &model.Customer{
-		CustomerId: in.CustomerId,
+		Id: in.CustomerId,
 	}
 	if newCustomer, err = u.repo.ConfirmCustomerExistence(newCustomer); err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (u *HistoryService) CreateHistory(in *model.History) (*model.History, error
 	if _, err = u.repo.ListHistoriesByCustomer(in); err != nil {
 		return nil, err
 	}
-	in.HistoryId = uuid.New()
+	in.Id = uuid.New()
 	if newHistory, err = u.repo.CreateHistory(in); err != nil {
 		return nil, err
 	}
@@ -153,12 +153,12 @@ func (u *HistoryService) UpdateHistory(in *model.History) (*model.History, error
 	var err error
 	var newHistory *model.History
 	newCustomer := &model.Customer{
-		CustomerId: in.CustomerId,
+		Id: in.CustomerId,
 	}
 	if newCustomer, err = u.repo.ConfirmCustomerExistence(newCustomer); err != nil {
 		return nil, err
 	}
-	if newHistory, err = u.GetHistoryByHistoryId(in.HistoryId); err != nil {
+	if newHistory, err = u.GetHistoryByHistoryId(in.Id); err != nil {
 		return nil, err
 	}
 
@@ -171,7 +171,7 @@ func (u *HistoryService) UpdateHistory(in *model.History) (*model.History, error
 	if err = validateHistoryInfo(in); err != nil {
 		return nil, err
 	}
-	if _, err = u.GetHistoryByHistoryId(in.HistoryId); err != nil {
+	if _, err = u.GetHistoryByHistoryId(in.Id); err != nil {
 		return nil, err
 	}
 	if newHistory, err = u.repo.UpdateHistory(in); err != nil {
@@ -184,9 +184,9 @@ func (u *HistoryService) UpdateHistory(in *model.History) (*model.History, error
 func (u *HistoryService) DeleteHistory(in uuid.UUID) error {
 	var err error
 	newHistory := &model.History{
-		HistoryId: in,
+		Id: in,
 	}
-	if _, err = u.GetHistoryByHistoryId(newHistory.HistoryId); err != nil {
+	if _, err = u.GetHistoryByHistoryId(newHistory.Id); err != nil {
 		return err
 	}
 	if err = u.repo.DeleteHistory(newHistory); err != nil {
@@ -211,24 +211,24 @@ func (u *HistoryService) DeleteHistoriesByCustomer(in uuid.UUID) error {
 
 func convertToSliceOfHistory(histories []*model.History) []model.History {
 	var historiesSlice []model.History
-	for i := 0; i < len(histories); i++ {
-		historiesSlice = append(historiesSlice, *histories[i])
+	for _, history := range histories {
+		historiesSlice = append(historiesSlice, *history)
 	}
 	return historiesSlice
 }
 
 func validateHistoryInfo(history *model.History) error {
 	if history.CustomerId == uuid.Nil {
-		return errors.New("error CRMS : History Info is incomplete")
+		return errors.New("error CRMS : HistoryService Info is incomplete")
 	}
 	if history.Date.IsZero() {
-		return errors.New("error CRMS : History Info is incomplete")
+		return errors.New("error CRMS : HistoryService Info is incomplete")
 	}
 	if history.NumberOfPeople == 0 {
-		return errors.New("error CRMS : History Info is incomplete")
+		return errors.New("error CRMS : HistoryService Info is incomplete")
 	}
 	if history.Price == 0 {
-		return errors.New("error CRMS : History Info is incomplete")
+		return errors.New("error CRMS : HistoryService Info is incomplete")
 	}
 	return nil
 }
