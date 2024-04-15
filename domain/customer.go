@@ -11,7 +11,7 @@ type CustomerRepository interface {
 	ListCustomersByCitizenship(customer *model.Customer) ([]*model.Customer, error)   // Get all Customers by Citizenship
 	ListCustomersByCustomerName(customer *model.Customer) ([]*model.Customer, error)  // Get Customer by CustomerName
 	ListCustomersByCustomerPhone(customer *model.Customer) ([]*model.Customer, error) // Get Customer by CustomerPhone
-	GetCustomerByID(customer *model.Customer) (*model.Customer, error)                // Get Customer by ID
+	GetCustomerByNationalId(customer *model.Customer) (*model.Customer, error)        // Get Customer by ID
 	GetCustomerByCustomerId(customer *model.Customer) (*model.Customer, error)        // Get Customer by CustomerId
 	CreateCustomer(customer *model.Customer) (*model.Customer, error)                 // Create a new Customer
 	UpdateCustomer(customer *model.Customer) (*model.Customer, error)                 // Update Customer data
@@ -24,7 +24,7 @@ type CustomerService interface {
 	ListCustomersByCitizenship(citizenship int) ([]model.Customer, error)  // Get all Customers by citizenship
 	ListCustomersByCustomerName(name string) ([]model.Customer, error)     // Get Customer by customer_name
 	ListCustomersByCustomerPhone(phone string) ([]model.Customer, error)   // Get Customer by customer_phone
-	GetCustomerByID(id string) (*model.Customer, error)                    // Get Customer by ID
+	GetCustomerByNationalId(id string) (*model.Customer, error)            // Get Customer by ID
 	GetCustomerByCustomerId(customerId uuid.UUID) (*model.Customer, error) // Get Customer by customer_id
 	CreateCustomer(customer *model.Customer) (*model.Customer, error)      // Create a new Customer
 	UpdateCustomer(customer *model.Customer) (*model.Customer, error)      // Update customer data

@@ -15,6 +15,9 @@ import (
 	_ "github.com/S1nceU/CRMS/docs"
 	"github.com/S1nceU/CRMS/model"
 
+	_citizenshipHandlerHttpDelivery "github.com/S1nceU/CRMS/module/citizenship/delivery/http"
+	_citizenshipRepo "github.com/S1nceU/CRMS/module/citizenship/repository"
+	_citizenshipSer "github.com/S1nceU/CRMS/module/citizenship/service"
 	_customerHandlerHttpDelivery "github.com/S1nceU/CRMS/module/customer/delivery/http"
 	_customerRepo "github.com/S1nceU/CRMS/module/customer/repository"
 	_customerSer "github.com/S1nceU/CRMS/module/customer/service"
@@ -87,6 +90,9 @@ func init() {
 				return
 			}
 			config.ImportCitizenshipData(db)
+			if err = db.AutoMigrate(&model.Customer{}); err != nil {
+				return
+			}
 		}
 	}
 }
@@ -100,13 +106,16 @@ func main() {
 	customerRepo := _customerRepo.NewCustomerRepository(db)
 	historyRepo := _historyRepo.NewHistoryRepository(db)
 	userRepo := _userRepo.NewUserRepository(db)
+	citizenshipRepo := _citizenshipRepo.NewCitizenshipRepository(db)
 
 	customerSer := _customerSer.NewCustomerService(customerRepo)
 	historySer := _historySer.NewHistoryService(historyRepo)
 	userSer := _userSer.NewUserService(userRepo)
+	citizenshipSer := _citizenshipSer.NewCitizenshipService(citizenshipRepo)
 
 	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer, historySer)
 	_historyHandlerHttpDelivery.NewHistoryHandler(router, historySer)
+	_citizenshipHandlerHttpDelivery.NewCitizenshipHandler(router, citizenshipSer)
 	_ = userSer
 
 	route.NewRoute(router)

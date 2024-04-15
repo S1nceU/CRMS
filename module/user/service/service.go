@@ -31,7 +31,7 @@ func (u *UserService) UpdateUser(user *model.User) (*model.User, error) {
 func (u *UserService) DeleteUser(userId uuid.UUID) error {
 	var err error
 	newUser := &model.User{
-		UserId: userId,
+		Id: userId,
 	}
 	err = u.repo.DeleteUser(newUser)
 	return err
@@ -40,7 +40,7 @@ func (u *UserService) DeleteUser(userId uuid.UUID) error {
 func (u *UserService) GetUserByUserId(userId uuid.UUID) (*model.User, error) {
 	var err error
 	newUser := &model.User{
-		UserId: userId,
+		Id: userId,
 	}
 	newUser, err = u.repo.GetUserByUserId(newUser)
 	return newUser, err

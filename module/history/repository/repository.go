@@ -41,7 +41,7 @@ func (u *HistoryRepository) ListHistoriesForDuring(history1 *model.History, hist
 }
 
 func (u *HistoryRepository) GetHistoryByHistoryId(history *model.History) (*model.History, error) {
-	err := u.orm.Where("HistoryId = ?", history.HistoryId).Find(&history).Error
+	err := u.orm.Where("Id = ?", history.Id).Find(&history).Error
 	return history, err
 }
 
@@ -51,12 +51,12 @@ func (u *HistoryRepository) CreateHistory(history *model.History) (*model.Histor
 }
 
 func (u *HistoryRepository) UpdateHistory(history *model.History) (*model.History, error) {
-	err := u.orm.Model(history).Where("HistoryId = ?", history.HistoryId).Updates(&history).Error
+	err := u.orm.Model(history).Where("Id = ?", history.Id).Updates(&history).Error
 	return history, err
 }
 
 func (u *HistoryRepository) DeleteHistory(history *model.History) error {
-	err := u.orm.Where("HistoryId = ?", history.HistoryId).Delete(&history).Error
+	err := u.orm.Where("Id = ?", history.Id).Delete(&history).Error
 	return err
 }
 
@@ -66,6 +66,6 @@ func (u *HistoryRepository) DeleteHistoriesByCustomer(history *model.History) er
 }
 
 func (u *HistoryRepository) ConfirmCustomerExistence(customer *model.Customer) (*model.Customer, error) {
-	err := u.orm.Where("CustomerId = ?", customer.CustomerId).Find(&customer).Error
+	err := u.orm.Where("Id = ?", customer.Id).Find(&customer).Error
 	return customer, err
 }

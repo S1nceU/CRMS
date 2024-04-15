@@ -28,17 +28,17 @@ func (u *UserRepository) CreateUser(user *model.User) (*model.User, error) {
 }
 
 func (u *UserRepository) UpdateUser(user *model.User) (*model.User, error) {
-	err := u.orm.Model(user).Where("user_id = ?", user.UserId).Updates(&user).Error
+	err := u.orm.Model(user).Where("user_id = ?", user.Id).Updates(&user).Error
 	return user, err
 }
 
 func (u *UserRepository) DeleteUser(user *model.User) error {
-	err := u.orm.Where("user_id = ?", user.UserId).Delete(&user).Error
+	err := u.orm.Where("user_id = ?", user.Id).Delete(&user).Error
 	return err
 }
 
 func (u *UserRepository) GetUserByUserId(user *model.User) (*model.User, error) {
-	err := u.orm.Where("user_id = ?", user.UserId).Find(&user).Error
+	err := u.orm.Where("user_id = ?", user.Id).Find(&user).Error
 	return user, err
 }
 
