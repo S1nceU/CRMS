@@ -75,3 +75,14 @@ type CitizenshipRequest struct {
 type CitizenshipNameRequest struct {
 	CitizenshipName string `json:"CitizenshipName"`
 }
+
+// User Request
+
+type UserLoginRequest struct {
+	Username string `json:"Username"`
+	Password string `json:"Password"`
+}
+
+type UserTokenRequest struct {
+	Token string `json:"Token"`
+}

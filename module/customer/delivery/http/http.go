@@ -4,6 +4,7 @@ import (
 	"github.com/S1nceU/CRMS/domain"
 	"github.com/S1nceU/CRMS/model"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"time"
 )
@@ -101,6 +102,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 		})
 		return
 	}
+	log.Println(request)
 	createCustomer, err := transformToCustomer(request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -127,6 +129,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 			return
 		}
 	}
+
 	c.JSON(http.StatusOK, createCustomer)
 }
 

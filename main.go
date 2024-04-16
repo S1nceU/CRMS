@@ -24,6 +24,7 @@ import (
 	_historyHandlerHttpDelivery "github.com/S1nceU/CRMS/module/history/delivery/http"
 	_historyRepo "github.com/S1nceU/CRMS/module/history/repository"
 	_historySer "github.com/S1nceU/CRMS/module/history/service"
+	_userHandlerHttpDelivery "github.com/S1nceU/CRMS/module/user/delivery/http"
 	_userRepo "github.com/S1nceU/CRMS/module/user/repository"
 	_userSer "github.com/S1nceU/CRMS/module/user/service"
 	"github.com/S1nceU/CRMS/route"
@@ -101,7 +102,7 @@ func main() {
 
 	gin.SetMode(config.Val.Mode)
 	router := gin.Default()
-	router.Use(route.Cors())
+	router.Use(route.Cors()) // CORS middleware
 
 	customerRepo := _customerRepo.NewCustomerRepository(db)
 	historyRepo := _historyRepo.NewHistoryRepository(db)
@@ -116,7 +117,7 @@ func main() {
 	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer, historySer)
 	_historyHandlerHttpDelivery.NewHistoryHandler(router, historySer)
 	_citizenshipHandlerHttpDelivery.NewCitizenshipHandler(router, citizenshipSer)
-	_ = userSer
+	_userHandlerHttpDelivery.NewUserHandler(router, userSer)
 
 	route.NewRoute(router)
 
