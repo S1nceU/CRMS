@@ -673,4 +673,25 @@ paths:
             type: string
       tags:
       - User
+  /userLogout:
+    post:
+      consumes:
+      - application/json
+      description: Logout
+      parameters:
+      - description: User JWT Token
+        in: body
+        name: UserTokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - User
 swagger: "2.0"
