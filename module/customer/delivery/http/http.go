@@ -48,7 +48,10 @@ func (u *CustomerHandler) ListCustomers(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, customerList)
+	c.JSON(http.StatusOK, gin.H{
+		"Message":   "List all customers",
+		"customers": customerList,
+	})
 }
 
 // GetCustomerByNationalId @Summary GetCustomerByNationalId

@@ -36,27 +36,35 @@ func NewUserHandler(e *gin.Engine, ser domain.UserService) {
 func (u *UserHandler) Login(c *gin.Context) {
 	request := model.UserLoginRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
 	token, err := u.ser.Login(request.Username, request.Password)
 
 	if err != nil {
 		if err.Error() == "user not found" {
-			c.JSON(http.StatusOK, gin.H{"msg": err.Error()})
+			c.JSON(http.StatusOK, gin.H{
+				"Message": err.Error(),
+			})
 			return
 		}
 		if err.Error() == "password is incorrect" {
-			c.JSON(http.StatusOK, gin.H{"msg": err.Error()})
+			c.JSON(http.StatusOK, gin.H{
+				"Message": err.Error(),
+			})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
-	c.SetCookie("token", token, int(_userSer.TokenExpireDuration.Seconds()), "/", "", false, true) // When the docker container is running, the domain should be changed to "localhost"
+	c.SetCookie("token", token, int(_userSer.TokenExpireDuration.Seconds()), "/", "", false, true) // When CRMS runs in the docker container, the domain should be changed to "localhost"
 	c.JSON(http.StatusOK, gin.H{
-		"msg":   "Login successfully",
-		"token": token,
+		"Message": "Login successfully",
+		"token":   token,
 	})
 }
 
@@ -71,12 +79,16 @@ func (u *UserHandler) Login(c *gin.Context) {
 func (u *UserHandler) Authentication(c *gin.Context) {
 	request := model.UserTokenRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
 
 	if _, err := c.Cookie("token"); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"msg": "Authentication failed"})
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"Message": "Authentication failed",
+		})
 		return
 	}
 
@@ -84,14 +96,18 @@ func (u *UserHandler) Authentication(c *gin.Context) {
 
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "token is expired") {
-			c.JSON(http.StatusUnauthorized, gin.H{"msg": err.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"Message": err.Error(),
+			})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"msg":      "Authentication successfully",
+		"Message":  "Authentication successfully",
 		"username": username,
 	})
 }
@@ -107,12 +123,16 @@ func (u *UserHandler) Authentication(c *gin.Context) {
 func (u *UserHandler) Logout(c *gin.Context) {
 	request := model.UserTokenRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
 
 	if _, err := c.Cookie("token"); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"msg": "Not logged in yet"})
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"Message": "Not logged in yet",
+		})
 		return
 	}
 
@@ -120,14 +140,18 @@ func (u *UserHandler) Logout(c *gin.Context) {
 
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "token is expired") {
-			c.JSON(http.StatusUnauthorized, gin.H{"msg": err.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"Message": err.Error(),
+			})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
-	c.SetCookie("token", "", -1, "/", "", false, true) // When the docker container is running, the domain should be changed to "localhost"
+	c.SetCookie("token", "", -1, "/", "", false, true) // When CRMS runs in the docker container, the domain should be changed to "localhost"
 	c.JSON(http.StatusOK, gin.H{
-		"msg": "Logout successfully",
+		"Message": "Logout successfully",
 	})
 }

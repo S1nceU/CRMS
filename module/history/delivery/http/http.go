@@ -47,7 +47,10 @@ func (u *HistoryHandler) ListHistories(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, historyList)
+	c.JSON(http.StatusOK, gin.H{
+		"Message":   "List all histories",
+		"histories": historyList,
+	})
 }
 
 // GetHistoryByHistoryId @Summary GetHistoryByHistoryId

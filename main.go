@@ -147,5 +147,12 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
+
+	log.Println("Closing DB connection")
+	sqlDB, _ := db.DB()
+	if err := sqlDB.Close(); err != nil {
+		log.Fatalf("Error closing DB connection: %v", err)
+	}
+
 	log.Println("Server exiting")
 }
