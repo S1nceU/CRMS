@@ -1,0 +1,968 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "CRMS_Swagger information",
+        "title": "CRMS_Swagger",
+        "termsOfService": "http://www.google.com",
+        "contact": {
+            "name": "Jason Yang",
+            "url": "http://www.google.com",
+            "email": "jjkk900925@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "127.0.0.1:8080",
+    "basePath": "/api",
+    "paths": {
+        "/citizenshipId": {
+            "post": {
+                "description": "Get citizenship by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizenship"
+                ],
+                "parameters": [
+                    {
+                        "description": "Citizenship ID",
+                        "name": "CitizenshipId",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CitizenshipRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Citizenship"
+                        }
+                    }
+                }
+            }
+        },
+        "/citizenshipNation": {
+            "post": {
+                "description": "Get citizenship by CitizenshipName",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizenship"
+                ],
+                "parameters": [
+                    {
+                        "description": "Citizenship Nation",
+                        "name": "CitizenshipNation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CitizenshipNameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Citizenship"
+                        }
+                    }
+                }
+            }
+        },
+        "/citizenships": {
+            "post": {
+                "description": "List all citizenships",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizenship"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Citizenship"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/customerCitizenship": {
+            "post": {
+                "description": "Get all Customers by citizenship",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "description": "Citizenship",
+                        "name": "Citizenship",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerCitizenshipRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Customer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customerCre": {
+            "post": {
+                "description": "Create a new Customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "description": "Customer Information",
+                        "name": "Customer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Customer"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customerDel": {
+            "post": {
+                "description": "Delete Customer by CustomerId",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "description": "Customer ID",
+                        "name": "CustomerId",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerIdRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message\": \"Delete success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customerID": {
+            "post": {
+                "description": "Get Customer by CustomerID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "description": "Customer id",
+                        "name": "CustomerId",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerIdRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Customer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customerList": {
+            "post": {
+                "description": "Get all Customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Customer"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": \"Internal Error!\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customerMod": {
+            "post": {
+                "description": "Modify Customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "description": "Customer Information",
+                        "name": "Customer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Customer"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customerName": {
+            "post": {
+                "description": "Get Customer by CustomerName",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "description": "Customer Name",
+                        "name": "Name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerNameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message\": \"Delete success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customerNationalId": {
+            "post": {
+                "description": "Get Customer by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "description": "National ID",
+                        "name": "ID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerNationalIdRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Customer"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customerPhone": {
+            "post": {
+                "description": "Get Customer by CustomerPhone",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "parameters": [
+                    {
+                        "description": "Customer Phone",
+                        "name": "CustomerPhone",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerPhoneRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Customer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyByHistoryId": {
+            "post": {
+                "description": "Get HistoryService by HistoryId",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "description": "HistoryService id",
+                        "name": "HistoryId",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.HistoryIdRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.History"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyCre": {
+            "post": {
+                "description": "Create a new HistoryService",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "description": "HistoryService Information",
+                        "name": "HistoryService",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.HistoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.History"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyCustomerId": {
+            "post": {
+                "description": "Get HistoryService By CustomerId",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "description": "HistoryService Information",
+                        "name": "HistoryService",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.HistoryCustomerIdRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.History"
+                        }
+                    },
+                    "500": {
+                        "description": "Message\": err.Error()",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyDel": {
+            "post": {
+                "description": "Delete HistoryService by HistoryId",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "description": "HistoryService id",
+                        "name": "HistoryId",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.HistoryIdRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message\": \"Delete success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyForDate": {
+            "post": {
+                "description": "Get Histories For Date",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "description": "HistoryService Information",
+                        "name": "HistoryService",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.History"
+                        }
+                    },
+                    "500": {
+                        "description": "Message\": err.Error()",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyForDuring": {
+            "post": {
+                "description": "Get HistoryService For During",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "description": "HistoryService Information",
+                        "name": "HistoryService",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DuringRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.History"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyList": {
+            "post": {
+                "description": "Get all HistoryService",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.History"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": \"Internal Error!\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyMod": {
+            "post": {
+                "description": "Modify HistoryService",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "parameters": [
+                    {
+                        "description": "HistoryService Information",
+                        "name": "HistoryService",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.HistoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.History"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"Message\": err.Error()}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.Citizenship": {
+            "type": "object",
+            "properties": {
+                "Alpha3": {
+                    "type": "string"
+                },
+                "Id": {
+                    "type": "integer"
+                },
+                "Nation": {
+                    "type": "string"
+                },
+                "customer": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Customer"
+                    }
+                }
+            }
+        },
+        "model.CitizenshipNameRequest": {
+            "type": "object",
+            "properties": {
+                "CitizenshipName": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CitizenshipRequest": {
+            "type": "object",
+            "properties": {
+                "CitizenshipId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.Customer": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "Birthday": {
+                    "type": "string"
+                },
+                "CarNumber": {
+                    "type": "string"
+                },
+                "CitizenshipId": {
+                    "type": "integer"
+                },
+                "Gender": {
+                    "type": "string"
+                },
+                "Id": {
+                    "type": "string"
+                },
+                "Name": {
+                    "type": "string"
+                },
+                "NationalId": {
+                    "type": "string"
+                },
+                "Note": {
+                    "type": "string"
+                },
+                "PhoneNumber": {
+                    "type": "string"
+                },
+                "histories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.History"
+                    }
+                }
+            }
+        },
+        "model.CustomerCitizenshipRequest": {
+            "type": "object",
+            "properties": {
+                "Citizenship": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CustomerIdRequest": {
+            "type": "object",
+            "properties": {
+                "CustomerId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CustomerNameRequest": {
+            "type": "object",
+            "properties": {
+                "Name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CustomerNationalIdRequest": {
+            "type": "object",
+            "properties": {
+                "NationalId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CustomerPhoneRequest": {
+            "type": "object",
+            "properties": {
+                "PhoneNumber": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CustomerRequest": {
+            "type": "object",
+            "properties": {
+                "Address": {
+                    "type": "string"
+                },
+                "Birthday": {
+                    "type": "string"
+                },
+                "CarNumber": {
+                    "type": "string"
+                },
+                "Citizenship": {
+                    "type": "integer"
+                },
+                "CustomerId": {
+                    "type": "string"
+                },
+                "Gender": {
+                    "type": "string"
+                },
+                "Name": {
+                    "type": "string"
+                },
+                "NationalId": {
+                    "type": "string"
+                },
+                "Note": {
+                    "type": "string"
+                },
+                "PhoneNumber": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DateRequest": {
+            "type": "object",
+            "properties": {
+                "Date": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DuringRequest": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.History": {
+            "type": "object",
+            "properties": {
+                "CustomerId": {
+                    "type": "string"
+                },
+                "Date": {
+                    "type": "string"
+                },
+                "Id": {
+                    "type": "string"
+                },
+                "Note": {
+                    "type": "string"
+                },
+                "NumberOfPeople": {
+                    "type": "integer"
+                },
+                "Price": {
+                    "type": "integer"
+                },
+                "Room": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.HistoryCustomerIdRequest": {
+            "type": "object",
+            "properties": {
+                "CustomerId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.HistoryIdRequest": {
+            "type": "object",
+            "properties": {
+                "HistoryId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.HistoryRequest": {
+            "type": "object",
+            "properties": {
+                "CustomerId": {
+                    "type": "string"
+                },
+                "Date": {
+                    "type": "string"
+                },
+                "HistoryId": {
+                    "type": "string"
+                },
+                "Note": {
+                    "type": "string"
+                },
+                "NumberOfPeople": {
+                    "type": "integer"
+                },
+                "Price": {
+                    "type": "integer"
+                },
+                "Room": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
