@@ -1,7 +1,19 @@
 version = 1
 
 [[analyzers]]
+name = "javascript"
+enabled = true
+root = "apps/frontend"
+  
+  [analyzers.meta]
+  target = "esnext"
+  package_manager = "npm"
+
+
+[[analyzers]]
 name = "go"
+enabled = true
+root = "apps/api"
 
   [analyzers.meta]
   import_root = "github.com/S1nceU/CRMS"
