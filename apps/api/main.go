@@ -77,6 +77,13 @@ func init() {
 	} else {
 		log.Println("Connect to DB successfully")
 		var err error
+		if !db.Migrator().HasTable("citizenships") {
+			if err = db.AutoMigrate(&model.Citizenship{}); err != nil {
+				return
+			}
+			config.ImportCitizenshipData(db)
+			log.Println("Init citizenship data successfully")
+		}
 		if err = db.AutoMigrate(&model.Customer{}); err != nil {
 			return
 		}
@@ -85,15 +92,6 @@ func init() {
 		}
 		if err = db.AutoMigrate(&model.User{}); err != nil {
 			return
-		}
-		if !db.Migrator().HasTable("citizenships") {
-			if err = db.AutoMigrate(&model.Citizenship{}); err != nil {
-				return
-			}
-			config.ImportCitizenshipData(db)
-			if err = db.AutoMigrate(&model.Customer{}); err != nil {
-				return
-			}
 		}
 	}
 }
@@ -114,7 +112,7 @@ func main() {
 	userSer := _userSer.NewUserService(userRepo)
 	citizenshipSer := _citizenshipSer.NewCitizenshipService(citizenshipRepo)
 
-	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer, historySer)
+	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer)
 	_historyHandlerHttpDelivery.NewHistoryHandler(router, historySer)
 	_citizenshipHandlerHttpDelivery.NewCitizenshipHandler(router, citizenshipSer)
 	_userHandlerHttpDelivery.NewUserHandler(router, userSer)
