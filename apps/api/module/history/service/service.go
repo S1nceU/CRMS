@@ -18,7 +18,7 @@ func NewHistoryService(repo domain.HistoryRepository) domain.HistoryService {
 	}
 }
 
-func (u *HistoryService) ListHistories() ([]model.History, error) {
+func (u *HistoryService) ListHistories() ([]*model.History, error) {
 	var err error
 	var point []*model.History
 	if point, err = u.repo.ListHistories(); err != nil {
@@ -27,7 +27,7 @@ func (u *HistoryService) ListHistories() ([]model.History, error) {
 	return convertToSliceOfHistory(point), err
 }
 
-func (u *HistoryService) ListHistoriesByCustomerId(in uuid.UUID) ([]model.History, error) {
+func (u *HistoryService) ListHistoriesByCustomerId(in uuid.UUID) ([]*model.History, error) {
 	var err error
 	var point []*model.History
 	newHistory := &model.History{
@@ -50,7 +50,7 @@ func (u *HistoryService) ListHistoriesByCustomerId(in uuid.UUID) ([]model.Histor
 	return convertToSliceOfHistory(point), err
 }
 
-func (u *HistoryService) ListHistoriesForDate(in string) ([]model.History, error) {
+func (u *HistoryService) ListHistoriesForDate(in string) ([]*model.History, error) {
 	var err error
 	var point []*model.History
 	var date time.Time
@@ -72,7 +72,7 @@ func (u *HistoryService) ListHistoriesForDate(in string) ([]model.History, error
 	return convertToSliceOfHistory(point), err
 }
 
-func (u *HistoryService) ListHistoriesForDuring(in1 string, in2 string) ([]model.History, error) {
+func (u *HistoryService) ListHistoriesForDuring(in1 string, in2 string) ([]*model.History, error) {
 	var err error
 	var point []*model.History
 	var date1 time.Time
@@ -209,10 +209,10 @@ func (u *HistoryService) DeleteHistoriesByCustomer(in uuid.UUID) error {
 	return nil
 }
 
-func convertToSliceOfHistory(histories []*model.History) []model.History {
-	var historiesSlice []model.History
+func convertToSliceOfHistory(histories []*model.History) []*model.History {
+	var historiesSlice []*model.History
 	for _, history := range histories {
-		historiesSlice = append(historiesSlice, *history)
+		historiesSlice = append(historiesSlice, history)
 	}
 	return historiesSlice
 }

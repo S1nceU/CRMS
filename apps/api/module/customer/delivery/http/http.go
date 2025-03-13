@@ -10,13 +10,11 @@ import (
 
 type CustomerHandler struct {
 	customerSer domain.CustomerService
-	historySer  domain.HistoryService // if frontend can block delete customer when this customer have history, we can remove this line
 }
 
-func NewCustomerHandler(e *gin.Engine, customerSer domain.CustomerService, historySer domain.HistoryService) {
+func NewCustomerHandler(e *gin.Engine, customerSer domain.CustomerService) {
 	handler := &CustomerHandler{
 		customerSer: customerSer,
-		historySer:  historySer,
 	}
 	api := e.Group("/api")
 	{
@@ -48,7 +46,10 @@ func (u *CustomerHandler) ListCustomers(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, customerList)
+	c.JSON(http.StatusOK, gin.H{
+		"Message":   "List all customers",
+		"customers": customerList,
+	})
 }
 
 // GetCustomerByNationalId @Summary GetCustomerByNationalId
@@ -127,6 +128,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 			return
 		}
 	}
+
 	c.JSON(http.StatusOK, createCustomer)
 }
 
@@ -195,21 +197,7 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 		})
 		return
 	}
-	err := u.historySer.DeleteHistoriesByCustomer(request.CustomerId)
-	if err != nil {
-		if err.Error() == "error CRMS : There is no this customer" {
-			c.JSON(http.StatusOK, gin.H{
-				"Message": err.Error(),
-			})
-			return
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"Message": err.Error(),
-			})
-			return
-		}
-	}
-	err = u.customerSer.DeleteCustomer(request.CustomerId)
+	err := u.customerSer.DeleteCustomer(request.CustomerId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -244,7 +232,7 @@ func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
 		})
 		return
 	}
-	customerData, err := u.customerSer.ListCustomersByCustomerName(request.Name)
+	customerData, err := u.customerSer.ListCustomersByName(request.Name)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{
@@ -321,7 +309,7 @@ func (u *CustomerHandler) GetCustomerByCustomerPhone(c *gin.Context) {
 		})
 		return
 	}
-	customerData, err := u.customerSer.ListCustomersByCustomerPhone(request.PhoneNumber)
+	customerData, err := u.customerSer.ListCustomersByPhone(request.PhoneNumber)
 	if err != nil {
 		if err.Error() == "error CRMS : Customer Info is incomplete" {
 			c.JSON(http.StatusOK, gin.H{

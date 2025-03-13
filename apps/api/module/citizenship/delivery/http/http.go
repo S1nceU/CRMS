@@ -33,10 +33,15 @@ func NewCitizenshipHandler(e *gin.Engine, service domain.CitizenshipService) {
 func (u *CitizenshipHandler) ListCitizenships(c *gin.Context) {
 	citizenships, err := u.service.ListCitizenships()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"citizenships": citizenships})
+	c.JSON(http.StatusOK, gin.H{
+		"Message":      "List all citizenships",
+		"citizenships": citizenships,
+	})
 }
 
 // GetCitizenshipByID @Summary GetCitizenshipByID
@@ -57,10 +62,15 @@ func (u *CitizenshipHandler) GetCitizenshipByID(c *gin.Context) {
 	}
 	citizenship, err := u.service.GetCitizenshipByID(request.CitizenshipId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"citizenship": citizenship})
+	c.JSON(http.StatusOK, gin.H{
+		"Message":     "Get citizenship by ID",
+		"citizenship": citizenship,
+	})
 }
 
 // GetCitizenshipByCitizenshipName @Summary GetCitizenshipByCitizenshipName
@@ -81,8 +91,13 @@ func (u *CitizenshipHandler) GetCitizenshipByCitizenshipName(c *gin.Context) {
 	}
 	citizenship, err := u.service.GetCitizenshipByCitizenshipName(request.CitizenshipName)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"citizenship": citizenship})
+	c.JSON(http.StatusOK, gin.H{
+		"Message":     "Get citizenship by CitizenshipName",
+		"citizenship": citizenship,
+	})
 }
