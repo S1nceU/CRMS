@@ -11,7 +11,7 @@ type CitizenshipRepository interface {
 
 // CitizenshipService is an interface for citizenship service
 type CitizenshipService interface {
-	ListCitizenships() ([]model.Citizenship, error)                                     // Get all Citizenships
+	ListCitizenships() ([]*model.Citizenship, error)                                    // Get all Citizenships
 	GetCitizenshipByID(id int) (*model.Citizenship, error)                              // Get Citizenship by ID
 	GetCitizenshipByCitizenshipName(citizenshipName string) (*model.Citizenship, error) // Get Citizenship by CitizenshipName
 }
