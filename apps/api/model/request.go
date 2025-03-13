@@ -17,7 +17,7 @@ type CustomerRequest struct {
 	Address     string    `json:"Address"`
 	PhoneNumber string    `json:"PhoneNumber"`
 	CarNumber   string    `json:"CarNumber"`
-	Citizenship int       `json:"Citizenship"`
+	Citizenship int       `json:"CitizenshipId"`
 	Note        string    `json:"Note"`
 }
 
