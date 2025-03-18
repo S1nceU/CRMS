@@ -1,4 +1,4 @@
-module github.com/S1nceU/CRMS
+module github.com/S1nceU/CRMS/apps/api
 
 go 1.21.3
 

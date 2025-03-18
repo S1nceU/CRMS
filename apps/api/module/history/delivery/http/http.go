@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
