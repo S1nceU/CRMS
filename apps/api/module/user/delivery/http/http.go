@@ -1,9 +1,9 @@
 package http
 
 import (
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
-	_userSer "github.com/S1nceU/CRMS/module/user/service"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model"
+	_userSer "github.com/S1nceU/CRMS/apps/api/module/user/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"

@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/google/uuid"
 )
 
