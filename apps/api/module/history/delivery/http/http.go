@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model"
+	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -62,7 +63,7 @@ func (u *HistoryHandler) ListHistories(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyByHistoryId [post]
 func (u *HistoryHandler) GetHistoryByHistoryId(c *gin.Context) {
-	request := model.HistoryIdRequest{}
+	request := dto.HistoryIdRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -95,7 +96,7 @@ func (u *HistoryHandler) GetHistoryByHistoryId(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyCre [post]
 func (u *HistoryHandler) CreateHistory(c *gin.Context) {
-	request := model.HistoryRequest{}
+	request := dto.HistoryRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -142,7 +143,7 @@ func (u *HistoryHandler) CreateHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyMod [post]
 func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
-	request := model.HistoryRequest{}
+	request := dto.HistoryRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -193,7 +194,7 @@ func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyDel [post]
 func (u *HistoryHandler) DeleteHistory(c *gin.Context) {
-	request := model.HistoryIdRequest{}
+	request := dto.HistoryIdRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -228,7 +229,7 @@ func (u *HistoryHandler) DeleteHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyForDuring [post]
 func (u *HistoryHandler) GetHistoryForDuring(c *gin.Context) {
-	request := model.DuringRequest{}
+	request := dto.DuringRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -277,7 +278,7 @@ func (u *HistoryHandler) GetHistoryForDuring(c *gin.Context) {
 // @Failure 500 {string} string "Message": err.Error()"
 // @Router /historyForDate [post]
 func (u *HistoryHandler) GetHistoriesForDate(c *gin.Context) {
-	request := model.DateRequest{}
+	request := dto.DateRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -325,7 +326,7 @@ func (u *HistoryHandler) GetHistoriesForDate(c *gin.Context) {
 // @Failure 500 {string} string "Message": err.Error()"
 // @Router /historyCustomerId [post]
 func (u *HistoryHandler) GetHistoryByCustomerId(c *gin.Context) {
-	request := model.HistoryCustomerIdRequest{}
+	request := dto.HistoryCustomerIdRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -349,7 +350,7 @@ func (u *HistoryHandler) GetHistoryByCustomerId(c *gin.Context) {
 	c.JSON(http.StatusOK, historyData)
 }
 
-func transformToHistory(requestData model.HistoryRequest) (*model.History, error) {
+func transformToHistory(requestData dto.HistoryRequest) (*model.History, error) {
 	date, err := time.ParseInLocation("2006-01-02", requestData.Date, time.Local)
 	if err != nil {
 		return nil, err
