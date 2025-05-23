@@ -1,9 +1,9 @@
 package http
 
 import (
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
-	_userSer "github.com/S1nceU/CRMS/module/user/service"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model/dto"
+	_userSer "github.com/S1nceU/CRMS/apps/api/module/user/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
@@ -34,7 +34,7 @@ func NewUserHandler(e *gin.Engine, ser domain.UserService) {
 // @Success 200 {object} string
 // @Router /userLogin [post]
 func (u *UserHandler) Login(c *gin.Context) {
-	request := model.UserLoginRequest{}
+	request := dto.UserLoginRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -77,7 +77,7 @@ func (u *UserHandler) Login(c *gin.Context) {
 // @Success 200 {object} string
 // @Router /userAuthentication [post]
 func (u *UserHandler) Authentication(c *gin.Context) {
-	request := model.UserTokenRequest{}
+	request := dto.UserTokenRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -121,7 +121,7 @@ func (u *UserHandler) Authentication(c *gin.Context) {
 // @Success 200 {object} string
 // @Router /userLogout [post]
 func (u *UserHandler) Logout(c *gin.Context) {
-	request := model.UserTokenRequest{}
+	request := dto.UserTokenRequest{}
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),

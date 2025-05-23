@@ -2,9 +2,9 @@ package service
 
 import (
 	"errors"
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"time"
 )
@@ -17,7 +17,7 @@ type UserService struct {
 
 type jwtClaims struct {
 	Username string `json:"username"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func NewUserService(repo domain.UserRepository) domain.UserService {
@@ -84,9 +84,9 @@ func (u *UserService) Login(username, password string) (string, error) {
 	}
 
 	claim := jwtClaims{
-		newUser.Username,
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(),
+		Username: newUser.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
 			Issuer:    "S1nceU",
 		},
 	}
@@ -97,12 +97,15 @@ func (u *UserService) Login(username, password string) (string, error) {
 func (u *UserService) Authentication(tokenString string) (string, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secret"), nil
-	})
+	}, jwt.WithValidMethods([]string{"HS256"}))
+
 	if err != nil {
 		return "", err
 	}
+
 	if claims, ok := token.Claims.(*jwtClaims); ok && token.Valid {
 		return claims.Username, nil
 	}
+
 	return "", errors.New("invalid token")
 }

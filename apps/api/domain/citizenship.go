@@ -1,6 +1,6 @@
 package domain
 
-import "github.com/S1nceU/CRMS/model"
+import "github.com/S1nceU/CRMS/apps/api/model"
 
 // CitizenshipRepository is an interface for citizenship repository
 type CitizenshipRepository interface {

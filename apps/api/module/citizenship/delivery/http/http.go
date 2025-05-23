@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -53,7 +53,7 @@ func (u *CitizenshipHandler) ListCitizenships(c *gin.Context) {
 // @Success 200 {object} model.Citizenship
 // @Router /citizenshipId [post]
 func (u *CitizenshipHandler) GetCitizenshipByID(c *gin.Context) {
-	request := model.CitizenshipRequest{}
+	request := dto.CitizenshipRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -82,7 +82,7 @@ func (u *CitizenshipHandler) GetCitizenshipByID(c *gin.Context) {
 // @Success 200 {object} model.Citizenship
 // @Router /citizenshipNation [post]
 func (u *CitizenshipHandler) GetCitizenshipByCitizenshipName(c *gin.Context) {
-	request := model.CitizenshipNameRequest{}
+	request := dto.CitizenshipNameRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
