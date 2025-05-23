@@ -1,4 +1,4 @@
-package model
+package dto
 
 type Response struct {
 	ProcessCode    string `json:"Process Code"`
