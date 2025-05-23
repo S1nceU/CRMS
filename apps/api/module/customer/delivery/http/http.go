@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model"
+	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -61,7 +62,7 @@ func (u *CustomerHandler) ListCustomers(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerNationalId [post]
 func (u *CustomerHandler) GetCustomerByNationalId(c *gin.Context) {
-	request := model.CustomerNationalIdRequest{}
+	request := dto.CustomerNationalIdRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -95,7 +96,7 @@ func (u *CustomerHandler) GetCustomerByNationalId(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerCre [post]
 func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
-	request := model.CustomerRequest{}
+	request := dto.CustomerRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -142,7 +143,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerMod [post]
 func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
-	request := model.CustomerRequest{}
+	request := dto.CustomerRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -190,7 +191,7 @@ func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerDel [post]
 func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
-	request := model.CustomerIdRequest{}
+	request := dto.CustomerIdRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -225,7 +226,7 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerName [post]
 func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
-	request := model.CustomerNameRequest{}
+	request := dto.CustomerNameRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -263,7 +264,7 @@ func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerCitizenship [post]
 func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
-	request := model.CustomerCitizenshipRequest{}
+	request := dto.CustomerCitizenshipRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -302,7 +303,7 @@ func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerPhone [post]
 func (u *CustomerHandler) GetCustomerByCustomerPhone(c *gin.Context) {
-	request := model.CustomerPhoneRequest{}
+	request := dto.CustomerPhoneRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -340,7 +341,7 @@ func (u *CustomerHandler) GetCustomerByCustomerPhone(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerID [post]
 func (u *CustomerHandler) GetCustomerByCustomerID(c *gin.Context) {
-	request := model.CustomerIdRequest{}
+	request := dto.CustomerIdRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -369,7 +370,7 @@ func (u *CustomerHandler) GetCustomerByCustomerID(c *gin.Context) {
 	c.JSON(http.StatusOK, customerData)
 }
 
-func transformToCustomer(requestData model.CustomerRequest) (*model.Customer, error) {
+func transformToCustomer(requestData dto.CustomerRequest) (*model.Customer, error) {
 	birthday, err := time.ParseInLocation("2006-01-02", requestData.Birthday, time.Local)
 	if err != nil {
 		return nil, err
