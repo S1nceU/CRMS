@@ -121,7 +121,7 @@ func (u *CustomerService) CreateCustomer(customer *model.Customer) (*model.Custo
 		return nil, errors.New("error CRMS : This customer is already existed")
 	} else {
 		customer.Id = uuid.New()
-		newCustomer, err = u.repo.CreateCustomer(newCustomer)
+		newCustomer, err = u.repo.CreateCustomer(customer)
 		return newCustomer, err
 	}
 }
