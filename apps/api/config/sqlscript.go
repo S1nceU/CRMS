@@ -9,7 +9,7 @@ import (
 
 // ImportCitizenshipData Import Citizenship Data is a function to import citizenship data from SQL file
 func ImportCitizenshipData(db *gorm.DB) {
-	fileName := "./config/SQLscript.sql"
+	fileName := "./SQLscript.sql"
 	_, err := os.Stat(fileName)
 	if os.IsNotExist(err) {
 		panic("SQL file is not found")
