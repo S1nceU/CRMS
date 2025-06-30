@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "nx": "^20.4.6",
+    "pnpm": "^10.12.3",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-router-dom": "6.11.2"
@@ -18,7 +19,7 @@
     "@nx/web": "20.4.6",
     "@playwright/test": "^1.36.0",
     "@swc-node/register": "~1.9.1",
-    "@swc/cli": "~0.3.12",
+    "@swc/cli": "^0.7.7",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
     "@testing-library/dom": "10.4.0",
