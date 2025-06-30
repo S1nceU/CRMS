@@ -1,0 +1,9 @@
+{
+  "name": "crms-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "NX_DAEMON=false vite --port 4200 --host 0.0.0.0 --cors",
+    "build": "NX_DAEMON=false vite build",
+    "preview": "NX_DAEMON=false vite preview --port 4300"
+  }
+}
