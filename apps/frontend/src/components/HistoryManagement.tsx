@@ -12,6 +12,8 @@ const HistoryManagement: React.FC = () => {
   const [searchStartDate, setSearchStartDate] = useState('');
   const [searchEndDate, setSearchEndDate] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   const [formData, setFormData] = useState<HistoryRequest>({
     CustomerId: '',
@@ -31,7 +33,12 @@ const HistoryManagement: React.FC = () => {
     try {
       const response = await apiService.getHistories();
       if (response.data) {
-        setHistories(response.data);
+        const data: any = response.data as any;
+        const list = Array.isArray(data) ? data : [data];
+        const valid = list.filter((h: any) => h && typeof h === 'object' && 'Id' in h && 'CustomerId' in h);
+        setHistories(valid.map((h: any) => ({ ...h, Date: h.Date || '' })) as History[]);
+      } else {
+        setHistories([]);
       }
     } catch (error) {
       console.error('Failed to load histories:', error);
@@ -44,7 +51,12 @@ const HistoryManagement: React.FC = () => {
     try {
       const response = await apiService.getCustomers();
       if (response.data) {
-        setCustomers(response.data);
+        const data: any = response.data as any;
+        const list = Array.isArray(data) ? data : [data];
+        const valid = list.filter((c: any) => c && typeof c === 'object' && 'Id' in c);
+        setCustomers(valid as Customer[]);
+      } else {
+        setCustomers([]);
       }
     } catch (error) {
       console.error('Failed to load customers:', error);
@@ -71,7 +83,7 @@ const HistoryManagement: React.FC = () => {
     setFormData({
       HistoryId: history.Id,
       CustomerId: history.CustomerId,
-      Date: history.Date.split('T')[0],
+      Date: (history.Date || '').split('T')[0],
       NumberOfPeople: history.NumberOfPeople,
       Price: history.Price,
       Room: history.Room,
@@ -93,33 +105,57 @@ const HistoryManagement: React.FC = () => {
 
   const handleSearch = async () => {
     try {
+      setSearchError(null);
+      setIsSearching(true);
       let response;
       switch (searchType) {
-        case 'date':
-          if (searchDate) {
-            response = await apiService.getHistoriesByDate(searchDate);
+        case 'date': {
+          if (!searchDate) {
+            setSearchError('Please select a date.');
+            return;
           }
+          response = await apiService.getHistoriesByDate(searchDate);
           break;
-        case 'dateRange':
-          if (searchStartDate && searchEndDate) {
-            response = await apiService.getHistoriesByDateRange(searchStartDate, searchEndDate);
+        }
+        case 'dateRange': {
+          if (!searchStartDate || !searchEndDate) {
+            setSearchError('Please select both start and end dates.');
+            return;
           }
-          break;
-        case 'customer':
-          if (selectedCustomerId) {
-            response = await apiService.getHistoriesByCustomerId(selectedCustomerId);
+          if (searchStartDate > searchEndDate) {
+            setSearchError('Start date must be before end date.');
+            return;
           }
+          response = await apiService.getHistoriesByDateRange(searchStartDate, searchEndDate);
           break;
+        }
+        case 'customer': {
+          if (!selectedCustomerId) {
+            setSearchError('Please choose a customer.');
+            return;
+          }
+          response = await apiService.getHistoriesByCustomerId(selectedCustomerId);
+          break;
+        }
         default:
-          loadHistories();
+          await loadHistories();
           return;
       }
 
-      if (response && response.data) {
-        setHistories(response.data);
+      if (response?.data) {
+        const data: any = response.data as any;
+        const list = Array.isArray(data) ? data : [data];
+        const valid = list.filter((h: any) => h && typeof h === 'object' && 'Id' in h && 'CustomerId' in h);
+        setHistories(valid.map((h: any) => ({ ...h, Date: h.Date || '' })) as History[]);
+      } else {
+        setHistories([]);
       }
     } catch (error) {
       console.error('Search failed:', error);
+      setSearchError('Search failed. Please try again.');
+      setHistories([]);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -194,6 +230,7 @@ const HistoryManagement: React.FC = () => {
                   type="date"
                   value={searchDate}
                   onChange={(e) => setSearchDate(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -201,7 +238,7 @@ const HistoryManagement: React.FC = () => {
                 onClick={handleSearch}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                Search
+                {isSearching ? 'Searching...' : 'Search'}
               </button>
             </div>
           )}
@@ -216,6 +253,7 @@ const HistoryManagement: React.FC = () => {
                   type="date"
                   value={searchStartDate}
                   onChange={(e) => setSearchStartDate(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -227,6 +265,7 @@ const HistoryManagement: React.FC = () => {
                   type="date"
                   value={searchEndDate}
                   onChange={(e) => setSearchEndDate(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -234,7 +273,7 @@ const HistoryManagement: React.FC = () => {
                 onClick={handleSearch}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                Search
+                {isSearching ? 'Searching...' : 'Search'}
               </button>
             </div>
           )}
@@ -262,13 +301,17 @@ const HistoryManagement: React.FC = () => {
                 onClick={handleSearch}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                Search
+                {isSearching ? 'Searching...' : 'Search'}
               </button>
             </div>
           )}
 
+          {searchError && (
+            <p className="text-sm text-red-600">{searchError}</p>
+          )}
+
           <button
-            onClick={loadHistories}
+            onClick={() => { setSearchType('all'); setSearchDate(''); setSearchStartDate(''); setSearchEndDate(''); setSelectedCustomerId(''); setSearchError(null); loadHistories(); }}
             className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             Reset
@@ -399,7 +442,7 @@ const HistoryManagement: React.FC = () => {
                         {getCustomerName(history.CustomerId)}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {history.Date.split('T')[0]}
+                        {(history.Date ? history.Date.split('T')[0] : '')}
                       </p>
                     </div>
                     <div className="flex-1">

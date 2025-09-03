@@ -10,6 +10,8 @@ const CustomerManagement: React.FC = () => {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState<'name' | 'nationalId' | 'phone'>('name');
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   const [formData, setFormData] = useState<CustomerRequest>({
     Name: '',
@@ -29,6 +31,23 @@ const CustomerManagement: React.FC = () => {
     loadCustomers();
     loadCitizenships();
   }, []);
+
+  // Debounced search for better UX
+  useEffect(() => {
+    const term = searchTerm.trim();
+    setSearchError(null);
+    if (!term) {
+      // Reset to full list when cleared
+      loadCustomers();
+      return;
+    }
+    // Only auto-search when user typed at least 2 chars
+    if (term.length < 2) return;
+    const id = setTimeout(() => {
+      handleSearch();
+    }, 350);
+    return () => clearTimeout(id);
+  }, [searchTerm, searchType]);
 
   const validateForm = (): boolean => {
     const errors: {[key: string]: string} = {};
@@ -212,7 +231,7 @@ const CustomerManagement: React.FC = () => {
       CustomerId: customer.Id,
       Name: customer.Name,
       Gender: customer.Gender,
-      Birthday: customer.Birthday.split('T')[0],
+      Birthday: (customer.Birthday || '').split('T')[0],
       NationalId: customer.NationalId,
       Address: customer.Address,
       PhoneNumber: customer.PhoneNumber,
@@ -235,30 +254,41 @@ const CustomerManagement: React.FC = () => {
   };
 
   const handleSearch = async () => {
-    if (!searchTerm) {
+    const term = searchTerm.trim();
+    if (!term) {
       loadCustomers();
       return;
     }
-
     try {
+      setIsSearching(true);
+      setSearchError(null);
       let response;
       switch (searchType) {
         case 'name':
-          response = await apiService.getCustomerByName(searchTerm);
+          response = await apiService.getCustomerByName(term);
           break;
         case 'nationalId':
-          response = await apiService.getCustomerByNationalId(searchTerm);
+          response = await apiService.getCustomerByNationalId(term);
           break;
         case 'phone':
-          response = await apiService.getCustomerByPhone(searchTerm);
+          response = await apiService.getCustomerByPhone(term);
           break;
       }
 
-      if (response.data) {
-        setCustomers(Array.isArray(response.data) ? response.data : [response.data]);
+      if (response?.data) {
+        const data: any = response.data as any;
+        const list = Array.isArray(data) ? data : [data];
+        const valid = list.filter((c) => c && typeof c === 'object' && 'Id' in c);
+        setCustomers(valid as Customer[]);
+      } else {
+        setCustomers([]);
       }
     } catch (error) {
       console.error('Search failed:', error);
+      setSearchError('Search failed. Please try again.');
+      setCustomers([]);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -297,6 +327,11 @@ const CustomerManagement: React.FC = () => {
     );
   }
 
+  // Ensure we never render malformed items and guard missing fields
+  const safeCustomers: Customer[] = customers
+    .filter((c: any) => c && typeof c === 'object' && 'Id' in c)
+    .map((c: any) => ({ ...c, Birthday: c.Birthday || '' }));
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -321,9 +356,18 @@ const CustomerManagement: React.FC = () => {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Enter search term..."
             />
+            {searchError && (
+              <p className="mt-1 text-xs text-red-600">{searchError}</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -343,10 +387,10 @@ const CustomerManagement: React.FC = () => {
             onClick={handleSearch}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
-            Search
+            {isSearching ? 'Searching...' : 'Search'}
           </button>
           <button
-            onClick={loadCustomers}
+            onClick={() => { setSearchTerm(''); setSearchType('name'); loadCustomers(); }}
             className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             Reset
@@ -583,7 +627,7 @@ const CustomerManagement: React.FC = () => {
       {/* Customer List */}
       <div className="bg-white shadow overflow-hidden sm:rounded-md">
         <ul className="divide-y divide-gray-200">
-          {customers.map((customer) => (
+          {safeCustomers.map((customer) => (
             <li key={customer.Id} className="px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
