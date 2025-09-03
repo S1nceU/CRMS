@@ -70,6 +70,33 @@ export interface ApiResponse<T> {
   history?: History;
 }
 
+// Normalize various backend response shapes into a consistent ApiResponse<T>
+function normalizeApiResponse<T>(r: any): ApiResponse<T> {
+  if (Array.isArray(r)) {
+    return { Message: '', data: r } as ApiResponse<T>;
+  }
+  if (r && typeof r === 'object') {
+    if ('data' in r) return r as ApiResponse<T>;
+    // User/auth specific shape
+    if ('username' in r) return { ...(r as object), data: (r as any).username } as unknown as ApiResponse<T>;
+    // Pure message response (e.g., not found) => do NOT coerce into data
+    if ('Message' in r &&
+        !('customers' in r) && !('customer' in r) &&
+        !('citizenships' in r) && !('citizenship' in r) &&
+        !('histories' in r) && !('history' in r)) {
+      return { Message: (r as any).Message } as ApiResponse<T>;
+    }
+    if ('customers' in r) return { ...(r as object), data: (r as any).customers } as ApiResponse<T>;
+    if ('customer' in r) return { ...(r as object), data: (r as any).customer } as ApiResponse<T>;
+    if ('citizenships' in r) return { ...(r as object), data: (r as any).citizenships } as ApiResponse<T>;
+    if ('citizenship' in r) return { ...(r as object), data: (r as any).citizenship } as ApiResponse<T>;
+    if ('histories' in r) return { ...(r as object), data: (r as any).histories } as ApiResponse<T>;
+    if ('history' in r) return { ...(r as object), data: (r as any).history } as ApiResponse<T>;
+    return { Message: (r as any).Message ?? '', data: r } as ApiResponse<T>;
+  }
+  return { Message: '', data: r } as ApiResponse<T>;
+}
+
 class ApiService {
   private async makeRequest<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
     console.log(`🔗 Making API request to: ${API_BASE_URL}${endpoint}`);
@@ -94,7 +121,7 @@ class ApiService {
     const result = await response.json();
     console.log(`📋 Raw response from ${endpoint}:`, result);
     
-    return result;
+    return normalizeApiResponse<T>(result);
   }
 
   // Authentication
@@ -159,11 +186,11 @@ class ApiService {
     return response;
   }
 
-  async getCustomerByPhone(phone: string): Promise<ApiResponse<Customer>> {
+  async getCustomerByPhone(phone: string): Promise<ApiResponse<Customer[]>> {
     const response = await this.makeRequest('/customerPhone', { PhoneNumber: phone });
-    // Handle the specific customer response format
-    if (response.customer) {
-      response.data = response.customer;
+    // Backend returns a list for phone search
+    if ((response as any).customers) {
+      response.data = (response as any).customers;
     }
     return response;
   }
