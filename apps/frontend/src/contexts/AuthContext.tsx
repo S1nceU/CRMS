@@ -35,7 +35,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .then((response) => {
           if (response.Message === 'Authentication successfully') {
             setIsAuthenticated(true);
-            setUsername(response.data || 'User');
+            const name = typeof response.data === 'string' ? response.data : 'User';
+            setUsername(name);
           }
         })
         .catch(() => {
