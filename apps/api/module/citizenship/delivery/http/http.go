@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -33,10 +33,15 @@ func NewCitizenshipHandler(e *gin.Engine, service domain.CitizenshipService) {
 func (u *CitizenshipHandler) ListCitizenships(c *gin.Context) {
 	citizenships, err := u.service.ListCitizenships()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"citizenships": citizenships})
+	c.JSON(http.StatusOK, gin.H{
+		"Message":      "List all citizenships",
+		"citizenships": citizenships,
+	})
 }
 
 // GetCitizenshipByID @Summary GetCitizenshipByID
@@ -48,7 +53,7 @@ func (u *CitizenshipHandler) ListCitizenships(c *gin.Context) {
 // @Success 200 {object} model.Citizenship
 // @Router /citizenshipId [post]
 func (u *CitizenshipHandler) GetCitizenshipByID(c *gin.Context) {
-	request := model.CitizenshipRequest{}
+	request := dto.CitizenshipRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -57,10 +62,15 @@ func (u *CitizenshipHandler) GetCitizenshipByID(c *gin.Context) {
 	}
 	citizenship, err := u.service.GetCitizenshipByID(request.CitizenshipId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"citizenship": citizenship})
+	c.JSON(http.StatusOK, gin.H{
+		"Message":     "Get citizenship by ID",
+		"citizenship": citizenship,
+	})
 }
 
 // GetCitizenshipByCitizenshipName @Summary GetCitizenshipByCitizenshipName
@@ -72,7 +82,7 @@ func (u *CitizenshipHandler) GetCitizenshipByID(c *gin.Context) {
 // @Success 200 {object} model.Citizenship
 // @Router /citizenshipNation [post]
 func (u *CitizenshipHandler) GetCitizenshipByCitizenshipName(c *gin.Context) {
-	request := model.CitizenshipNameRequest{}
+	request := dto.CitizenshipNameRequest{}
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Message": err.Error(),
@@ -81,8 +91,13 @@ func (u *CitizenshipHandler) GetCitizenshipByCitizenshipName(c *gin.Context) {
 	}
 	citizenship, err := u.service.GetCitizenshipByCitizenshipName(request.CitizenshipName)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Message": err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"citizenship": citizenship})
+	c.JSON(http.StatusOK, gin.H{
+		"Message":     "Get citizenship by CitizenshipName",
+		"citizenship": citizenship,
+	})
 }

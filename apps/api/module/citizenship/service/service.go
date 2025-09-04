@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model"
 )
 
 type CitizenshipService struct {
@@ -15,7 +15,7 @@ func NewCitizenshipService(repo domain.CitizenshipRepository) domain.Citizenship
 	}
 }
 
-func (u *CitizenshipService) ListCitizenships() ([]model.Citizenship, error) {
+func (u *CitizenshipService) ListCitizenships() ([]*model.Citizenship, error) {
 	var err error
 	var citizenships []*model.Citizenship
 	if citizenships, err = u.repo.ListCitizenships(); err != nil {
@@ -47,10 +47,10 @@ func (u *CitizenshipService) GetCitizenshipByCitizenshipName(citizenshipName str
 	}
 	return citizenship, err
 }
-func convertToSliceOfCitizenship(citizenships []*model.Citizenship) []model.Citizenship {
-	var newCitizenships []model.Citizenship
+func convertToSliceOfCitizenship(citizenships []*model.Citizenship) []*model.Citizenship {
+	var newCitizenships []*model.Citizenship
 	for _, citizenship := range citizenships {
-		newCitizenships = append(newCitizenships, *citizenship)
+		newCitizenships = append(newCitizenships, citizenship)
 	}
 	return newCitizenships
 }

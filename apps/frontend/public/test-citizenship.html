@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Citizenship Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { margin: 5px 0; padding: 5px; background: #f0f0f0; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        button { margin: 10px 0; padding: 10px 20px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Citizenship API Fix</h1>
+    <button onclick="testOriginalAPI()">Test Original API Format</button>
+    <button onclick="testWithFix()">Test With Frontend Fix</button>
+    <button onclick="clearLogs()">Clear Logs</button>
+    
+    <div id="logs"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> ${message}`;
+            logsDiv.appendChild(div);
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        async function testOriginalAPI() {
+            log('🔍 Testing original API response format...');
+            
+            try {
+                const response = await fetch('/api/citizenships', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    log(`❌ HTTP Error: ${response.status}`, 'error');
+                    return;
+                }
+
+                const result = await response.json();
+                log(`✅ API Response received`);
+                log(`📝 Message: ${result.Message}`);
+                log(`🔍 Has 'data' field: ${!!result.data}`);
+                log(`🔍 Has 'citizenships' field: ${!!result.citizenships}`);
+                
+                if (result.citizenships) {
+                    log(`📊 Citizenships count: ${result.citizenships.length}`, 'success');
+                    log(`📋 First citizenship: ${JSON.stringify(result.citizenships[0])}`);
+                } else {
+                    log(`❌ No citizenships field found`, 'error');
+                }
+
+            } catch (error) {
+                log(`💥 Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWithFix() {
+            log('🔧 Testing with frontend fix applied...');
+            
+            try {
+                // Simulate the fixed API service method
+                const response = await fetch('/api/citizenships', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    log(`❌ HTTP Error: ${response.status}`, 'error');
+                    return;
+                }
+
+                const rawResponse = await response.json();
+                log(`✅ Raw response received`);
+                
+                // Apply the fix logic
+                if (rawResponse.citizenships) {
+                    rawResponse.data = rawResponse.citizenships;
+                    log(`🔧 Applied fix: moved 'citizenships' to 'data'`, 'success');
+                }
+
+                log(`🔍 Now has 'data' field: ${!!rawResponse.data}`);
+                
+                if (rawResponse.data && Array.isArray(rawResponse.data)) {
+                    log(`📊 Data count: ${rawResponse.data.length}`, 'success');
+                    log(`📋 First item: ${JSON.stringify(rawResponse.data[0])}`);
+                    log(`✅ Fix successful! Frontend can now load citizenships`, 'success');
+                } else {
+                    log(`❌ Fix failed - data is not an array`, 'error');
+                }
+
+            } catch (error) {
+                log(`💥 Error: ${error.message}`, 'error');
+            }
+        }
+
+        window.onload = function() {
+            log('🌐 Page loaded - ready to test citizenship API');
+        };
+    </script>
+</body>
+</html>

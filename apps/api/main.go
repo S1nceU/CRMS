@@ -11,22 +11,23 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/S1nceU/CRMS/config"
-	_ "github.com/S1nceU/CRMS/docs"
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/config"
+	_ "github.com/S1nceU/CRMS/apps/api/docs"
+	"github.com/S1nceU/CRMS/apps/api/model"
 
-	_citizenshipHandlerHttpDelivery "github.com/S1nceU/CRMS/module/citizenship/delivery/http"
-	_citizenshipRepo "github.com/S1nceU/CRMS/module/citizenship/repository"
-	_citizenshipSer "github.com/S1nceU/CRMS/module/citizenship/service"
-	_customerHandlerHttpDelivery "github.com/S1nceU/CRMS/module/customer/delivery/http"
-	_customerRepo "github.com/S1nceU/CRMS/module/customer/repository"
-	_customerSer "github.com/S1nceU/CRMS/module/customer/service"
-	_historyHandlerHttpDelivery "github.com/S1nceU/CRMS/module/history/delivery/http"
-	_historyRepo "github.com/S1nceU/CRMS/module/history/repository"
-	_historySer "github.com/S1nceU/CRMS/module/history/service"
-	_userRepo "github.com/S1nceU/CRMS/module/user/repository"
-	_userSer "github.com/S1nceU/CRMS/module/user/service"
-	"github.com/S1nceU/CRMS/route"
+	_citizenshipHandlerHttpDelivery "github.com/S1nceU/CRMS/apps/api/module/citizenship/delivery/http"
+	_citizenshipRepo "github.com/S1nceU/CRMS/apps/api/module/citizenship/repository"
+	_citizenshipSer "github.com/S1nceU/CRMS/apps/api/module/citizenship/service"
+	_customerHandlerHttpDelivery "github.com/S1nceU/CRMS/apps/api/module/customer/delivery/http"
+	_customerRepo "github.com/S1nceU/CRMS/apps/api/module/customer/repository"
+	_customerSer "github.com/S1nceU/CRMS/apps/api/module/customer/service"
+	_historyHandlerHttpDelivery "github.com/S1nceU/CRMS/apps/api/module/history/delivery/http"
+	_historyRepo "github.com/S1nceU/CRMS/apps/api/module/history/repository"
+	_historySer "github.com/S1nceU/CRMS/apps/api/module/history/service"
+	_userHandlerHttpDelivery "github.com/S1nceU/CRMS/apps/api/module/user/delivery/http"
+	_userRepo "github.com/S1nceU/CRMS/apps/api/module/user/repository"
+	_userSer "github.com/S1nceU/CRMS/apps/api/module/user/service"
+	"github.com/S1nceU/CRMS/apps/api/route"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -76,6 +77,13 @@ func init() {
 	} else {
 		log.Println("Connect to DB successfully")
 		var err error
+		if !db.Migrator().HasTable("citizenships") {
+			if err = db.AutoMigrate(&model.Citizenship{}); err != nil {
+				return
+			}
+			config.ImportCitizenshipData(db)
+			log.Println("Init citizenship data successfully")
+		}
 		if err = db.AutoMigrate(&model.Customer{}); err != nil {
 			return
 		}
@@ -85,15 +93,6 @@ func init() {
 		if err = db.AutoMigrate(&model.User{}); err != nil {
 			return
 		}
-		if !db.Migrator().HasTable("citizenships") {
-			if err = db.AutoMigrate(&model.Citizenship{}); err != nil {
-				return
-			}
-			config.ImportCitizenshipData(db)
-			if err = db.AutoMigrate(&model.Customer{}); err != nil {
-				return
-			}
-		}
 	}
 }
 
@@ -101,7 +100,7 @@ func main() {
 
 	gin.SetMode(config.Val.Mode)
 	router := gin.Default()
-	router.Use(route.Cors())
+	router.Use(route.Cors()) // CORS middleware
 
 	customerRepo := _customerRepo.NewCustomerRepository(db)
 	historyRepo := _historyRepo.NewHistoryRepository(db)
@@ -113,10 +112,10 @@ func main() {
 	userSer := _userSer.NewUserService(userRepo)
 	citizenshipSer := _citizenshipSer.NewCitizenshipService(citizenshipRepo)
 
-	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer, historySer)
+	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer)
 	_historyHandlerHttpDelivery.NewHistoryHandler(router, historySer)
 	_citizenshipHandlerHttpDelivery.NewCitizenshipHandler(router, citizenshipSer)
-	_ = userSer
+	_userHandlerHttpDelivery.NewUserHandler(router, userSer)
 
 	route.NewRoute(router)
 
@@ -146,5 +145,12 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
+
+	log.Println("Closing DB connection")
+	sqlDB, _ := db.DB()
+	if err := sqlDB.Close(); err != nil {
+		log.Fatalf("Error closing DB connection: %v", err)
+	}
+
 	log.Println("Server exiting")
 }

@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
-	"github.com/S1nceU/CRMS/domain"
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/google/uuid"
 )
 
@@ -17,7 +17,7 @@ func NewCustomerService(repo domain.CustomerRepository) domain.CustomerService {
 	}
 }
 
-func (u *CustomerService) ListCustomers() ([]model.Customer, error) {
+func (u *CustomerService) ListCustomers() ([]*model.Customer, error) {
 	var err error
 	var customers []*model.Customer
 	if customers, err = u.repo.ListCustomers(); err != nil {
@@ -26,7 +26,7 @@ func (u *CustomerService) ListCustomers() ([]model.Customer, error) {
 	return convertToSliceOfCustomer(customers), err
 }
 
-func (u *CustomerService) ListCustomersByCitizenship(citizenship int) ([]model.Customer, error) {
+func (u *CustomerService) ListCustomersByCitizenship(citizenship int) ([]*model.Customer, error) {
 	var err error
 	var customers []*model.Customer
 	newCustomer := &model.Customer{
@@ -38,7 +38,7 @@ func (u *CustomerService) ListCustomersByCitizenship(citizenship int) ([]model.C
 	return convertToSliceOfCustomer(customers), err
 }
 
-func (u *CustomerService) ListCustomersByCustomerName(name string) ([]model.Customer, error) {
+func (u *CustomerService) ListCustomersByName(name string) ([]*model.Customer, error) {
 	var err error
 	var customers []*model.Customer
 
@@ -49,7 +49,7 @@ func (u *CustomerService) ListCustomersByCustomerName(name string) ([]model.Cust
 	newCustomer := &model.Customer{
 		Name: name,
 	}
-	if customers, err = u.repo.ListCustomersByCustomerName(newCustomer); err != nil {
+	if customers, err = u.repo.ListCustomersByName(newCustomer); err != nil {
 		return nil, err
 	}
 	if len(customers) == 0 {
@@ -59,7 +59,7 @@ func (u *CustomerService) ListCustomersByCustomerName(name string) ([]model.Cust
 	return convertToSliceOfCustomer(customers), err
 }
 
-func (u *CustomerService) ListCustomersByCustomerPhone(phone string) ([]model.Customer, error) {
+func (u *CustomerService) ListCustomersByPhone(phone string) ([]*model.Customer, error) {
 	var err error
 	var customers []*model.Customer
 
@@ -71,7 +71,7 @@ func (u *CustomerService) ListCustomersByCustomerPhone(phone string) ([]model.Cu
 		PhoneNumber: phone,
 	}
 
-	if customers, err = u.repo.ListCustomersByCustomerPhone(newCustomer); err != nil {
+	if customers, err = u.repo.ListCustomersByPhone(newCustomer); err != nil {
 		return nil, err
 	}
 	if len(customers) == 0 {
@@ -121,7 +121,7 @@ func (u *CustomerService) CreateCustomer(customer *model.Customer) (*model.Custo
 		return nil, errors.New("error CRMS : This customer is already existed")
 	} else {
 		customer.Id = uuid.New()
-		newCustomer, err = u.repo.CreateCustomer(newCustomer)
+		newCustomer, err = u.repo.CreateCustomer(customer)
 		return newCustomer, err
 	}
 }
@@ -158,10 +158,10 @@ func (u *CustomerService) DeleteCustomer(customerId uuid.UUID) error {
 	return nil
 }
 
-func convertToSliceOfCustomer(customers []*model.Customer) []model.Customer {
-	var customersSlice []model.Customer
+func convertToSliceOfCustomer(customers []*model.Customer) []*model.Customer {
+	var customersSlice []*model.Customer
 	for _, customer := range customers {
-		customersSlice = append(customersSlice, *customer)
+		customersSlice = append(customersSlice, customer)
 	}
 	return customersSlice
 }
