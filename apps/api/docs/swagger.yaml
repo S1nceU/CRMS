@@ -154,6 +154,18 @@ definitions:
       Room:
         type: string
     type: object
+  model.UserLoginRequest:
+    properties:
+      Password:
+        type: string
+      Username:
+        type: string
+    type: object
+  model.UserTokenRequest:
+    properties:
+      Token:
+        type: string
+    type: object
 host: 127.0.0.1:8080
 info:
   contact:
@@ -619,4 +631,67 @@ paths:
             type: string
       tags:
       - History
+  /userAuthentication:
+    post:
+      consumes:
+      - application/json
+      description: Authentication
+      parameters:
+      - description: User JWT Token
+        in: body
+        name: UserTokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - User
+  /userLogin:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: User Login Request
+        in: body
+        name: UserLoginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - User
+  /userLogout:
+    post:
+      consumes:
+      - application/json
+      description: Logout
+      parameters:
+      - description: User JWT Token
+        in: body
+        name: UserTokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - User
 swagger: "2.0"

@@ -1,4 +1,4 @@
-package model
+package dto
 
 import "github.com/google/uuid"
 
@@ -17,7 +17,7 @@ type CustomerRequest struct {
 	Address     string    `json:"Address"`
 	PhoneNumber string    `json:"PhoneNumber"`
 	CarNumber   string    `json:"CarNumber"`
-	Citizenship int       `json:"Citizenship"`
+	Citizenship int       `json:"CitizenshipId"`
 	Note        string    `json:"Note"`
 }
 
@@ -74,4 +74,15 @@ type CitizenshipRequest struct {
 
 type CitizenshipNameRequest struct {
 	CitizenshipName string `json:"CitizenshipName"`
+}
+
+// User Request
+
+type UserLoginRequest struct {
+	Username string `json:"Username"`
+	Password string `json:"Password"`
+}
+
+type UserTokenRequest struct {
+	Token string `json:"Token"`
 }

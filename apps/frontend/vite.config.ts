@@ -10,6 +10,14 @@ export default defineConfig({
   server: {
     port: 4200,
     host: 'localhost',
+    cors: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
   preview: {
     port: 4300,

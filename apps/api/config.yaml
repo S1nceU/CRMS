@@ -1,13 +1,15 @@
 # Server Config
 MODE: "release"
 PORT: 8080
+FRONTEND_ORIGIN: "http://localhost:4200"
+COOKIE_SECURE: false
 
 # Database Config
 DATABASE:
   USERNAME: "root"
   PASSWORD: "password"
   NETWORK: "tcp"
-  SERVER: "127.0.0.2"
+  SERVER: "127.0.0.1"
   PORT: 3306
   DATABASE: "crms"
 

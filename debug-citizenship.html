@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Citizenship API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
+        .error { background: #ffe6e6; border-color: #ff9999; }
+        .success { background: #e6ffe6; border-color: #99ff99; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Debug Citizenship API</h1>
+    <button onclick="testCitizenshipAPI()">Test Citizenship API</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE_URL = '/api'; // Using Vite proxy
+
+        function addResult(message, isError = false) {
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong><br>${message}`;
+            resultsDiv.appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testCitizenshipAPI() {
+            addResult('🚀 Starting Citizenship API test...');
+            
+            try {
+                // Test 1: Direct fetch to citizenship endpoint
+                addResult('📡 Making request to /api/citizenships...');
+                
+                const response = await fetch(`${API_BASE_URL}/citizenships`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include'
+                });
+
+                addResult(`📊 Response status: ${response.status}`);
+                addResult(`📊 Response ok: ${response.ok}`);
+                addResult(`📊 Response headers: ${JSON.stringify([...response.headers.entries()])}`);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    addResult(`❌ HTTP Error: ${response.status} - ${errorText}`, true);
+                    return;
+                }
+
+                const result = await response.json();
+                addResult(`✅ Response received successfully`);
+                addResult(`📝 Message: ${result.Message || 'No message'}`);
+                addResult(`🔍 Data type: ${typeof result.data}`);
+                addResult(`📏 Is array: ${Array.isArray(result.data)}`);
+                
+                if (result.data) {
+                    addResult(`📊 Data length: ${result.data.length || 'N/A'}`);
+                    
+                    if (Array.isArray(result.data) && result.data.length > 0) {
+                        addResult(`📋 First item: <pre>${JSON.stringify(result.data[0], null, 2)}</pre>`);
+                        addResult(`📋 Sample items: <pre>${JSON.stringify(result.data.slice(0, 5), null, 2)}</pre>`);
+                    }
+                }
+
+                addResult(`📄 Full response: <pre>${JSON.stringify(result, null, 2)}</pre>`);
+
+            } catch (error) {
+                addResult(`💥 JavaScript error: ${error.message}`, true);
+                addResult(`📋 Error stack: <pre>${error.stack}</pre>`, true);
+            }
+        }
+
+        // Test on page load
+        window.onload = function() {
+            addResult('🌐 Page loaded, ready to test API');
+            addResult(`🔗 API Base URL: ${API_BASE_URL}`);
+        };
+    </script>
+</body>
+</html>

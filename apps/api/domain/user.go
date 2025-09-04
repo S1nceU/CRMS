@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/S1nceU/CRMS/model"
+	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/google/uuid"
 )
 
@@ -23,4 +23,6 @@ type UserService interface {
 	DeleteUser(userId uuid.UUID) error                      // Delete User by UserID
 	GetUserByUserId(userId uuid.UUID) (*model.User, error)  // Get User by UserID
 	GetUserByUsername(username string) (*model.User, error) // Get User by Username
+	Login(username, password string) (string, error)        // Login User
+	Authentication(tokenString string) (string, error)      // Authentication user Token
 }

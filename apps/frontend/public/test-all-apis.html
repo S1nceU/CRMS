@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🧪 Test All API Fixes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .log { margin: 5px 0; padding: 5px; background: #f8f9fa; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .warning { border-left-color: #ffc107; background: #fff3cd; }
+        button { margin: 5px; padding: 8px 15px; }
+        h2 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>🧪 CRMS API 修正測試</h1>
+    <p>📝 測試所有 API 端點是否正確回傳資料到前端</p>
+
+    <div class="test-section">
+        <h2>🌍 Citizenship API</h2>
+        <button onclick="testCitizenships()">Test Citizenships</button>
+        <div id="citizenship-logs"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>👥 Customer API</h2>
+        <button onclick="testCustomers()">Test Customers</button>
+        <div id="customer-logs"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 History API</h2>
+        <button onclick="testHistories()">Test Histories</button>
+        <div id="history-logs"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Quick Actions</h2>
+        <button onclick="testAllAPIs()">🚀 Test All APIs</button>
+        <button onclick="clearAllLogs()">🧹 Clear All Logs</button>
+    </div>
+
+    <script>
+        function log(message, type = 'info', containerId = 'main-logs') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> ${message}`;
+            container.appendChild(div);
+            console.log(`[${containerId}] ${message}`);
+        }
+
+        function clearLogs(containerId) {
+            const container = document.getElementById(containerId);
+            if (container) container.innerHTML = '';
+        }
+
+        function clearAllLogs() {
+            clearLogs('citizenship-logs');
+            clearLogs('customer-logs');
+            clearLogs('history-logs');
+        }
+
+        async function testAPI(endpoint, expectedField, containerId, testName) {
+            log(`🔍 Testing ${testName}...`, 'info', containerId);
+            
+            try {
+                const response = await fetch(`/api/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    log(`❌ HTTP Error: ${response.status}`, 'error', containerId);
+                    return false;
+                }
+
+                const result = await response.json();
+                log(`✅ Response received`, 'success', containerId);
+                log(`📝 Message: ${result.Message}`, 'info', containerId);
+                
+                // Check original field
+                const originalData = result[expectedField];
+                if (originalData) {
+                    log(`✅ Found '${expectedField}' field with ${originalData.length || 'N/A'} items`, 'success', containerId);
+                } else {
+                    log(`❌ Missing '${expectedField}' field`, 'error', containerId);
+                }
+
+                // Simulate frontend fix
+                if (result[expectedField]) {
+                    result.data = result[expectedField];
+                    log(`🔧 Applied fix: moved '${expectedField}' to 'data'`, 'success', containerId);
+                }
+
+                // Check if fix worked
+                if (result.data && Array.isArray(result.data)) {
+                    log(`🎉 SUCCESS! Frontend can now load ${result.data.length} items`, 'success', containerId);
+                    return true;
+                } else {
+                    log(`❌ Fix failed - data is not an array`, 'error', containerId);
+                    return false;
+                }
+
+            } catch (error) {
+                log(`💥 Error: ${error.message}`, 'error', containerId);
+                return false;
+            }
+        }
+
+        async function testCitizenships() {
+            return await testAPI('citizenships', 'citizenships', 'citizenship-logs', 'Citizenship API');
+        }
+
+        async function testCustomers() {
+            return await testAPI('customerList', 'customers', 'customer-logs', 'Customer API');
+        }
+
+        async function testHistories() {
+            return await testAPI('historyList', 'histories', 'history-logs', 'History API');
+        }
+
+        async function testAllAPIs() {
+            log('🚀 開始測試所有 API...', 'info', 'citizenship-logs');
+            
+            const results = await Promise.all([
+                testCitizenships(),
+                testCustomers(), 
+                testHistories()
+            ]);
+
+            const successCount = results.filter(r => r).length;
+            const totalCount = results.length;
+
+            if (successCount === totalCount) {
+                log(`🎉 所有 ${totalCount} 個 API 測試成功！`, 'success', 'citizenship-logs');
+                log('✅ 你的前端現在應該可以正常載入資料了！', 'success', 'citizenship-logs');
+            } else {
+                log(`⚠️ ${successCount}/${totalCount} API 測試成功`, 'warning', 'citizenship-logs');
+            }
+        }
+
+        window.onload = function() {
+            log('🌐 測試頁面已載入 - 準備測試 API 修正', 'info', 'citizenship-logs');
+        };
+    </script>
+</body>
+</html>
