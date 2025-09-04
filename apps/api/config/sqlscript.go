@@ -1,10 +1,11 @@
 package config
 
 import (
-	"gorm.io/gorm"
 	"log"
 	"os"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 // ImportCitizenshipData Import Citizenship Data is a function to import citizenship data from SQL file

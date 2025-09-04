@@ -1,10 +1,11 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type CitizenshipHandler struct {

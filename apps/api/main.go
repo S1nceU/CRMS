@@ -55,7 +55,7 @@ var db *gorm.DB
 // @BasePath /api
 
 func init() {
-	swagHandler = ginSwagger.WrapHandler(swaggerFiles.Handler)
+	//swagHandler = ginSwagger.WrapHandler(swaggerFiles.Handler)
 	config.Init()
 
 	var (
