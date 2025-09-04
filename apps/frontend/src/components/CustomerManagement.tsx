@@ -49,6 +49,17 @@ const CustomerManagement: React.FC = () => {
     return () => clearTimeout(id);
   }, [searchTerm, searchType]);
 
+  // When citizenships load and form is open for a new customer, default to Taiwan (TWN)
+  useEffect(() => {
+    if (showForm && !editingCustomer && (!formData.CitizenshipId || formData.CitizenshipId <= 0) && citizenships.length > 0) {
+      const tw = citizenships.find((c) => (c.Alpha3 || '').toUpperCase() === 'TWN');
+      setFormData((prev) => ({
+        ...prev,
+        CitizenshipId: tw ? tw.Id : citizenships[0].Id,
+      }));
+    }
+  }, [citizenships, showForm, editingCustomer]);
+
   const validateForm = (): boolean => {
     const errors: {[key: string]: string} = {};
 
@@ -301,7 +312,7 @@ const CustomerManagement: React.FC = () => {
       Address: '',
       PhoneNumber: '',
       CarNumber: '',
-      CitizenshipId: citizenships.length > 0 ? citizenships[0].Id : 0,
+      CitizenshipId: (citizenships.find(c => (c.Alpha3 || '').toUpperCase() === 'TWN')?.Id) ?? (citizenships.length > 0 ? citizenships[0].Id : 0),
       Note: '',
     });
     setFormErrors({});
@@ -338,7 +349,16 @@ const CustomerManagement: React.FC = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Customer Management</h2>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            const tw = citizenships.find((c) => (c.Alpha3 || '').toUpperCase() === 'TWN');
+            if (!editingCustomer) {
+              setFormData((prev) => ({
+                ...prev,
+                CitizenshipId: tw ? tw.Id : (citizenships.length > 0 ? citizenships[0].Id : 0),
+              }));
+            }
+            setShowForm(true);
+          }}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
           Add New Customer

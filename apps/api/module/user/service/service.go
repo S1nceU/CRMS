@@ -2,11 +2,12 @@ package service
 
 import (
 	"errors"
+	"time"
+
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"time"
 )
 
 const TokenExpireDuration = time.Hour * 2
@@ -91,7 +92,7 @@ func (u *UserService) Login(username, password string) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
-	return token.SignedString([]byte("secret"))
+	return token.SignedString([]byte("CRMSAuthenticationRequires256BitSecureKeys!@#$"))
 }
 
 func (u *UserService) Authentication(tokenString string) (string, error) {

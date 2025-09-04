@@ -1,13 +1,14 @@
 package http
 
 import (
-    "github.com/S1nceU/CRMS/apps/api/config"
-    "github.com/S1nceU/CRMS/apps/api/domain"
-    "github.com/S1nceU/CRMS/apps/api/model/dto"
-    _userSer "github.com/S1nceU/CRMS/apps/api/module/user/service"
-    "github.com/gin-gonic/gin"
-    "net/http"
-    "strings"
+	"net/http"
+	"strings"
+
+	"github.com/S1nceU/CRMS/apps/api/config"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model/dto"
+	_userSer "github.com/S1nceU/CRMS/apps/api/module/user/service"
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
@@ -62,24 +63,24 @@ func (u *UserHandler) Login(c *gin.Context) {
 		})
 		return
 	}
-    // Set cookie with SameSite and Secure according to config
-    cookie := &http.Cookie{
-        Name:     "token",
-        Value:    token,
-        Path:     "/",
-        MaxAge:   int(_userSer.TokenExpireDuration.Seconds()),
-        HttpOnly: true,
-        Secure:   config.Val.CookieSecure,
-    }
-    // Only set SameSite=None when using secure cookies (required by browsers)
-    if config.Val.CookieSecure {
-        cookie.SameSite = http.SameSiteNoneMode
-    }
-    http.SetCookie(c.Writer, cookie) // When CRMS runs in the docker container, the domain should be changed to "localhost"
-    c.JSON(http.StatusOK, gin.H{
-        "Message": "Login successfully",
-        "token":   token,
-    })
+	// Set cookie with SameSite and Secure according to config
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   int(_userSer.TokenExpireDuration.Seconds()),
+		HttpOnly: true,
+		Secure:   config.Val.CookieSecure,
+	}
+	// Only set SameSite=None when using secure cookies (required by browsers)
+	if config.Val.CookieSecure {
+		cookie.SameSite = http.SameSiteNoneMode
+	}
+	http.SetCookie(c.Writer, cookie) // When CRMS runs in the docker container, the domain should be changed to "localhost"
+	c.JSON(http.StatusOK, gin.H{
+		"Message": "Login successfully",
+		"token":   token,
+	})
 }
 
 // Authentication @Summary Authentication
@@ -164,20 +165,20 @@ func (u *UserHandler) Logout(c *gin.Context) {
 		})
 		return
 	}
-    // Clear cookie
-    cookie := &http.Cookie{
-        Name:     "token",
-        Value:    "",
-        Path:     "/",
-        MaxAge:   -1,
-        HttpOnly: true,
-        Secure:   config.Val.CookieSecure,
-    }
-    if config.Val.CookieSecure {
-        cookie.SameSite = http.SameSiteNoneMode
-    }
-    http.SetCookie(c.Writer, cookie) // When CRMS runs in the docker container, the domain should be changed to "localhost"
-    c.JSON(http.StatusOK, gin.H{
-        "Message": "Logout successfully",
-    })
+	// Clear cookie
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   config.Val.CookieSecure,
+	}
+	if config.Val.CookieSecure {
+		cookie.SameSite = http.SameSiteNoneMode
+	}
+	http.SetCookie(c.Writer, cookie) // When CRMS runs in the docker container, the domain should be changed to "localhost"
+	c.JSON(http.StatusOK, gin.H{
+		"Message": "Logout successfully",
+	})
 }
