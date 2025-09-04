@@ -79,12 +79,12 @@ function normalizeApiResponse<T>(r: any): ApiResponse<T> {
     if ('data' in r) return r as ApiResponse<T>;
     // User/auth specific shape
     if ('username' in r) return { ...(r as object), data: (r as any).username } as unknown as ApiResponse<T>;
-    // Pure message response (e.g., not found) => do NOT coerce into data
+    // Preserve any additional fields (e.g., token) when Message exists
     if ('Message' in r &&
         !('customers' in r) && !('customer' in r) &&
         !('citizenships' in r) && !('citizenship' in r) &&
         !('histories' in r) && !('history' in r)) {
-      return { Message: (r as any).Message } as ApiResponse<T>;
+      return r as ApiResponse<T>;
     }
     if ('customers' in r) return { ...(r as object), data: (r as any).customers } as ApiResponse<T>;
     if ('customer' in r) return { ...(r as object), data: (r as any).customer } as ApiResponse<T>;

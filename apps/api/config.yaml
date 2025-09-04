@@ -1,6 +1,8 @@
 # Server Config
 MODE: "release"
 PORT: 8080
+FRONTEND_ORIGIN: "http://localhost:4200"
+COOKIE_SECURE: false
 
 # Database Config
 DATABASE:

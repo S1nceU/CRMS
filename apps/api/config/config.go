@@ -21,6 +21,8 @@ type DatabaseConfig struct {
 type Config struct {
 	Mode            string `mapstructure:"MODE"`
 	Port            int    `mapstructure:"PORT"`
+	FrontendOrigin  string `mapstructure:"FRONTEND_ORIGIN"`
+	CookieSecure    bool   `mapstructure:"COOKIE_SECURE"`
 	*DatabaseConfig `mapstructure:"DATABASE"`
 }
 
