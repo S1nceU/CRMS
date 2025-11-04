@@ -77,10 +77,11 @@ func init() {
 	} else {
 		log.Println("Connect to DB successfully")
 		var err error
-		if !db.Migrator().HasTable("citizenships") {
-			if err = db.AutoMigrate(&model.Citizenship{}); err != nil {
-				return
-			}
+		needsSeed := !db.Migrator().HasTable("citizenships")
+		if err = db.AutoMigrate(&model.Citizenship{}); err != nil {
+			return
+		}
+		if needsSeed {
 			config.ImportCitizenshipData(db)
 			log.Println("Init citizenship data successfully")
 		}

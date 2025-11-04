@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -130,7 +131,7 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 			return
 		}
 	}
-
+	fmt.Println(createCustomer.Id, createCustomer.NationalId)
 	c.JSON(http.StatusOK, createCustomer)
 }
 

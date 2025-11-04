@@ -97,7 +97,7 @@ func (u *UserService) Login(username, password string) (string, error) {
 
 func (u *UserService) Authentication(tokenString string) (string, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil
+		return []byte("CRMSAuthenticationRequires256BitSecureKeys!@#$"), nil
 	}, jwt.WithValidMethods([]string{"HS256"}))
 
 	if err != nil {

@@ -93,7 +93,7 @@ const HistoryManagement: React.FC = () => {
   };
 
   const handleDelete = async (historyId: string) => {
-    if (window.confirm('Are you sure you want to delete this history record?')) {
+    if (window.confirm('確定要刪除此歷史紀錄嗎？')) {
       try {
         await apiService.deleteHistory(historyId);
         loadHistories();
@@ -111,7 +111,7 @@ const HistoryManagement: React.FC = () => {
       switch (searchType) {
         case 'date': {
           if (!searchDate) {
-            setSearchError('Please select a date.');
+            setSearchError('請選擇日期。');
             return;
           }
           response = await apiService.getHistoriesByDate(searchDate);
@@ -119,11 +119,11 @@ const HistoryManagement: React.FC = () => {
         }
         case 'dateRange': {
           if (!searchStartDate || !searchEndDate) {
-            setSearchError('Please select both start and end dates.');
+            setSearchError('請選擇起訖日期。');
             return;
           }
           if (searchStartDate > searchEndDate) {
-            setSearchError('Start date must be before end date.');
+            setSearchError('開始日期必須早於結束日期。');
             return;
           }
           response = await apiService.getHistoriesByDateRange(searchStartDate, searchEndDate);
@@ -131,7 +131,7 @@ const HistoryManagement: React.FC = () => {
         }
         case 'customer': {
           if (!selectedCustomerId) {
-            setSearchError('Please choose a customer.');
+            setSearchError('請選擇客戶。');
             return;
           }
           response = await apiService.getHistoriesByCustomerId(selectedCustomerId);
@@ -152,7 +152,7 @@ const HistoryManagement: React.FC = () => {
       }
     } catch (error) {
       console.error('Search failed:', error);
-      setSearchError('Search failed. Please try again.');
+      setSearchError('搜尋失敗，請稍後再試。');
       setHistories([]);
     } finally {
       setIsSearching(false);
@@ -174,30 +174,30 @@ const HistoryManagement: React.FC = () => {
 
   const getCustomerName = (customerId: string) => {
     const customer = customers.find(c => c.Id === customerId);
-    return customer ? customer.Name : 'Unknown Customer';
+    return customer ? customer.Name : '未知客戶';
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('zh-TW', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'TWD',
     }).format(amount);
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Loading...</div>;
+    return <div className="flex justify-center items-center h-64">載入中...</div>;
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">History Management</h2>
+        <h2 className="text-2xl font-bold text-gray-900">歷史紀錄管理</h2>
         <button
           onClick={() => setShowForm(true)}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
-          Add New History
+          新增紀錄
         </button>
       </div>
 
@@ -206,17 +206,17 @@ const HistoryManagement: React.FC = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search Type
+              搜尋方式
             </label>
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value as 'all' | 'date' | 'dateRange' | 'customer')}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <option value="all">All Records</option>
-              <option value="date">By Date</option>
-              <option value="dateRange">By Date Range</option>
-              <option value="customer">By Customer</option>
+              <option value="all">全部紀錄</option>
+              <option value="date">依日期</option>
+              <option value="dateRange">依日期區間</option>
+              <option value="customer">依客戶</option>
             </select>
           </div>
 
@@ -224,7 +224,7 @@ const HistoryManagement: React.FC = () => {
             <div className="flex gap-4 items-end">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
+                  日期
                 </label>
                 <input
                   type="date"
@@ -238,7 +238,7 @@ const HistoryManagement: React.FC = () => {
                 onClick={handleSearch}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                {isSearching ? 'Searching...' : 'Search'}
+                {isSearching ? '搜尋中...' : '搜尋'}
               </button>
             </div>
           )}
@@ -247,7 +247,7 @@ const HistoryManagement: React.FC = () => {
             <div className="flex gap-4 items-end">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start Date
+                  開始日期
                 </label>
                 <input
                   type="date"
@@ -259,7 +259,7 @@ const HistoryManagement: React.FC = () => {
               </div>
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End Date
+                  結束日期
                 </label>
                 <input
                   type="date"
@@ -273,7 +273,7 @@ const HistoryManagement: React.FC = () => {
                 onClick={handleSearch}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                {isSearching ? 'Searching...' : 'Search'}
+                {isSearching ? '搜尋中...' : '搜尋'}
               </button>
             </div>
           )}
@@ -282,14 +282,14 @@ const HistoryManagement: React.FC = () => {
             <div className="flex gap-4 items-end">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Customer
+                  客戶
                 </label>
                 <select
                   value={selectedCustomerId}
                   onChange={(e) => setSelectedCustomerId(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 >
-                  <option value="">Select a customer...</option>
+                  <option value="">請選擇客戶...</option>
                   {customers.map((customer) => (
                     <option key={customer.Id} value={customer.Id}>
                       {customer.Name}
@@ -301,7 +301,7 @@ const HistoryManagement: React.FC = () => {
                 onClick={handleSearch}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                {isSearching ? 'Searching...' : 'Search'}
+                {isSearching ? '搜尋中...' : '搜尋'}
               </button>
             </div>
           )}
@@ -314,7 +314,7 @@ const HistoryManagement: React.FC = () => {
             onClick={() => { setSearchType('all'); setSearchDate(''); setSearchStartDate(''); setSearchEndDate(''); setSelectedCustomerId(''); setSearchError(null); loadHistories(); }}
             className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
-            Reset
+            重設
           </button>
         </div>
       </div>
@@ -325,12 +325,12 @@ const HistoryManagement: React.FC = () => {
           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-lg shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingHistory ? 'Edit History' : 'Add New History'}
+                {editingHistory ? '編輯紀錄' : '新增紀錄'}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Customer *
+                    客戶 *
                   </label>
                   <select
                     required
@@ -338,7 +338,7 @@ const HistoryManagement: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, CustomerId: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   >
-                    <option value="">Select a customer...</option>
+                    <option value="">請選擇客戶...</option>
                     {customers.map((customer) => (
                       <option key={customer.Id} value={customer.Id}>
                         {customer.Name}
@@ -348,7 +348,7 @@ const HistoryManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date *
+                    日期 *
                   </label>
                   <input
                     type="date"
@@ -360,7 +360,7 @@ const HistoryManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Number of People *
+                    人數 *
                   </label>
                   <input
                     type="number"
@@ -373,7 +373,7 @@ const HistoryManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price *
+                    金額 *
                   </label>
                   <input
                     type="number"
@@ -387,7 +387,7 @@ const HistoryManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Room *
+                    房號 *
                   </label>
                   <input
                     type="text"
@@ -399,7 +399,7 @@ const HistoryManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Note
+                    備註
                   </label>
                   <textarea
                     value={formData.Note}
@@ -414,13 +414,13 @@ const HistoryManagement: React.FC = () => {
                     onClick={resetForm}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
                   >
-                    Cancel
+                    取消
                   </button>
                   <button
                     type="submit"
                     className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
                   >
-                    {editingHistory ? 'Update' : 'Create'}
+                    {editingHistory ? '更新' : '建立'}
                   </button>
                 </div>
               </form>
@@ -447,10 +447,10 @@ const HistoryManagement: React.FC = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-gray-900">
-                        Room: {history.Room}
+                        房號：{history.Room}
                       </p>
                       <p className="text-sm text-gray-500">
-                        People: {history.NumberOfPeople}
+                        人數：{history.NumberOfPeople}
                       </p>
                     </div>
                     <div className="flex-1">
@@ -461,7 +461,7 @@ const HistoryManagement: React.FC = () => {
                   </div>
                   {history.Note && (
                     <p className="mt-2 text-xs text-gray-500">
-                      Note: {history.Note}
+                      備註：{history.Note}
                     </p>
                   )}
                 </div>
@@ -470,13 +470,13 @@ const HistoryManagement: React.FC = () => {
                     onClick={() => handleEdit(history)}
                     className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
                   >
-                    Edit
+                    編輯
                   </button>
                   <button
                     onClick={() => handleDelete(history.Id)}
                     className="text-red-600 hover:text-red-900 text-sm font-medium"
                   >
-                    Delete
+                    刪除
                   </button>
                 </div>
               </div>
@@ -485,7 +485,7 @@ const HistoryManagement: React.FC = () => {
         </ul>
         {histories.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No history records found</p>
+            <p className="text-gray-500">查無歷史紀錄</p>
           </div>
         )}
       </div>

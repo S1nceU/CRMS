@@ -126,20 +126,20 @@ class ApiService {
 
   // Authentication
   async login(credentials: LoginRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest('/userLogin', credentials);
+    return this.makeRequest<any>('/userLogin', credentials);
   }
 
   async logout(): Promise<ApiResponse<any>> {
-    return this.makeRequest('/userLogout');
+    return this.makeRequest<any>('/userLogout');
   }
 
   async authenticate(token: string): Promise<ApiResponse<any>> {
-    return this.makeRequest('/userAuthentication', { Token: token });
+    return this.makeRequest<any>('/userAuthentication', { Token: token });
   }
 
   // Customers
   async getCustomers(): Promise<ApiResponse<Customer[]>> {
-    const response = await this.makeRequest('/customerList');
+    const response = await this.makeRequest<Customer[]>('/customerList');
     // Handle the specific customer response format
     if (response.customers) {
       response.data = response.customers;
@@ -148,19 +148,19 @@ class ApiService {
   }
 
   async createCustomer(customer: CustomerRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest('/customerCre', customer);
+    return this.makeRequest<any>('/customerCre', customer);
   }
 
   async updateCustomer(customer: CustomerRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest('/customerMod', customer);
+    return this.makeRequest<any>('/customerMod', customer);
   }
 
   async deleteCustomer(customerId: string): Promise<ApiResponse<any>> {
-    return this.makeRequest('/customerDel', { CustomerId: customerId });
+    return this.makeRequest<any>('/customerDel', { CustomerId: customerId });
   }
 
   async getCustomerById(customerId: string): Promise<ApiResponse<Customer>> {
-    const response = await this.makeRequest('/customerID', { CustomerId: customerId });
+    const response = await this.makeRequest<Customer>('/customerID', { CustomerId: customerId });
     // Handle the specific customer response format
     if (response.customer) {
       response.data = response.customer;
@@ -169,7 +169,7 @@ class ApiService {
   }
 
   async getCustomerByNationalId(nationalId: string): Promise<ApiResponse<Customer>> {
-    const response = await this.makeRequest('/customerNationalId', { NationalId: nationalId });
+    const response = await this.makeRequest<Customer>('/customerNationalId', { NationalId: nationalId });
     // Handle the specific customer response format
     if (response.customer) {
       response.data = response.customer;
@@ -178,7 +178,7 @@ class ApiService {
   }
 
   async getCustomerByName(name: string): Promise<ApiResponse<Customer[]>> {
-    const response = await this.makeRequest('/customerName', { Name: name });
+    const response = await this.makeRequest<Customer[]>('/customerName', { Name: name });
     // Handle the specific customer response format
     if (response.customers) {
       response.data = response.customers;
@@ -187,7 +187,7 @@ class ApiService {
   }
 
   async getCustomerByPhone(phone: string): Promise<ApiResponse<Customer[]>> {
-    const response = await this.makeRequest('/customerPhone', { PhoneNumber: phone });
+    const response = await this.makeRequest<Customer[]>('/customerPhone', { PhoneNumber: phone });
     // Backend returns a list for phone search
     if ((response as any).customers) {
       response.data = (response as any).customers;
@@ -197,7 +197,7 @@ class ApiService {
 
   // History
   async getHistories(): Promise<ApiResponse<History[]>> {
-    const response = await this.makeRequest('/historyList');
+    const response = await this.makeRequest<History[]>('/historyList');
     // Handle the specific history response format
     if (response.histories) {
       response.data = response.histories;
@@ -206,19 +206,19 @@ class ApiService {
   }
 
   async createHistory(history: HistoryRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest('/historyCre', history);
+    return this.makeRequest<any>('/historyCre', history);
   }
 
   async updateHistory(history: HistoryRequest): Promise<ApiResponse<any>> {
-    return this.makeRequest('/historyMod', history);
+    return this.makeRequest<any>('/historyMod', history);
   }
 
   async deleteHistory(historyId: string): Promise<ApiResponse<any>> {
-    return this.makeRequest('/historyDel', { HistoryId: historyId });
+    return this.makeRequest<any>('/historyDel', { HistoryId: historyId });
   }
 
   async getHistoryById(historyId: string): Promise<ApiResponse<History>> {
-    const response = await this.makeRequest('/historyByHistoryId', { HistoryId: historyId });
+    const response = await this.makeRequest<History>('/historyByHistoryId', { HistoryId: historyId });
     // Handle the specific history response format
     if (response.history) {
       response.data = response.history;
@@ -227,7 +227,7 @@ class ApiService {
   }
 
   async getHistoriesByCustomerId(customerId: string): Promise<ApiResponse<History[]>> {
-    const response = await this.makeRequest('/historyCustomerId', { CustomerId: customerId });
+    const response = await this.makeRequest<History[]>('/historyCustomerId', { CustomerId: customerId });
     // Handle the specific history response format
     if (response.histories) {
       response.data = response.histories;
@@ -236,7 +236,7 @@ class ApiService {
   }
 
   async getHistoriesByDate(date: string): Promise<ApiResponse<History[]>> {
-    const response = await this.makeRequest('/historyForDate', { Date: date });
+    const response = await this.makeRequest<History[]>('/historyForDate', { Date: date });
     // Handle the specific history response format
     if (response.histories) {
       response.data = response.histories;
@@ -245,7 +245,7 @@ class ApiService {
   }
 
   async getHistoriesByDateRange(startDate: string, endDate: string): Promise<ApiResponse<History[]>> {
-    const response = await this.makeRequest('/historyForDuring', { startDate, endDate });
+    const response = await this.makeRequest<History[]>('/historyForDuring', { startDate, endDate });
     // Handle the specific history response format
     if (response.histories) {
       response.data = response.histories;
@@ -255,7 +255,7 @@ class ApiService {
 
   // Citizenship
   async getCitizenships(): Promise<ApiResponse<Citizenship[]>> {
-    const response = await this.makeRequest('/citizenships');
+    const response = await this.makeRequest<Citizenship[]>('/citizenships');
     // Handle the specific citizenship response format
     if (response.citizenships) {
       response.data = response.citizenships;
@@ -264,7 +264,7 @@ class ApiService {
   }
 
   async getCitizenshipById(id: number): Promise<ApiResponse<Citizenship>> {
-    const response = await this.makeRequest('/citizenshipId', { CitizenshipId: id });
+    const response = await this.makeRequest<Citizenship>('/citizenshipId', { CitizenshipId: id });
     // Handle the specific citizenship response format
     if (response.citizenship) {
       response.data = response.citizenship;
@@ -273,7 +273,7 @@ class ApiService {
   }
 
   async getCitizenshipByNation(nation: string): Promise<ApiResponse<Citizenship>> {
-    const response = await this.makeRequest('/citizenshipNation', { CitizenshipName: nation });
+    const response = await this.makeRequest<Citizenship>('/citizenshipNation', { CitizenshipName: nation });
     // Handle the specific citizenship response format
     if (response.citizenship) {
       response.data = response.citizenship;

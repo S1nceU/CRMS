@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
     const success = await login({ Username: username, Password: password });
     
     if (!success) {
-      setError('Invalid username or password');
+      setError('帳號或密碼不正確');
     }
     
     setLoading(false);
@@ -27,17 +27,17 @@ const LoginPage: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            CRMS Login
+            CRMS 登入
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Customer Relationship Management System
+            客戶關係管理系統
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="username" className="sr-only">
-                Username
+                使用者名稱
               </label>
               <input
                 id="username"
@@ -45,14 +45,14 @@ const LoginPage: React.FC = () => {
                 type="text"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
+                placeholder="使用者名稱"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
-                Password
+                密碼
               </label>
               <input
                 id="password"
@@ -60,7 +60,7 @@ const LoginPage: React.FC = () => {
                 type="password"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder="密碼"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -79,7 +79,7 @@ const LoginPage: React.FC = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? '登入中...' : '登入'}
             </button>
           </div>
         </form>
