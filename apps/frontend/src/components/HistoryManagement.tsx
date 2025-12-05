@@ -1,7 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { apiService, History, HistoryRequest, Customer } from '../services/api';
 
-const HistoryManagement: React.FC = () => {
+type HistoryManagementProps = {
+  prefillCustomerId?: string | null;
+  onPrefillHandled?: () => void;
+};
+
+const buildEmptyHistoryForm = (customerId = ''): HistoryRequest => ({
+  CustomerId: customerId,
+  Date: '',
+  NumberOfPeople: 1,
+  Price: 0,
+  Room: '',
+  Note: '',
+});
+
+const HistoryManagement: React.FC<HistoryManagementProps> = ({
+  prefillCustomerId,
+  onPrefillHandled,
+}) => {
   const [histories, setHistories] = useState<History[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -11,32 +28,38 @@ const HistoryManagement: React.FC = () => {
   const [searchDate, setSearchDate] = useState('');
   const [searchStartDate, setSearchStartDate] = useState('');
   const [searchEndDate, setSearchEndDate] = useState('');
-  const [selectedCustomerId, setSelectedCustomerId] = useState('');
+  const [searchCustomerTerm, setSearchCustomerTerm] = useState('');
+  const [searchCustomerField, setSearchCustomerField] = useState<'name' | 'nationalId' | 'phone'>('name');
   const [searchError, setSearchError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  const [formData, setFormData] = useState<HistoryRequest>({
-    CustomerId: '',
-    Date: '',
-    NumberOfPeople: 1,
-    Price: 0,
-    Room: '',
-    Note: '',
-  });
+  const [formData, setFormData] = useState<HistoryRequest>(() => buildEmptyHistoryForm());
 
   useEffect(() => {
     loadHistories();
     loadCustomers();
   }, []);
 
+  useEffect(() => {
+    if (!prefillCustomerId) return;
+    setEditingHistory(null);
+    setFormData(buildEmptyHistoryForm(prefillCustomerId));
+    setShowForm(true);
+    onPrefillHandled?.();
+  }, [prefillCustomerId, onPrefillHandled]);
+
+  const normalizeHistories = (data: any): History[] => {
+    if (!data) return [];
+    const list = Array.isArray(data) ? data : [data];
+    const valid = list.filter((h: any) => h && typeof h === 'object' && 'Id' in h && 'CustomerId' in h);
+    return valid.map((h: any) => ({ ...h, Date: h.Date || '' })) as History[];
+  };
+
   const loadHistories = async () => {
     try {
       const response = await apiService.getHistories();
       if (response.data) {
-        const data: any = response.data as any;
-        const list = Array.isArray(data) ? data : [data];
-        const valid = list.filter((h: any) => h && typeof h === 'object' && 'Id' in h && 'CustomerId' in h);
-        setHistories(valid.map((h: any) => ({ ...h, Date: h.Date || '' })) as History[]);
+        setHistories(normalizeHistories(response.data));
       } else {
         setHistories([]);
       }
@@ -103,6 +126,28 @@ const HistoryManagement: React.FC = () => {
     }
   };
 
+  const searchCustomersByField = async (term: string, field: 'name' | 'nationalId' | 'phone'): Promise<Customer[]> => {
+    let response;
+    switch (field) {
+      case 'name':
+        response = await apiService.getCustomerByName(term);
+        break;
+      case 'nationalId':
+        response = await apiService.getCustomerByNationalId(term);
+        break;
+      case 'phone':
+        response = await apiService.getCustomerByPhone(term);
+        break;
+    }
+
+    if (response?.data) {
+      const data: any = response.data as any;
+      const list = Array.isArray(data) ? data : [data];
+      return list.filter((c: any) => c && typeof c === 'object' && 'Id' in c) as Customer[];
+    }
+    return [];
+  };
+
   const handleSearch = async () => {
     try {
       setSearchError(null);
@@ -130,12 +175,36 @@ const HistoryManagement: React.FC = () => {
           break;
         }
         case 'customer': {
-          if (!selectedCustomerId) {
-            setSearchError('請選擇客戶。');
+          const term = searchCustomerTerm.trim();
+          if (!term) {
+            setSearchError('請輸入客戶關鍵字。');
             return;
           }
-          response = await apiService.getHistoriesByCustomerId(selectedCustomerId);
-          break;
+          const matchedCustomers = await searchCustomersByField(term, searchCustomerField);
+          if (!matchedCustomers.length) {
+            setHistories([]);
+            setSearchError('找不到符合的客戶。');
+            return;
+          }
+
+          const historyResponses = await Promise.all(
+            matchedCustomers.map((c) => apiService.getHistoriesByCustomerId(c.Id))
+          );
+          const combined: History[] = [];
+          const seen = new Set<string>();
+          historyResponses.forEach((res) => {
+            if (res?.data) {
+              const normalized = normalizeHistories(res.data);
+              normalized.forEach((h) => {
+                if (!seen.has(h.Id)) {
+                  seen.add(h.Id);
+                  combined.push(h);
+                }
+              });
+            }
+          });
+          setHistories(combined);
+          return;
         }
         default:
           await loadHistories();
@@ -143,10 +212,7 @@ const HistoryManagement: React.FC = () => {
       }
 
       if (response?.data) {
-        const data: any = response.data as any;
-        const list = Array.isArray(data) ? data : [data];
-        const valid = list.filter((h: any) => h && typeof h === 'object' && 'Id' in h && 'CustomerId' in h);
-        setHistories(valid.map((h: any) => ({ ...h, Date: h.Date || '' })) as History[]);
+        setHistories(normalizeHistories(response.data));
       } else {
         setHistories([]);
       }
@@ -160,14 +226,7 @@ const HistoryManagement: React.FC = () => {
   };
 
   const resetForm = () => {
-    setFormData({
-      CustomerId: '',
-      Date: '',
-      NumberOfPeople: 1,
-      Price: 0,
-      Room: '',
-      Note: '',
-    });
+    setFormData(buildEmptyHistoryForm());
     setEditingHistory(null);
     setShowForm(false);
   };
@@ -194,7 +253,11 @@ const HistoryManagement: React.FC = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">歷史紀錄管理</h2>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            setEditingHistory(null);
+            setFormData(buildEmptyHistoryForm());
+            setShowForm(true);
+          }}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
           新增紀錄
@@ -279,30 +342,44 @@ const HistoryManagement: React.FC = () => {
           )}
 
           {searchType === 'customer' && (
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  客戶
-                </label>
-                <select
-                  value={selectedCustomerId}
-                  onChange={(e) => setSelectedCustomerId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  <option value="">請選擇客戶...</option>
-                  {customers.map((customer) => (
-                    <option key={customer.Id} value={customer.Id}>
-                      {customer.Name}
-                    </option>
-                  ))}
-                </select>
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    客戶關鍵字
+                  </label>
+                  <input
+                    type="text"
+                    value={searchCustomerTerm}
+                    onChange={(e) => setSearchCustomerTerm(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
+                    placeholder="可輸入姓名 / 身分證 / 電話"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    搜尋條件
+                  </label>
+                  <select
+                    value={searchCustomerField}
+                    onChange={(e) => setSearchCustomerField(e.target.value as 'name' | 'nationalId' | 'phone')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="name">姓名</option>
+                    <option value="nationalId">身分證</option>
+                    <option value="phone">電話</option>
+                  </select>
+                </div>
               </div>
-              <button
-                onClick={handleSearch}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                {isSearching ? '搜尋中...' : '搜尋'}
-              </button>
+              <div className="flex justify-end">
+                <button
+                  onClick={handleSearch}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  {isSearching ? '搜尋中...' : '搜尋'}
+                </button>
+              </div>
             </div>
           )}
 
@@ -311,7 +388,16 @@ const HistoryManagement: React.FC = () => {
           )}
 
           <button
-            onClick={() => { setSearchType('all'); setSearchDate(''); setSearchStartDate(''); setSearchEndDate(''); setSelectedCustomerId(''); setSearchError(null); loadHistories(); }}
+            onClick={() => {
+              setSearchType('all');
+              setSearchDate('');
+              setSearchStartDate('');
+              setSearchEndDate('');
+              setSearchCustomerTerm('');
+              setSearchCustomerField('name');
+              setSearchError(null);
+              loadHistories();
+            }}
             className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             重設

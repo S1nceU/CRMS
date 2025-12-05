@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import CustomerManagement from './CustomerManagement';
 import HistoryManagement from './HistoryManagement';
@@ -6,10 +6,20 @@ import HistoryManagement from './HistoryManagement';
 const Dashboard: React.FC = () => {
   const { username, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'customers' | 'history'>('customers');
+  const [pendingHistoryCustomerId, setPendingHistoryCustomerId] = useState<string | null>(null);
 
   const handleLogout = async () => {
     await logout();
   };
+
+  const handleCreateHistoryForCustomer = useCallback((customerId: string) => {
+    setPendingHistoryCustomerId(customerId);
+    setActiveTab('history');
+  }, []);
+
+  const handlePrefillHandled = useCallback(() => {
+    setPendingHistoryCustomerId(null);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -63,8 +73,15 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {activeTab === 'customers' && <CustomerManagement />}
-        {activeTab === 'history' && <HistoryManagement />}
+        {activeTab === 'customers' && (
+          <CustomerManagement onCreateHistory={handleCreateHistoryForCustomer} />
+        )}
+        {activeTab === 'history' && (
+          <HistoryManagement
+            prefillCustomerId={pendingHistoryCustomerId}
+            onPrefillHandled={handlePrefillHandled}
+          />
+        )}
       </main>
     </div>
   );

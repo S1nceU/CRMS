@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { apiService, Customer, CustomerRequest, Citizenship } from '../services/api';
 
-const CustomerManagement: React.FC = () => {
+type CustomerManagementProps = {
+  onCreateHistory?: (customerId: string) => void;
+};
+
+const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [citizenships, setCitizenships] = useState<Citizenship[]>([]);
   const [loading, setLoading] = useState(true);
@@ -705,16 +709,26 @@ const CustomerManagement: React.FC = () => {
                     </p>
                   )}
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => onCreateHistory?.(customer.Id)}
+                    className="flex items-center px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-md transition-colors duration-200 border border-green-200"
+                  >
+                    <span className="mr-1">+</span> 紀錄
+                  </button>
+
+                  <div className="h-4 w-px bg-gray-300 mx-1"></div>
+
                   <button
                     onClick={() => handleEdit(customer)}
-                    className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                    className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
                   >
                     編輯
                   </button>
+
                   <button
                     onClick={() => handleDelete(customer.Id)}
-                    className="text-red-600 hover:text-red-900 text-sm font-medium"
+                    className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200"
                   >
                     刪除
                   </button>
