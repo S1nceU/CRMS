@@ -9,8 +9,9 @@ import (
 type CustomerRepository interface {
 	ListCustomers() ([]*model.Customer, error)                                      // Get all Customers
 	ListCustomersByCitizenship(customer *model.Customer) ([]*model.Customer, error) // Get all Customers by Citizenship
-	ListCustomersByName(customer *model.Customer) ([]*model.Customer, error)        // Get Customer by CustomerName
-	ListCustomersByPhone(customer *model.Customer) ([]*model.Customer, error)       // Get Customer by CustomerPhone
+	ListCustomersByName(customer *model.Customer) ([]*model.Customer, error)        // Get Customers by CustomerName
+	ListCustomersByPhone(customer *model.Customer) ([]*model.Customer, error)       // Get Customers by CustomerPhone
+	ListCustomersByNationalId(customer *model.Customer) ([]*model.Customer, error)  // Get Customers by NationalId
 	GetCustomerByNationalId(customer *model.Customer) (*model.Customer, error)      // Get Customer by ID
 	GetCustomerByCustomerId(customer *model.Customer) (*model.Customer, error)      // Get Customer by CustomerId
 	CreateCustomer(customer *model.Customer) (*model.Customer, error)               // Create a new Customer
@@ -22,8 +23,9 @@ type CustomerRepository interface {
 type CustomerService interface {
 	ListCustomers() ([]*model.Customer, error)                             // Get all Customers
 	ListCustomersByCitizenship(citizenship int) ([]*model.Customer, error) // Get all Customers by citizenship
-	ListCustomersByName(name string) ([]*model.Customer, error)            // Get Customer by customer_name
-	ListCustomersByPhone(phone string) ([]*model.Customer, error)          // Get Customer by customer_phone
+	ListCustomersByName(name string) ([]*model.Customer, error)            // Get Customers by customer_name
+	ListCustomersByPhone(phone string) ([]*model.Customer, error)          // Get Customers by customer_phone
+	ListCustomersByNationalId(id string) ([]*model.Customer, error)        // Get Customers by ID
 	GetCustomerByNationalId(id string) (*model.Customer, error)            // Get Customer by ID
 	GetCustomerByCustomerId(customerId uuid.UUID) (*model.Customer, error) // Get Customer by customer_id
 	CreateCustomer(customer *model.Customer) (*model.Customer, error)      // Create a new Customer

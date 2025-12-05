@@ -82,6 +82,20 @@ func (u *CustomerService) ListCustomersByPhone(phone string) ([]*model.Customer,
 	return convertToSliceOfCustomer(customers), err
 }
 
+func (u *CustomerService) ListCustomersByNationalId(id string) ([]*model.Customer, error) {
+	var err error
+	var customers []*model.Customer
+	newCustomer := &model.Customer{
+		NationalId: id,
+	}
+	if customers, err = u.repo.ListCustomersByNationalId(newCustomer); err != nil {
+		return nil, err
+	} else if len(customers) == 0 {
+		return nil, errors.New("error CRMS: there is no such customer")
+	}
+	return convertToSliceOfCustomer(customers), err
+}
+
 func (u *CustomerService) GetCustomerByNationalId(id string) (*model.Customer, error) {
 	var err error
 	newCustomer := &model.Customer{

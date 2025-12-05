@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -71,7 +70,7 @@ func (u *CustomerHandler) GetCustomerByNationalId(c *gin.Context) {
 		})
 		return
 	}
-	customerData, err := u.customerSer.GetCustomerByNationalId(request.NationalId)
+	customerData, err := u.customerSer.ListCustomersByNationalId(request.NationalId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -131,7 +130,6 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 			return
 		}
 	}
-	fmt.Println(createCustomer.Id, createCustomer.NationalId)
 	c.JSON(http.StatusOK, createCustomer)
 }
 

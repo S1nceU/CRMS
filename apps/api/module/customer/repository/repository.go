@@ -24,19 +24,25 @@ func (u *CustomerRepository) ListCustomers() ([]*model.Customer, error) {
 
 func (u *CustomerRepository) ListCustomersByCitizenship(customer *model.Customer) ([]*model.Customer, error) {
 	var customers []*model.Customer
-	err := u.orm.Preload("Citizenship").Where("CitizenshipId = ?", customer.CitizenshipId).Find(&customers).Error
+	err := u.orm.Preload("Citizenship").Preload("Histories").Where("CitizenshipId = ?", customer.CitizenshipId).Find(&customers).Error
 	return customers, err
 }
 
 func (u *CustomerRepository) ListCustomersByName(customer *model.Customer) ([]*model.Customer, error) {
 	var customers []*model.Customer
-	err := u.orm.Where("Name LIKE ?", "%"+customer.Name+"%").Find(&customers).Error
+	err := u.orm.Preload("Citizenship").Preload("Histories").Where("Name LIKE ?", "%"+customer.Name+"%").Find(&customers).Error
 	return customers, err
 }
 
 func (u *CustomerRepository) ListCustomersByPhone(customer *model.Customer) ([]*model.Customer, error) {
 	var customers []*model.Customer
-	err := u.orm.Where("PhoneNumber LIKE ?", "%"+customer.PhoneNumber+"%").Find(&customers).Error
+	err := u.orm.Preload("Citizenship").Preload("Histories").Where("PhoneNumber LIKE ?", "%"+customer.PhoneNumber+"%").Find(&customers).Error
+	return customers, err
+}
+
+func (u *CustomerRepository) ListCustomersByNationalId(customer *model.Customer) ([]*model.Customer, error) {
+	var customers []*model.Customer
+	err := u.orm.Preload("Citizenship").Preload("Histories").Where("NationalId LIKE ?", "%"+customer.NationalId).Find(&customers).Error
 	return customers, err
 }
 
