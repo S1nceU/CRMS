@@ -4,13 +4,19 @@ import (
 	"errors"
 	"time"
 
+	"github.com/S1nceU/CRMS/apps/api/config"
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-const TokenExpireDuration = time.Hour * 2
+func TokenExpireDuration() time.Duration {
+	if config.Val.TokenExpireHours > 0 {
+		return time.Duration(config.Val.TokenExpireHours) * time.Hour
+	}
+	return 2 * time.Hour // fallback
+}
 
 type UserService struct {
 	repo domain.UserRepository
@@ -87,17 +93,17 @@ func (u *UserService) Login(username, password string) (string, error) {
 	claim := jwtClaims{
 		Username: newUser.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
-			Issuer:    "S1nceU",
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration())),
+			Issuer:    config.Val.TokenIssuer,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
-	return token.SignedString([]byte("CRMSAuthenticationRequires256BitSecureKeys!@#$"))
+	return token.SignedString([]byte(config.Val.TokenSecret))
 }
 
 func (u *UserService) Authentication(tokenString string) (string, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("CRMSAuthenticationRequires256BitSecureKeys!@#$"), nil
+		return []byte(config.Val.TokenSecret), nil
 	}, jwt.WithValidMethods([]string{"HS256"}))
 
 	if err != nil {

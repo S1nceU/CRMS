@@ -20,11 +20,14 @@ type DatabaseConfig struct {
 }
 
 type Config struct {
-	Mode            string `mapstructure:"MODE"`
-	Port            int    `mapstructure:"PORT"`
-	FrontendOrigin  string `mapstructure:"FRONTEND_ORIGIN"`
-	CookieSecure    bool   `mapstructure:"COOKIE_SECURE"`
-	*DatabaseConfig `mapstructure:"DATABASE"`
+	Mode             string `mapstructure:"MODE"`
+	Port             int    `mapstructure:"PORT"`
+	FrontendOrigin   string `mapstructure:"FRONTEND_ORIGIN"`
+	CookieSecure     bool   `mapstructure:"COOKIE_SECURE"`
+	TokenSecret      string `mapstructure:"TOKEN_SECRET"`
+	TokenIssuer      string `mapstructure:"TOKEN_ISSUER"`
+	TokenExpireHours int    `mapstructure:"TOKEN_EXPIRATION_HOURS"`
+	*DatabaseConfig  `mapstructure:"DATABASE"`
 }
 
 // Init is a function to read config.yaml

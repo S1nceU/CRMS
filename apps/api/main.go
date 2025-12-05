@@ -104,6 +104,7 @@ func main() {
 	router.Use(route.Cors()) // CORS middleware
 
 	customerRepo := _customerRepo.NewCustomerRepository(db)
+
 	historyRepo := _historyRepo.NewHistoryRepository(db)
 	userRepo := _userRepo.NewUserRepository(db)
 	citizenshipRepo := _citizenshipRepo.NewCitizenshipRepository(db)
@@ -113,10 +114,14 @@ func main() {
 	userSer := _userSer.NewUserService(userRepo)
 	citizenshipSer := _citizenshipSer.NewCitizenshipService(citizenshipRepo)
 
-	_customerHandlerHttpDelivery.NewCustomerHandler(router, customerSer)
-	_historyHandlerHttpDelivery.NewHistoryHandler(router, historySer)
-	_citizenshipHandlerHttpDelivery.NewCitizenshipHandler(router, citizenshipSer)
-	_userHandlerHttpDelivery.NewUserHandler(router, userSer)
+	public := router.Group("/api")
+	protected := router.Group("/api")
+	protected.Use(route.AuthMiddleware(userSer))
+
+	_customerHandlerHttpDelivery.NewCustomerHandler(protected, customerSer)
+	_historyHandlerHttpDelivery.NewHistoryHandler(protected, historySer)
+	_citizenshipHandlerHttpDelivery.NewCitizenshipHandler(protected, citizenshipSer)
+	_userHandlerHttpDelivery.NewUserHandler(public, userSer)
 
 	route.NewRoute(router)
 

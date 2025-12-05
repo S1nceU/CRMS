@@ -28,26 +28,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const clearAuth = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    setUsername(null);
+  };
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      clearAuth();
+    };
+    window.addEventListener('crms:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('crms:unauthorized', handleUnauthorized);
+    };
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      apiService.authenticate(token)
-        .then((response) => {
-          if (response.Message === 'Authentication successfully') {
-            setIsAuthenticated(true);
-            const name = typeof response.data === 'string' ? response.data : '使用者';
-            setUsername(name);
-          }
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
+    if (!token) {
       setLoading(false);
+      return;
     }
+
+    apiService
+      .authenticate(token)
+      .then((response) => {
+        if (response.Message === 'Authentication successfully') {
+          setIsAuthenticated(true);
+          const name = typeof response.data === 'string' ? response.data : 'user';
+          setUsername(name);
+          return;
+        }
+        clearAuth();
+      })
+      .catch((err) => {
+        console.error('Auth check failed:', err);
+        clearAuth();
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const login = async (credentials: { Username: string; Password: string }): Promise<boolean> => {
@@ -56,12 +77,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.token) {
         localStorage.setItem('token', response.token);
         setIsAuthenticated(true);
-        setUsername(credentials.Username);
+        const name = typeof response.data === 'string' ? response.data : credentials.Username;
+        setUsername(name);
         return true;
       }
+      clearAuth();
       return false;
     } catch (error) {
       console.error('Login failed:', error);
+      clearAuth();
       return false;
     }
   };
@@ -72,9 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      localStorage.removeItem('token');
-      setIsAuthenticated(false);
-      setUsername(null);
+      clearAuth();
     }
   };
 

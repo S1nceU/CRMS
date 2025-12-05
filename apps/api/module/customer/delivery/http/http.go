@@ -14,22 +14,21 @@ type CustomerHandler struct {
 	customerSer domain.CustomerService
 }
 
-func NewCustomerHandler(e *gin.Engine, customerSer domain.CustomerService) {
+func NewCustomerHandler(r gin.IRoutes, customerSer domain.CustomerService) {
 	handler := &CustomerHandler{
 		customerSer: customerSer,
 	}
-	api := e.Group("/api")
-	{
-		api.POST("/customerList", handler.ListCustomers)
-		api.POST("/customerNationalId", handler.GetCustomerByNationalId)
-		api.POST("/customerCre", handler.CreateCustomer)
-		api.POST("/customerMod", handler.ModifyCustomer)
-		api.POST("/customerDel", handler.DeleteCustomer)
-		api.POST("/customerName", handler.GetCustomerByCustomerName)
-		api.POST("/customerCitizenship", handler.ListCustomersByCitizenship)
-		api.POST("/customerPhone", handler.GetCustomerByCustomerPhone)
-		api.POST("/customerID", handler.GetCustomerByCustomerID)
-	}
+
+	r.POST("/customerList", handler.ListCustomers)
+	r.POST("/customerNationalId", handler.GetCustomerByNationalId)
+	r.POST("/customerCre", handler.CreateCustomer)
+	r.POST("/customerMod", handler.ModifyCustomer)
+	r.POST("/customerDel", handler.DeleteCustomer)
+	r.POST("/customerName", handler.GetCustomerByCustomerName)
+	r.POST("/customerCitizenship", handler.ListCustomersByCitizenship)
+	r.POST("/customerPhone", handler.GetCustomerByCustomerPhone)
+	r.POST("/customerID", handler.GetCustomerByCustomerID)
+
 }
 
 // ListCustomers @Summary ListCustomers

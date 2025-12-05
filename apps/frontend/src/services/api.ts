@@ -80,10 +80,15 @@ function normalizeApiResponse<T>(r: any): ApiResponse<T> {
     // User/auth specific shape
     if ('username' in r) return { ...(r as object), data: (r as any).username } as unknown as ApiResponse<T>;
     // Preserve any additional fields (e.g., token) when Message exists
-    if ('Message' in r &&
-        !('customers' in r) && !('customer' in r) &&
-        !('citizenships' in r) && !('citizenship' in r) &&
-        !('histories' in r) && !('history' in r)) {
+    if (
+      'Message' in r &&
+      !('customers' in r) &&
+      !('customer' in r) &&
+      !('citizenships' in r) &&
+      !('citizenship' in r) &&
+      !('histories' in r) &&
+      !('history' in r)
+    ) {
       return r as ApiResponse<T>;
     }
     if ('customers' in r) return { ...(r as object), data: (r as any).customers } as ApiResponse<T>;
@@ -99,28 +104,45 @@ function normalizeApiResponse<T>(r: any): ApiResponse<T> {
 
 class ApiService {
   private async makeRequest<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
-    console.log(`🔗 Making API request to: ${API_BASE_URL}${endpoint}`);
-    console.log(`📤 Request data:`, data);
-    
+    const token = localStorage.getItem('token');
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    console.log(`Making API request to: ${API_BASE_URL}${endpoint}`);
+    console.log('Request data:', data);
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       credentials: 'include',
       body: data ? JSON.stringify(data) : undefined,
     });
 
-    console.log(`📥 Response status: ${response.status}`);
-    console.log(`📥 Response ok: ${response.ok}`);
+    console.log(`Response status: ${response.status}`);
+    console.log(`Response ok: ${response.ok}`);
+
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      window.dispatchEvent(new Event('crms:unauthorized'));
+      const unauthorizedError: any = new Error('Unauthorized');
+      unauthorizedError.status = 401;
+      throw unauthorizedError;
+    }
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const error: any = new Error(`HTTP error! status: ${response.status}`);
+      error.status = response.status;
+      throw error;
     }
 
     const result = await response.json();
-    console.log(`📋 Raw response from ${endpoint}:`, result);
-    
+    console.log(`Raw response from ${endpoint}:`, result);
+
     return normalizeApiResponse<T>(result);
   }
 
