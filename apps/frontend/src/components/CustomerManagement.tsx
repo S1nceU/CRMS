@@ -370,7 +370,7 @@ const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <h2 className="text-2xl font-bold text-gray-900">客戶管理</h2>
         <button
           onClick={() => {
@@ -383,7 +383,7 @@ const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory
             }
             setShowForm(true);
           }}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
           新增客戶
         </button>
@@ -391,8 +391,8 @@ const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory
 
       {/* Search */}
       <div className="bg-white p-4 rounded-lg shadow">
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <div className="w-full sm:flex-1 sm:min-w-[220px]">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               搜尋關鍵字
             </label>
@@ -413,14 +413,14 @@ const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory
               <p className="mt-1 text-xs text-red-600">{searchError}</p>
             )}
           </div>
-          <div>
+          <div className="w-full sm:w-auto">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               搜尋條件
             </label>
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value as 'name' | 'nationalId' | 'phone')}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="name">姓名</option>
               <option value="nationalId">身分證號</option>
@@ -429,13 +429,13 @@ const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory
           </div>
           <button
             onClick={handleSearch}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             {isSearching ? '搜尋中...' : '搜尋'}
           </button>
           <button
             onClick={() => { setSearchTerm(''); setSearchType('name'); loadCustomers(); }}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            className="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             重設
           </button>
@@ -459,7 +459,7 @@ const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory
               )}
               
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       姓名 *
@@ -673,62 +673,62 @@ const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory
         <ul className="divide-y divide-gray-200">
           {safeCustomers.map((customer) => (
             <li key={customer.Id} className="px-6 py-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 break-words md:truncate">
                         {customer.Name}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 break-words">
                         {getGenderLabel(customer.Gender)} • {customer.Birthday.split('T')[0]} • {getCitizenshipName(customer.CitizenshipId)}
                       </p>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-900">
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-900 break-all">
                         身分證號：{customer.NationalId}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 break-words">
                         電話：{customer.PhoneNumber || '未提供'}
                       </p>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-900">
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-900 break-words">
                         地址：{customer.Address || '未提供'}
                       </p>
                       {customer.CarNumber && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 break-all">
                           車牌：{customer.CarNumber}
                         </p>
                       )}
                     </div>
                   </div>
                   {customer.Note && (
-                    <p className="mt-2 text-xs text-gray-500">
+                    <p className="mt-2 text-xs text-gray-500 break-words">
                       備註：{customer.Note}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex flex-wrap items-center gap-2 md:ml-4 md:flex-nowrap md:gap-3">
                   <button
                     onClick={() => onCreateHistory?.(customer.Id)}
-                    className="flex items-center px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-md transition-colors duration-200 border border-green-200"
+                    className="whitespace-nowrap flex items-center px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-md transition-colors duration-200 border border-green-200"
                   >
                     <span className="mr-1">+</span> 紀錄
                   </button>
 
-                  <div className="h-4 w-px bg-gray-300 mx-1"></div>
+                  <div className="hidden md:block h-4 w-px bg-gray-300 mx-1"></div>
 
                   <button
                     onClick={() => handleEdit(customer)}
-                    className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                    className="whitespace-nowrap px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
                   >
                     編輯
                   </button>
 
                   <button
                     onClick={() => handleDelete(customer.Id)}
-                    className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200"
+                    className="whitespace-nowrap px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200"
                   >
                     刪除
                   </button>
