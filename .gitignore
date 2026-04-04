@@ -11,5 +11,6 @@ node_modules
 .vscode/
 
 .claude/
+CLAUDE.md
 
 node_modules/
