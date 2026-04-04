@@ -1,26 +1,26 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type CitizenshipHandler struct {
 	service domain.CitizenshipService
 }
 
-func NewCitizenshipHandler(e *gin.Engine, service domain.CitizenshipService) {
+func NewCitizenshipHandler(r gin.IRoutes, service domain.CitizenshipService) {
 	handler := &CitizenshipHandler{
 		service: service,
 	}
-	api := e.Group("/api")
-	{
-		api.POST("/citizenships", handler.ListCitizenships)
-		api.POST("/citizenshipId", handler.GetCitizenshipByID)
-		api.POST("/citizenshipNation", handler.GetCitizenshipByCitizenshipName)
-	}
+
+	r.POST("/citizenships", handler.ListCitizenships)
+	r.POST("/citizenshipId", handler.GetCitizenshipByID)
+	r.POST("/citizenshipNation", handler.GetCitizenshipByCitizenshipName)
+
 }
 
 // ListCitizenships @Summary ListCitizenships

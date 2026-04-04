@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { apiService, Customer, CustomerRequest, Citizenship } from '../services/api';
 
-const CustomerManagement: React.FC = () => {
+type CustomerManagementProps = {
+  onCreateHistory?: (customerId: string) => void;
+};
+
+const CustomerManagement: React.FC<CustomerManagementProps> = ({ onCreateHistory }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [citizenships, setCitizenships] = useState<Citizenship[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,52 +53,63 @@ const CustomerManagement: React.FC = () => {
     return () => clearTimeout(id);
   }, [searchTerm, searchType]);
 
+  // When citizenships load and form is open for a new customer, default to Taiwan (TWN)
+  useEffect(() => {
+    if (showForm && !editingCustomer && (!formData.CitizenshipId || formData.CitizenshipId <= 0) && citizenships.length > 0) {
+      const tw = citizenships.find((c) => (c.Alpha3 || '').toUpperCase() === 'TWN');
+      setFormData((prev) => ({
+        ...prev,
+        CitizenshipId: tw ? tw.Id : citizenships[0].Id,
+      }));
+    }
+  }, [citizenships, showForm, editingCustomer]);
+
   const validateForm = (): boolean => {
     const errors: {[key: string]: string} = {};
 
     // Name validation (required, string, not empty)
     if (!formData.Name || formData.Name.trim() === '') {
-      errors.Name = 'Name is required';
+      errors.Name = '姓名為必填欄位';
     } else if (formData.Name.length > 100) {
-      errors.Name = 'Name must be less than 100 characters';
+      errors.Name = '姓名長度需少於 100 個字元';
     }
 
     // Gender validation (required, must be "Male" or "Female")
     if (!formData.Gender) {
-      errors.Gender = 'Gender is required';
+      errors.Gender = '性別為必填欄位';
     } else if (formData.Gender !== 'Male' && formData.Gender !== 'Female') {
-      errors.Gender = 'Gender must be "Male" or "Female"';
+      errors.Gender = '性別必須為男性或女性';
     }
 
     // Birthday validation (required, valid date, not future date)
     if (!formData.Birthday) {
-      errors.Birthday = 'Birthday is required';
+      errors.Birthday = '生日為必填欄位';
     } else {
       const birthday = new Date(formData.Birthday);
       const today = new Date();
       if (isNaN(birthday.getTime())) {
-        errors.Birthday = 'Invalid date format';
+        errors.Birthday = '日期格式不正確';
       } else if (birthday > today) {
-        errors.Birthday = 'Birthday cannot be in the future';
+        errors.Birthday = '生日不得晚於今日';
       } else if (birthday.getFullYear() < 1900) {
-        errors.Birthday = 'Birthday year must be after 1900';
+        errors.Birthday = '生日年份須晚於 1900 年';
       }
     }
 
     // National ID validation (required, string, not empty, max 100 chars)
     if (!formData.NationalId || formData.NationalId.trim() === '') {
-      errors.NationalId = 'National ID is required';
+      errors.NationalId = '身分證號為必填欄位';
     } else if (formData.NationalId.length > 100) {
-      errors.NationalId = 'National ID must be less than 100 characters';
+      errors.NationalId = '身分證號長度需少於 100 個字元';
     } else if (!/^[A-Za-z0-9\-_]+$/.test(formData.NationalId)) {
-      errors.NationalId = 'National ID can only contain letters, numbers, hyphens, and underscores';
+      errors.NationalId = '身分證號僅能包含英文、數字、連字號與底線';
     }
 
     // Phone Number validation (optional, but if provided, should be valid format)
     if (formData.PhoneNumber && formData.PhoneNumber.trim() !== '') {
       const phoneRegex = /^[\+]?[0-9\-\(\)\s]{7,20}$/;
       if (!phoneRegex.test(formData.PhoneNumber)) {
-        errors.PhoneNumber = 'Invalid phone number format';
+        errors.PhoneNumber = '電話號碼格式不正確';
       }
     }
 
@@ -102,25 +117,25 @@ const CustomerManagement: React.FC = () => {
     if (formData.CarNumber && formData.CarNumber.trim() !== '') {
       const carRegex = /^[A-Za-z0-9\-]{1,20}$/;
       if (!carRegex.test(formData.CarNumber)) {
-        errors.CarNumber = 'Car number can only contain letters, numbers, and hyphens (max 20 chars)';
+        errors.CarNumber = '車牌僅能包含英文、數字與連字號（最多 20 個字元）';
       }
     }
 
     // Citizenship validation (required, must be > 0, must exist in list)
     if (!formData.CitizenshipId || formData.CitizenshipId <= 0) {
-      errors.CitizenshipId = 'Please select a valid citizenship';
+      errors.CitizenshipId = '請選擇有效的國籍';
     } else if (!citizenships.find(c => c.Id === formData.CitizenshipId)) {
-      errors.CitizenshipId = 'Selected citizenship does not exist';
+      errors.CitizenshipId = '選擇的國籍不存在';
     }
 
     // Address validation (optional, max length)
     if (formData.Address && formData.Address.length > 500) {
-      errors.Address = 'Address must be less than 500 characters';
+      errors.Address = '地址長度需少於 500 個字元';
     }
 
     // Note validation (optional, max length)
     if (formData.Note && formData.Note.length > 1000) {
-      errors.Note = 'Note must be less than 1000 characters';
+      errors.Note = '備註長度需少於 1000 個字元';
     }
 
     setFormErrors(errors);
@@ -176,19 +191,19 @@ const CustomerManagement: React.FC = () => {
         console.log('📋 First few citizenships:', response.data.slice(0, 3));
       } else if (response.data && !Array.isArray(response.data)) {
         console.error('❌ Response data is not an array:', response.data);
-        setFormErrors({ general: 'Invalid citizenship data format received' });
+        setFormErrors({ general: '取得的國籍資料格式不正確' });
       } else if (response.data && Array.isArray(response.data) && response.data.length === 0) {
         console.warn('⚠️ Empty citizenship array received');
-        setFormErrors({ general: 'No citizenship data available' });
+        setFormErrors({ general: '目前沒有可用的國籍資料' });
       } else {
         console.warn('❌ No citizenship data in response');
         console.log('Full response structure:', JSON.stringify(response, null, 2));
-        setFormErrors({ general: 'Failed to load citizenship data' });
+        setFormErrors({ general: '無法載入國籍資料' });
       }
     } catch (error) {
       console.error('💥 Failed to load citizenships:', error);
       console.error('Error details:', error.message);
-      setFormErrors({ general: 'Failed to load citizenship data. Please try again.' });
+      setFormErrors({ general: '無法載入國籍資料，請稍後再試。' });
     } finally {
       setCitizenshipsLoading(false);
     }
@@ -209,7 +224,21 @@ const CustomerManagement: React.FC = () => {
       if (editingCustomer) {
         await apiService.updateCustomer({ ...formData, CustomerId: editingCustomer.Id });
       } else {
-        await apiService.createCustomer(formData);
+        const response = await apiService.createCustomer(formData);
+        const message = (response?.Message || '').trim();
+        if (message.includes('This customer is already existed')) {
+          setFormErrors({
+            NationalId: '系統中已存在相同身分證號的客戶，請確認資料或改用搜尋/編輯功能。',
+            general: '新增失敗：已有相同身分證號的客戶紀錄。',
+          });
+          return;
+        }
+        if (message && !response?.data) {
+          setFormErrors({
+            general: message,
+          });
+          return;
+        }
       }
       resetForm();
       loadCustomers();
@@ -218,9 +247,9 @@ const CustomerManagement: React.FC = () => {
       
       // Handle specific API errors
       if (error.message && error.message.includes('NationalId')) {
-        setFormErrors({ NationalId: 'This National ID already exists' });
+        setFormErrors({ NationalId: '此身分證號已存在' });
       } else {
-        setFormErrors({ general: 'Failed to save customer. Please try again.' });
+        setFormErrors({ general: '儲存客戶資料失敗，請稍後再試。' });
       }
     }
   };
@@ -243,7 +272,7 @@ const CustomerManagement: React.FC = () => {
   };
 
   const handleDelete = async (customerId: string) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
+    if (window.confirm('確定要刪除此客戶嗎？')) {
       try {
         await apiService.deleteCustomer(customerId);
         loadCustomers();
@@ -285,7 +314,7 @@ const CustomerManagement: React.FC = () => {
       }
     } catch (error) {
       console.error('Search failed:', error);
-      setSearchError('Search failed. Please try again.');
+      setSearchError('搜尋失敗，請稍後再試。');
       setCustomers([]);
     } finally {
       setIsSearching(false);
@@ -301,7 +330,7 @@ const CustomerManagement: React.FC = () => {
       Address: '',
       PhoneNumber: '',
       CarNumber: '',
-      CitizenshipId: citizenships.length > 0 ? citizenships[0].Id : 0,
+      CitizenshipId: (citizenships.find(c => (c.Alpha3 || '').toUpperCase() === 'TWN')?.Id) ?? (citizenships.length > 0 ? citizenships[0].Id : 0),
       Note: '',
     });
     setFormErrors({});
@@ -311,16 +340,22 @@ const CustomerManagement: React.FC = () => {
 
   const getCitizenshipName = (id: number) => {
     const citizenship = citizenships.find(c => c.Id === id);
-    return citizenship ? citizenship.Nation : 'Unknown';
+    return citizenship ? citizenship.Nation : '未知';
+  };
+
+  const getGenderLabel = (gender: string) => {
+    if (gender === 'Male') return '男性';
+    if (gender === 'Female') return '女性';
+    return gender;
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
-          <div className="text-lg text-gray-600">Loading customers...</div>
+          <div className="text-lg text-gray-600">客戶資料載入中...</div>
           {citizenshipsLoading && (
-            <div className="text-sm text-gray-500 mt-2">Loading citizenship data...</div>
+            <div className="text-sm text-gray-500 mt-2">國籍資料載入中...</div>
           )}
         </div>
       </div>
@@ -335,22 +370,31 @@ const CustomerManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Customer Management</h2>
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+        <h2 className="text-2xl font-bold text-gray-900">客戶管理</h2>
         <button
-          onClick={() => setShowForm(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          onClick={() => {
+            const tw = citizenships.find((c) => (c.Alpha3 || '').toUpperCase() === 'TWN');
+            if (!editingCustomer) {
+              setFormData((prev) => ({
+                ...prev,
+                CitizenshipId: tw ? tw.Id : (citizenships.length > 0 ? citizenships[0].Id : 0),
+              }));
+            }
+            setShowForm(true);
+          }}
+          className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
-          Add New Customer
+          新增客戶
         </button>
       </div>
 
       {/* Search */}
       <div className="bg-white p-4 rounded-lg shadow">
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <div className="w-full sm:flex-1 sm:min-w-[220px]">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search Term
+              搜尋關鍵字
             </label>
             <input
               type="text"
@@ -363,37 +407,37 @@ const CustomerManagement: React.FC = () => {
                 }
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter search term..."
+              placeholder="請輸入搜尋關鍵字"
             />
             {searchError && (
               <p className="mt-1 text-xs text-red-600">{searchError}</p>
             )}
           </div>
-          <div>
+          <div className="w-full sm:w-auto">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search By
+              搜尋條件
             </label>
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value as 'name' | 'nationalId' | 'phone')}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <option value="name">Name</option>
-              <option value="nationalId">National ID</option>
-              <option value="phone">Phone</option>
+              <option value="name">姓名</option>
+              <option value="nationalId">身分證號</option>
+              <option value="phone">電話</option>
             </select>
           </div>
           <button
             onClick={handleSearch}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
-            {isSearching ? 'Searching...' : 'Search'}
+            {isSearching ? '搜尋中...' : '搜尋'}
           </button>
           <button
             onClick={() => { setSearchTerm(''); setSearchType('name'); loadCustomers(); }}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            className="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
-            Reset
+            重設
           </button>
         </div>
       </div>
@@ -404,7 +448,7 @@ const CustomerManagement: React.FC = () => {
           <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingCustomer ? 'Edit Customer' : 'Add New Customer'}
+                {editingCustomer ? '編輯客戶' : '新增客戶'}
               </h3>
               
               {/* General Error Message */}
@@ -415,10 +459,10 @@ const CustomerManagement: React.FC = () => {
               )}
               
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name *
+                      姓名 *
                     </label>
                     <input
                       type="text"
@@ -436,7 +480,7 @@ const CustomerManagement: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Gender *
+                      性別 *
                     </label>
                     <select
                       value={formData.Gender}
@@ -445,8 +489,8 @@ const CustomerManagement: React.FC = () => {
                         formErrors.Gender ? 'border-red-500 bg-red-50' : 'border-gray-300'
                       }`}
                     >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
+                      <option value="Male">男性</option>
+                      <option value="Female">女性</option>
                     </select>
                     {formErrors.Gender && (
                       <p className="mt-1 text-xs text-red-600">{formErrors.Gender}</p>
@@ -454,7 +498,7 @@ const CustomerManagement: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Birthday *
+                      生日 *
                     </label>
                     <input
                       type="date"
@@ -473,7 +517,7 @@ const CustomerManagement: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      National ID *
+                      身分證號 *
                     </label>
                     <input
                       type="text"
@@ -485,7 +529,7 @@ const CustomerManagement: React.FC = () => {
                       }`}
                       maxLength={100}
                       pattern="[A-Za-z0-9\-_]+"
-                      placeholder="e.g., A123456789, ID-001"
+                      placeholder="例如：A123456789、ID-001"
                     />
                     {formErrors.NationalId && (
                       <p className="mt-1 text-xs text-red-600">{formErrors.NationalId}</p>
@@ -493,7 +537,7 @@ const CustomerManagement: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
+                      電話
                     </label>
                     <input
                       type="tel"
@@ -502,7 +546,7 @@ const CustomerManagement: React.FC = () => {
                       className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${
                         formErrors.PhoneNumber ? 'border-red-500 bg-red-50' : 'border-gray-300'
                       }`}
-                      placeholder="e.g., +1-555-123-4567"
+                      placeholder="例如：+886-912-345-678"
                     />
                     {formErrors.PhoneNumber && (
                       <p className="mt-1 text-xs text-red-600">{formErrors.PhoneNumber}</p>
@@ -510,7 +554,7 @@ const CustomerManagement: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Car Number
+                      車牌號碼
                     </label>
                     <input
                       type="text"
@@ -520,7 +564,7 @@ const CustomerManagement: React.FC = () => {
                         formErrors.CarNumber ? 'border-red-500 bg-red-50' : 'border-gray-300'
                       }`}
                       maxLength={20}
-                      placeholder="e.g., ABC-123"
+                      placeholder="例如：ABC-123"
                     />
                     {formErrors.CarNumber && (
                       <p className="mt-1 text-xs text-red-600">{formErrors.CarNumber}</p>
@@ -529,7 +573,7 @@ const CustomerManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Address
+                    地址
                   </label>
                   <input
                     type="text"
@@ -539,7 +583,7 @@ const CustomerManagement: React.FC = () => {
                       formErrors.Address ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                     maxLength={500}
-                    placeholder="e.g., 123 Main St, City, State"
+                    placeholder="例如：台北市信義區市府路 1 號"
                   />
                   {formErrors.Address && (
                     <p className="mt-1 text-xs text-red-600">{formErrors.Address}</p>
@@ -547,7 +591,7 @@ const CustomerManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Citizenship *
+                    國籍 *
                   </label>
                   <select
                     value={formData.CitizenshipId}
@@ -558,10 +602,10 @@ const CustomerManagement: React.FC = () => {
                     disabled={citizenshipsLoading}
                   >
                     {citizenshipsLoading ? (
-                      <option value={0}>Loading citizenships...</option>
+                      <option value={0}>國籍資料載入中...</option>
                     ) : (
                       <>
-                        <option value={0}>Please select citizenship...</option>
+                        <option value={0}>請選擇國籍...</option>
                         {citizenships.map((citizenship) => (
                           <option key={citizenship.Id} value={citizenship.Id}>
                             {citizenship.Nation} ({citizenship.Alpha3.toUpperCase()})
@@ -576,7 +620,7 @@ const CustomerManagement: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Note
+                    備註
                   </label>
                   <textarea
                     value={formData.Note}
@@ -586,13 +630,13 @@ const CustomerManagement: React.FC = () => {
                       formErrors.Note ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                     maxLength={1000}
-                    placeholder="Additional notes or comments..."
+                    placeholder="可輸入其他備註..."
                   />
                   {formErrors.Note && (
                     <p className="mt-1 text-xs text-red-600">{formErrors.Note}</p>
                   )}
                   <p className="mt-1 text-xs text-gray-500">
-                    {formData.Note.length}/1000 characters
+                    {formData.Note.length}/1000 字元
                   </p>
                 </div>
                 <div className="flex justify-end space-x-3 pt-4">
@@ -601,7 +645,7 @@ const CustomerManagement: React.FC = () => {
                     onClick={resetForm}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
                   >
-                    Cancel
+                    取消
                   </button>
                   <button
                     type="submit"
@@ -613,8 +657,8 @@ const CustomerManagement: React.FC = () => {
                     }`}
                   >
                     {citizenshipsLoading 
-                      ? 'Loading...' 
-                      : (editingCustomer ? 'Update' : 'Create')
+                      ? '載入中...' 
+                      : (editingCustomer ? '更新' : '建立')
                     }
                   </button>
                 </div>
@@ -629,54 +673,64 @@ const CustomerManagement: React.FC = () => {
         <ul className="divide-y divide-gray-200">
           {safeCustomers.map((customer) => (
             <li key={customer.Id} className="px-6 py-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 break-words md:truncate">
                         {customer.Name}
                       </p>
-                      <p className="text-sm text-gray-500">
-                        {customer.Gender} • {customer.Birthday.split('T')[0]} • {getCitizenshipName(customer.CitizenshipId)}
+                      <p className="text-sm text-gray-500 break-words">
+                        {getGenderLabel(customer.Gender)} • {customer.Birthday.split('T')[0]} • {getCitizenshipName(customer.CitizenshipId)}
                       </p>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-900">
-                        National ID: {customer.NationalId}
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-900 break-all">
+                        身分證號：{customer.NationalId}
                       </p>
-                      <p className="text-sm text-gray-500">
-                        Phone: {customer.PhoneNumber}
+                      <p className="text-sm text-gray-500 break-words">
+                        電話：{customer.PhoneNumber || '未提供'}
                       </p>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-900">
-                        Address: {customer.Address}
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-900 break-words">
+                        地址：{customer.Address || '未提供'}
                       </p>
                       {customer.CarNumber && (
-                        <p className="text-sm text-gray-500">
-                          Car: {customer.CarNumber}
+                        <p className="text-sm text-gray-500 break-all">
+                          車牌：{customer.CarNumber}
                         </p>
                       )}
                     </div>
                   </div>
                   {customer.Note && (
-                    <p className="mt-2 text-xs text-gray-500">
-                      Note: {customer.Note}
+                    <p className="mt-2 text-xs text-gray-500 break-words">
+                      備註：{customer.Note}
                     </p>
                   )}
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap items-center gap-2 md:ml-4 md:flex-nowrap md:gap-3">
+                  <button
+                    onClick={() => onCreateHistory?.(customer.Id)}
+                    className="whitespace-nowrap flex items-center px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-md transition-colors duration-200 border border-green-200"
+                  >
+                    <span className="mr-1">+</span> 紀錄
+                  </button>
+
+                  <div className="hidden md:block h-4 w-px bg-gray-300 mx-1"></div>
+
                   <button
                     onClick={() => handleEdit(customer)}
-                    className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                    className="whitespace-nowrap px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
                   >
-                    Edit
+                    編輯
                   </button>
+
                   <button
                     onClick={() => handleDelete(customer.Id)}
-                    className="text-red-600 hover:text-red-900 text-sm font-medium"
+                    className="whitespace-nowrap px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200"
                   >
-                    Delete
+                    刪除
                   </button>
                 </div>
               </div>
@@ -685,7 +739,7 @@ const CustomerManagement: React.FC = () => {
         </ul>
         {customers.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No customers found</p>
+            <p className="text-gray-500">查無客戶資料</p>
           </div>
         )}
       </div>

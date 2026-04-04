@@ -18,7 +18,7 @@ func NewCitizenshipRepository(orm *gorm.DB) domain.CitizenshipRepository {
 
 func (u *CitizenshipRepository) ListCitizenships() ([]*model.Citizenship, error) {
 	var citizenships []*model.Citizenship
-	err := u.orm.Find(&citizenships).Error
+	err := u.orm.Order("Sequence ASC").Find(&citizenships).Error
 	return citizenships, err
 }
 

@@ -1,34 +1,34 @@
 package http
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"time"
 )
 
 type CustomerHandler struct {
 	customerSer domain.CustomerService
 }
 
-func NewCustomerHandler(e *gin.Engine, customerSer domain.CustomerService) {
+func NewCustomerHandler(r gin.IRoutes, customerSer domain.CustomerService) {
 	handler := &CustomerHandler{
 		customerSer: customerSer,
 	}
-	api := e.Group("/api")
-	{
-		api.POST("/customerList", handler.ListCustomers)
-		api.POST("/customerNationalId", handler.GetCustomerByNationalId)
-		api.POST("/customerCre", handler.CreateCustomer)
-		api.POST("/customerMod", handler.ModifyCustomer)
-		api.POST("/customerDel", handler.DeleteCustomer)
-		api.POST("/customerName", handler.GetCustomerByCustomerName)
-		api.POST("/customerCitizenship", handler.ListCustomersByCitizenship)
-		api.POST("/customerPhone", handler.GetCustomerByCustomerPhone)
-		api.POST("/customerID", handler.GetCustomerByCustomerID)
-	}
+
+	r.POST("/customerList", handler.ListCustomers)
+	r.POST("/customerNationalId", handler.GetCustomerByNationalId)
+	r.POST("/customerCre", handler.CreateCustomer)
+	r.POST("/customerMod", handler.ModifyCustomer)
+	r.POST("/customerDel", handler.DeleteCustomer)
+	r.POST("/customerName", handler.GetCustomerByCustomerName)
+	r.POST("/customerCitizenship", handler.ListCustomersByCitizenship)
+	r.POST("/customerPhone", handler.GetCustomerByCustomerPhone)
+	r.POST("/customerID", handler.GetCustomerByCustomerID)
+
 }
 
 // ListCustomers @Summary ListCustomers
@@ -69,7 +69,7 @@ func (u *CustomerHandler) GetCustomerByNationalId(c *gin.Context) {
 		})
 		return
 	}
-	customerData, err := u.customerSer.GetCustomerByNationalId(request.NationalId)
+	customerData, err := u.customerSer.ListCustomersByNationalId(request.NationalId)
 	if err != nil {
 		if err.Error() == "error CRMS : There is no this customer" {
 			c.JSON(http.StatusOK, gin.H{
@@ -129,7 +129,6 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 			return
 		}
 	}
-
 	c.JSON(http.StatusOK, createCustomer)
 }
 

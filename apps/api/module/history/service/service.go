@@ -2,10 +2,11 @@ package service
 
 import (
 	"errors"
+	"time"
+
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/google/uuid"
-	"time"
 )
 
 type HistoryService struct {

@@ -1,29 +1,30 @@
 package http
 
 import (
-    "github.com/S1nceU/CRMS/apps/api/config"
-    "github.com/S1nceU/CRMS/apps/api/domain"
-    "github.com/S1nceU/CRMS/apps/api/model/dto"
-    _userSer "github.com/S1nceU/CRMS/apps/api/module/user/service"
-    "github.com/gin-gonic/gin"
-    "net/http"
-    "strings"
+	"errors"
+	"net/http"
+	"strings"
+
+	"github.com/S1nceU/CRMS/apps/api/config"
+	"github.com/S1nceU/CRMS/apps/api/domain"
+	"github.com/S1nceU/CRMS/apps/api/model/dto"
+	_userSer "github.com/S1nceU/CRMS/apps/api/module/user/service"
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
 	ser domain.UserService
 }
 
-func NewUserHandler(e *gin.Engine, ser domain.UserService) {
+func NewUserHandler(r gin.IRoutes, ser domain.UserService) {
 	handler := &UserHandler{
 		ser: ser,
 	}
-	api := e.Group("/api")
-	{
-		api.POST("/userLogin", handler.Login)
-		api.POST("/userAuthentication", handler.Authentication)
-		api.POST("/userLogout", handler.Logout)
-	}
+
+	r.POST("/userLogin", handler.Login)
+	r.POST("/userAuthentication", handler.Authentication)
+	r.POST("/userLogout", handler.Logout)
+
 }
 
 // Login @Summary Login
@@ -62,24 +63,24 @@ func (u *UserHandler) Login(c *gin.Context) {
 		})
 		return
 	}
-    // Set cookie with SameSite and Secure according to config
-    cookie := &http.Cookie{
-        Name:     "token",
-        Value:    token,
-        Path:     "/",
-        MaxAge:   int(_userSer.TokenExpireDuration.Seconds()),
-        HttpOnly: true,
-        Secure:   config.Val.CookieSecure,
-    }
-    // Only set SameSite=None when using secure cookies (required by browsers)
-    if config.Val.CookieSecure {
-        cookie.SameSite = http.SameSiteNoneMode
-    }
-    http.SetCookie(c.Writer, cookie) // When CRMS runs in the docker container, the domain should be changed to "localhost"
-    c.JSON(http.StatusOK, gin.H{
-        "Message": "Login successfully",
-        "token":   token,
-    })
+	// Set cookie with SameSite and Secure according to config
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   int(_userSer.TokenExpireDuration().Seconds()),
+		HttpOnly: true,
+		Secure:   config.Val.CookieSecure,
+	}
+	// Only set SameSite=None when using secure cookies (required by browsers)
+	if config.Val.CookieSecure {
+		cookie.SameSite = http.SameSiteNoneMode
+	}
+	http.SetCookie(c.Writer, cookie) // When CRMS runs in the docker container, the domain should be changed to "localhost"
+	c.JSON(http.StatusOK, gin.H{
+		"Message": "Login successfully",
+		"token":   token,
+	})
 }
 
 // Authentication @Summary Authentication
@@ -98,24 +99,24 @@ func (u *UserHandler) Authentication(c *gin.Context) {
 		})
 		return
 	}
-
-	if _, err := c.Cookie("token"); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
+	token, err := extractToken(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"Message": "Authentication failed",
 		})
 		return
 	}
 
-	username, err := u.ser.Authentication(request.Token)
+	username, err := u.ser.Authentication(token)
 
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "token is expired") {
-			c.JSON(http.StatusUnauthorized, gin.H{
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"Message": err.Error(),
 			})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"Message": err.Error(),
 		})
 		return
@@ -143,14 +144,15 @@ func (u *UserHandler) Logout(c *gin.Context) {
 		return
 	}
 
-	if _, err := c.Cookie("token"); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"Message": "Not logged in yet",
+	token, err := extractToken(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"Message": "Authentication failed",
 		})
 		return
 	}
 
-	_, err := u.ser.Authentication(request.Token)
+	_, err = u.ser.Authentication(token)
 
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "token is expired") {
@@ -164,20 +166,35 @@ func (u *UserHandler) Logout(c *gin.Context) {
 		})
 		return
 	}
-    // Clear cookie
-    cookie := &http.Cookie{
-        Name:     "token",
-        Value:    "",
-        Path:     "/",
-        MaxAge:   -1,
-        HttpOnly: true,
-        Secure:   config.Val.CookieSecure,
-    }
-    if config.Val.CookieSecure {
-        cookie.SameSite = http.SameSiteNoneMode
-    }
-    http.SetCookie(c.Writer, cookie) // When CRMS runs in the docker container, the domain should be changed to "localhost"
-    c.JSON(http.StatusOK, gin.H{
-        "Message": "Logout successfully",
-    })
+	// Clear cookie
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   config.Val.CookieSecure,
+	}
+	if config.Val.CookieSecure {
+		cookie.SameSite = http.SameSiteNoneMode
+	}
+	http.SetCookie(c.Writer, cookie) // When CRMS runs in the docker container, the domain should be changed to "localhost"
+	c.JSON(http.StatusOK, gin.H{
+		"Message": "Logout successfully",
+	})
+}
+
+func extractToken(c *gin.Context) (string, error) {
+
+	if cookie, err := c.Cookie("token"); err == nil && cookie != "" {
+		return cookie, nil
+	}
+	authHeader := c.GetHeader("Authorization")
+	if strings.HasPrefix(authHeader, "Bearer ") {
+		token := strings.TrimPrefix(authHeader, "Bearer ")
+		if token != "" {
+			return token, nil
+		}
+	}
+	return "", errors.New("missing token")
 }

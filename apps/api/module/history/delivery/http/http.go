@@ -1,34 +1,33 @@
 package http
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
-	"time"
 )
 
 type HistoryHandler struct {
 	ser domain.HistoryService
 }
 
-func NewHistoryHandler(e *gin.Engine, ser domain.HistoryService) {
+func NewHistoryHandler(r gin.IRoutes, ser domain.HistoryService) {
 	handler := &HistoryHandler{
 		ser: ser,
 	}
-	api := e.Group("/api")
-	{
-		api.POST("/historyList", handler.ListHistories)
-		api.POST("/historyByHistoryId", handler.GetHistoryByHistoryId)
-		api.POST("/historyCre", handler.CreateHistory)
-		api.POST("/historyMod", handler.ModifyHistory)
-		api.POST("/historyDel", handler.DeleteHistory)
-		api.POST("/historyForDuring", handler.GetHistoryForDuring)
-		api.POST("/historyForDate", handler.GetHistoriesForDate)
-		api.POST("/historyCustomerId", handler.GetHistoryByCustomerId)
-	}
+
+	r.POST("/historyList", handler.ListHistories)
+	r.POST("/historyByHistoryId", handler.GetHistoryByHistoryId)
+	r.POST("/historyCre", handler.CreateHistory)
+	r.POST("/historyMod", handler.ModifyHistory)
+	r.POST("/historyDel", handler.DeleteHistory)
+	r.POST("/historyForDuring", handler.GetHistoryForDuring)
+	r.POST("/historyForDate", handler.GetHistoriesForDate)
+	r.POST("/historyCustomerId", handler.GetHistoryByCustomerId)
 
 }
 
