@@ -16,7 +16,6 @@ type HistoryRepository interface {
 	UpdateHistory(history *model.History) (*model.History, error)                                      // Update History data
 	DeleteHistory(history *model.History) error                                                        // Delete History by HistoryID
 	DeleteHistoriesByCustomer(history *model.History) error                                            // Delete History by CustomerID
-	ConfirmCustomerExistence(customer *model.Customer) (*model.Customer, error)                        // Confirm Customer Existed
 }
 
 // HistoryService is an interface for History service
