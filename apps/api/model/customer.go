@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Customer struct {
@@ -17,5 +18,5 @@ type Customer struct {
 	CitizenshipId int         `json:"CitizenshipId" gorm:"column:CitizenshipId; not null"`
 	Citizenship   Citizenship `                     gorm:"foreignKey:CitizenshipId; references:Id"`
 	Note          string      `json:"Note"          gorm:"column:Note"`
-	Histories     []History   `                     gorm:"foreignKey:CustomerId; references:Id"`
+	Histories     []History   `                     gorm:"foreignKey:CustomerId; references:Id; constraint:OnDelete:CASCADE"`
 }

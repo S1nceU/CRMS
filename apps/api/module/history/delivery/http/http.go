@@ -1,13 +1,15 @@
 package http
 
 import (
+	"errors"
+	"net/http"
+	"time"
+
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/S1nceU/CRMS/apps/api/model/dto"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
-	"time"
 )
 
 type HistoryHandler struct {
@@ -118,17 +120,17 @@ func (u *HistoryHandler) CreateHistory(c *gin.Context) {
 				"Message": err.Error(),
 			})
 			return
-		} else if err.Error() == "error CRMS : HistoryService Info is incomplete" {
+		}
+		if errors.Is(err, domain.ErrIncompleteInfo) {
 			c.JSON(http.StatusOK, gin.H{
 				"Message": err.Error(),
 			})
 			return
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"Message": err.Error(),
-			})
-			return
 		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"Message": err.Error(),
+		})
+		return
 	}
 	c.JSON(http.StatusOK, createHistory)
 }

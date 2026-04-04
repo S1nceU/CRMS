@@ -2,10 +2,11 @@ package service
 
 import (
 	"errors"
+	"time"
+
 	"github.com/S1nceU/CRMS/apps/api/domain"
 	"github.com/S1nceU/CRMS/apps/api/model"
 	"github.com/google/uuid"
-	"time"
 )
 
 type HistoryService struct {
@@ -32,14 +33,6 @@ func (u *HistoryService) ListHistoriesByCustomerId(in uuid.UUID) ([]*model.Histo
 	var point []*model.History
 	newHistory := &model.History{
 		CustomerId: in,
-	}
-	newCustomer := &model.Customer{
-		Id: in,
-	}
-	if newCustomer, err = u.repo.ConfirmCustomerExistence(newCustomer); err != nil {
-		return nil, err
-	} else if newCustomer.Name == "" {
-		return nil, errors.New("error CRMS : There is no this customer")
 	}
 
 	if point, err = u.repo.ListHistoriesByCustomer(newHistory); err != nil {
@@ -125,20 +118,9 @@ func (u *HistoryService) GetHistoryByHistoryId(in uuid.UUID) (*model.History, er
 func (u *HistoryService) CreateHistory(in *model.History) (*model.History, error) {
 	var err error
 	var newHistory *model.History
-	newCustomer := &model.Customer{
-		Id: in.CustomerId,
-	}
-	if newCustomer, err = u.repo.ConfirmCustomerExistence(newCustomer); err != nil {
-		return nil, err
-	}
-
-	if newCustomer.Name == "" {
-		return nil, errors.New("error CRMS : There is no this customer")
-	}
 	if err = validateHistoryInfo(in); err != nil {
 		return nil, err
 	}
-
 	if _, err = u.repo.ListHistoriesByCustomer(in); err != nil {
 		return nil, err
 	}
@@ -152,26 +134,13 @@ func (u *HistoryService) CreateHistory(in *model.History) (*model.History, error
 func (u *HistoryService) UpdateHistory(in *model.History) (*model.History, error) {
 	var err error
 	var newHistory *model.History
-	newCustomer := &model.Customer{
-		Id: in.CustomerId,
-	}
-	if newCustomer, err = u.repo.ConfirmCustomerExistence(newCustomer); err != nil {
-		return nil, err
-	}
 	if newHistory, err = u.GetHistoryByHistoryId(in.Id); err != nil {
 		return nil, err
-	}
-
-	if newCustomer.Name == "" {
-		return nil, errors.New("error CRMS : There is no this customer")
 	}
 	if newHistory.CustomerId == uuid.Nil {
 		return nil, errors.New("error CRMS : There is no this history")
 	}
 	if err = validateHistoryInfo(in); err != nil {
-		return nil, err
-	}
-	if _, err = u.GetHistoryByHistoryId(in.Id); err != nil {
 		return nil, err
 	}
 	if newHistory, err = u.repo.UpdateHistory(in); err != nil {
