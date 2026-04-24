@@ -8,13 +8,13 @@
     "build": {
       "executor": "@nx-go/nx-go:build",
       "options": {
-        "main": "{projectRoot}/main.go"
+        "main": "main.go"
       }
     },
     "serve": {
       "executor": "@nx-go/nx-go:serve",
       "options": {
-        "main": "{projectRoot}/main.go"
+        "main": "main.go"
       }
     },
     "test": {
@@ -25,6 +25,16 @@
     },
     "tidy": {
       "executor": "@nx-go/nx-go:tidy"
+    },
+    "bundle-web": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx build frontend",
+          "node scripts/copy-frontend-to-api.mjs"
+        ],
+        "parallel": false
+      }
     }
   }
 }

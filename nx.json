@@ -5,7 +5,6 @@
       "plugin": "@nx/vite/plugin",
       "options": {
         "buildTargetName": "build",
-        "testTargetName": "test",
         "serveTargetName": "serve",
         "devTargetName": "dev",
         "previewTargetName": "preview",
@@ -27,7 +26,13 @@
         "targetName": "e2e"
       }
     },
-    "@nx-go/nx-go"
+    "@nx-go/nx-go",
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testTargetName": "test"
+      }
+    }
   ],
   "targetDefaults": {
     "e2e-ci--**/*": {
@@ -53,5 +58,6 @@
   },
   "namedInputs": {
     "sharedGlobals": ["{workspaceRoot}/go.work"]
-  }
+  },
+  "analytics": false
 }
