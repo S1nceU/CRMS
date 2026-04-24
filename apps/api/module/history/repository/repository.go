@@ -47,11 +47,23 @@ func (u *HistoryRepository) GetHistoryByHistoryId(history *model.History) (*mode
 
 func (u *HistoryRepository) CreateHistory(history *model.History) (*model.History, error) {
 	err := u.orm.Create(&history).Error
+	if err != nil {
+		if isForeignKeyError(err) {
+			return nil, domain.ErrCustomerNotFound
+		}
+		return nil, err
+	}
 	return history, err
 }
 
 func (u *HistoryRepository) UpdateHistory(history *model.History) (*model.History, error) {
 	err := u.orm.Model(history).Where("Id = ?", history.Id).Updates(&history).Error
+	if err != nil {
+		if isForeignKeyError(err) {
+			return nil, domain.ErrCustomerNotFound
+		}
+		return nil, err
+	}
 	return history, err
 }
 
@@ -63,9 +75,4 @@ func (u *HistoryRepository) DeleteHistory(history *model.History) error {
 func (u *HistoryRepository) DeleteHistoriesByCustomer(history *model.History) error {
 	err := u.orm.Where("CustomerId = ?", history.CustomerId).Delete(&history).Error
 	return err
-}
-
-func (u *HistoryRepository) ConfirmCustomerExistence(customer *model.Customer) (*model.Customer, error) {
-	err := u.orm.Where("Id = ?", customer.Id).Find(&customer).Error
-	return customer, err
 }
