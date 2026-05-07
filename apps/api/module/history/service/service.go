@@ -25,7 +25,7 @@ func (u *HistoryService) ListHistories() ([]*model.History, error) {
 	if point, err = u.repo.ListHistories(); err != nil {
 		return nil, err
 	}
-	return convertToSliceOfHistory(point), err
+	return point, err
 }
 
 func (u *HistoryService) ListHistoriesByCustomerId(in uuid.UUID) ([]*model.History, error) {
@@ -40,7 +40,7 @@ func (u *HistoryService) ListHistoriesByCustomerId(in uuid.UUID) ([]*model.Histo
 	} else if len(point) == 0 {
 		return nil, nil
 	}
-	return convertToSliceOfHistory(point), err
+	return point, err
 }
 
 func (u *HistoryService) ListHistoriesForDate(in string) ([]*model.History, error) {
@@ -62,7 +62,7 @@ func (u *HistoryService) ListHistoriesForDate(in string) ([]*model.History, erro
 		return nil, errors.New("error CRMS : There was no customer in " + date.Format("2006-01-02"))
 	}
 
-	return convertToSliceOfHistory(point), err
+	return point, err
 }
 
 func (u *HistoryService) ListHistoriesForDuring(in1 string, in2 string) ([]*model.History, error) {
@@ -99,7 +99,7 @@ func (u *HistoryService) ListHistoriesForDuring(in1 string, in2 string) ([]*mode
 		return nil, err
 	}
 
-	return convertToSliceOfHistory(point), err
+	return point, err
 }
 
 func (u *HistoryService) GetHistoryByHistoryId(in uuid.UUID) (*model.History, error) {
@@ -176,14 +176,6 @@ func (u *HistoryService) DeleteHistoriesByCustomer(in uuid.UUID) error {
 		return err
 	}
 	return nil
-}
-
-func convertToSliceOfHistory(histories []*model.History) []*model.History {
-	var historiesSlice []*model.History
-	for _, history := range histories {
-		historiesSlice = append(historiesSlice, history)
-	}
-	return historiesSlice
 }
 
 func validateHistoryInfo(history *model.History) error {

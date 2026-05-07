@@ -21,7 +21,7 @@ func (u *CitizenshipService) ListCitizenships() ([]*model.Citizenship, error) {
 	if citizenships, err = u.repo.ListCitizenships(); err != nil {
 		return nil, err
 	}
-	return convertToSliceOfCitizenship(citizenships), err
+	return citizenships, err
 }
 
 func (u *CitizenshipService) GetCitizenshipByID(id int) (*model.Citizenship, error) {
@@ -46,11 +46,4 @@ func (u *CitizenshipService) GetCitizenshipByCitizenshipName(citizenshipName str
 		return nil, err
 	}
 	return citizenship, err
-}
-func convertToSliceOfCitizenship(citizenships []*model.Citizenship) []*model.Citizenship {
-	var newCitizenships []*model.Citizenship
-	for _, citizenship := range citizenships {
-		newCitizenships = append(newCitizenships, citizenship)
-	}
-	return newCitizenships
 }

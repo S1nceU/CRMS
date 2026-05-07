@@ -24,7 +24,7 @@ func (u *CustomerService) ListCustomers() ([]*model.Customer, error) {
 	if customers, err = u.repo.ListCustomers(); err != nil {
 		return nil, err
 	}
-	return convertToSliceOfCustomer(customers), err
+	return customers, err
 }
 
 func (u *CustomerService) ListCustomersByCitizenship(citizenship int) ([]*model.Customer, error) {
@@ -36,7 +36,7 @@ func (u *CustomerService) ListCustomersByCitizenship(citizenship int) ([]*model.
 	if customers, err = u.repo.ListCustomersByCitizenship(newCustomer); err != nil {
 		return nil, err
 	}
-	return convertToSliceOfCustomer(customers), err
+	return customers, err
 }
 
 func (u *CustomerService) ListCustomersByName(name string) ([]*model.Customer, error) {
@@ -57,7 +57,7 @@ func (u *CustomerService) ListCustomersByName(name string) ([]*model.Customer, e
 		return nil, errors.New("error CRMS : There is no this customer")
 	}
 
-	return convertToSliceOfCustomer(customers), err
+	return customers, err
 }
 
 func (u *CustomerService) ListCustomersByPhone(phone string) ([]*model.Customer, error) {
@@ -79,7 +79,7 @@ func (u *CustomerService) ListCustomersByPhone(phone string) ([]*model.Customer,
 		return nil, errors.New("error CRMS : There is no this customer")
 	}
 
-	return convertToSliceOfCustomer(customers), err
+	return customers, err
 }
 
 func (u *CustomerService) ListCustomersByNationalId(id string) ([]*model.Customer, error) {
@@ -93,7 +93,7 @@ func (u *CustomerService) ListCustomersByNationalId(id string) ([]*model.Custome
 	} else if len(customers) == 0 {
 		return nil, errors.New("error CRMS: there is no such customer")
 	}
-	return convertToSliceOfCustomer(customers), err
+	return customers, err
 }
 
 func (u *CustomerService) GetCustomerByNationalId(id string) (*model.Customer, error) {
@@ -171,14 +171,6 @@ func (u *CustomerService) DeleteCustomer(customerId uuid.UUID) error {
 		return err
 	}
 	return nil
-}
-
-func convertToSliceOfCustomer(customers []*model.Customer) []*model.Customer {
-	var customersSlice []*model.Customer
-	for _, customer := range customers {
-		customersSlice = append(customersSlice, customer)
-	}
-	return customersSlice
 }
 
 func validateCustomerInfo(customer *model.Customer) error {
