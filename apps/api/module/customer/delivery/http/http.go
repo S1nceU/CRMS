@@ -14,6 +14,17 @@ type CustomerHandler struct {
 	customerSer domain.CustomerService
 }
 
+func bindJSON[T any](c *gin.Context) (T, bool) {
+	var request T
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return request, false
+	}
+	return request, true
+}
+
 func NewCustomerHandler(r gin.IRoutes, customerSer domain.CustomerService) {
 	handler := &CustomerHandler{
 		customerSer: customerSer,
@@ -62,11 +73,8 @@ func (u *CustomerHandler) ListCustomers(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerNationalId [post]
 func (u *CustomerHandler) GetCustomerByNationalId(c *gin.Context) {
-	request := dto.CustomerNationalIdRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CustomerNationalIdRequest](c)
+	if !ok {
 		return
 	}
 	customerData, err := u.customerSer.ListCustomersByNationalId(request.NationalId)
@@ -96,11 +104,8 @@ func (u *CustomerHandler) GetCustomerByNationalId(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerCre [post]
 func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
-	request := dto.CustomerRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CustomerRequest](c)
+	if !ok {
 		return
 	}
 	createCustomer, err := transformToCustomer(request)
@@ -142,11 +147,8 @@ func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerMod [post]
 func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
-	request := dto.CustomerRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CustomerRequest](c)
+	if !ok {
 		return
 	}
 	modifyCustomer, err := transformToCustomer(request)
@@ -190,11 +192,8 @@ func (u *CustomerHandler) ModifyCustomer(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerDel [post]
 func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
-	request := dto.CustomerIdRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CustomerIdRequest](c)
+	if !ok {
 		return
 	}
 	err := u.customerSer.DeleteCustomer(request.CustomerId)
@@ -225,11 +224,8 @@ func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerName [post]
 func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
-	request := dto.CustomerNameRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CustomerNameRequest](c)
+	if !ok {
 		return
 	}
 	customerData, err := u.customerSer.ListCustomersByName(request.Name)
@@ -263,11 +259,8 @@ func (u *CustomerHandler) GetCustomerByCustomerName(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerCitizenship [post]
 func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
-	request := dto.CustomerCitizenshipRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CustomerCitizenshipRequest](c)
+	if !ok {
 		return
 	}
 
@@ -302,11 +295,8 @@ func (u *CustomerHandler) ListCustomersByCitizenship(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerPhone [post]
 func (u *CustomerHandler) GetCustomerByCustomerPhone(c *gin.Context) {
-	request := dto.CustomerPhoneRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CustomerPhoneRequest](c)
+	if !ok {
 		return
 	}
 	customerData, err := u.customerSer.ListCustomersByPhone(request.PhoneNumber)
@@ -340,11 +330,8 @@ func (u *CustomerHandler) GetCustomerByCustomerPhone(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /customerID [post]
 func (u *CustomerHandler) GetCustomerByCustomerID(c *gin.Context) {
-	request := dto.CustomerIdRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CustomerIdRequest](c)
+	if !ok {
 		return
 	}
 	customerData, err := u.customerSer.GetCustomerByCustomerId(request.CustomerId)

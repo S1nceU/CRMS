@@ -16,6 +16,17 @@ type HistoryHandler struct {
 	ser domain.HistoryService
 }
 
+func bindJSON[T any](c *gin.Context) (T, bool) {
+	var request T
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return request, false
+	}
+	return request, true
+}
+
 func NewHistoryHandler(r gin.IRoutes, ser domain.HistoryService) {
 	handler := &HistoryHandler{
 		ser: ser,
@@ -63,11 +74,8 @@ func (u *HistoryHandler) ListHistories(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyByHistoryId [post]
 func (u *HistoryHandler) GetHistoryByHistoryId(c *gin.Context) {
-	request := dto.HistoryIdRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.HistoryIdRequest](c)
+	if !ok {
 		return
 	}
 	historyData, err := u.ser.GetHistoryByHistoryId(request.HistoryId)
@@ -96,11 +104,8 @@ func (u *HistoryHandler) GetHistoryByHistoryId(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyCre [post]
 func (u *HistoryHandler) CreateHistory(c *gin.Context) {
-	request := dto.HistoryRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.HistoryRequest](c)
+	if !ok {
 		return
 	}
 	var err error
@@ -143,11 +148,8 @@ func (u *HistoryHandler) CreateHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyMod [post]
 func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
-	request := dto.HistoryRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.HistoryRequest](c)
+	if !ok {
 		return
 	}
 	var err error
@@ -194,11 +196,8 @@ func (u *HistoryHandler) ModifyHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyDel [post]
 func (u *HistoryHandler) DeleteHistory(c *gin.Context) {
-	request := dto.HistoryIdRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.HistoryIdRequest](c)
+	if !ok {
 		return
 	}
 	err := u.ser.DeleteHistory(request.HistoryId)
@@ -229,11 +228,8 @@ func (u *HistoryHandler) DeleteHistory(c *gin.Context) {
 // @Failure 500 {string} string "{"Message": err.Error()}"
 // @Router /historyForDuring [post]
 func (u *HistoryHandler) GetHistoryForDuring(c *gin.Context) {
-	request := dto.DuringRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.DuringRequest](c)
+	if !ok {
 		return
 	}
 
@@ -278,11 +274,8 @@ func (u *HistoryHandler) GetHistoryForDuring(c *gin.Context) {
 // @Failure 500 {string} string "Message": err.Error()"
 // @Router /historyForDate [post]
 func (u *HistoryHandler) GetHistoriesForDate(c *gin.Context) {
-	request := dto.DateRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.DateRequest](c)
+	if !ok {
 		return
 	}
 	historyList, err := u.ser.ListHistoriesForDate(request.Date)
@@ -326,11 +319,8 @@ func (u *HistoryHandler) GetHistoriesForDate(c *gin.Context) {
 // @Failure 500 {string} string "Message": err.Error()"
 // @Router /historyCustomerId [post]
 func (u *HistoryHandler) GetHistoryByCustomerId(c *gin.Context) {
-	request := dto.HistoryCustomerIdRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.HistoryCustomerIdRequest](c)
+	if !ok {
 		return
 	}
 	historyData, err := u.ser.ListHistoriesByCustomerId(request.CustomerId)

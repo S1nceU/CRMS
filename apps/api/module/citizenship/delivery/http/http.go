@@ -12,6 +12,17 @@ type CitizenshipHandler struct {
 	service domain.CitizenshipService
 }
 
+func bindJSON[T any](c *gin.Context) (T, bool) {
+	var request T
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return request, false
+	}
+	return request, true
+}
+
 func NewCitizenshipHandler(r gin.IRoutes, service domain.CitizenshipService) {
 	handler := &CitizenshipHandler{
 		service: service,
@@ -53,11 +64,8 @@ func (u *CitizenshipHandler) ListCitizenships(c *gin.Context) {
 // @Success 200 {object} model.Citizenship
 // @Router /citizenshipId [post]
 func (u *CitizenshipHandler) GetCitizenshipByID(c *gin.Context) {
-	request := dto.CitizenshipRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CitizenshipRequest](c)
+	if !ok {
 		return
 	}
 	citizenship, err := u.service.GetCitizenshipByID(request.CitizenshipId)
@@ -82,11 +90,8 @@ func (u *CitizenshipHandler) GetCitizenshipByID(c *gin.Context) {
 // @Success 200 {object} model.Citizenship
 // @Router /citizenshipNation [post]
 func (u *CitizenshipHandler) GetCitizenshipByCitizenshipName(c *gin.Context) {
-	request := dto.CitizenshipNameRequest{}
-	if err := c.BindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.CitizenshipNameRequest](c)
+	if !ok {
 		return
 	}
 	citizenship, err := u.service.GetCitizenshipByCitizenshipName(request.CitizenshipName)

@@ -16,6 +16,17 @@ type UserHandler struct {
 	ser domain.UserService
 }
 
+func bindJSON[T any](c *gin.Context) (T, bool) {
+	var request T
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Message": err.Error(),
+		})
+		return request, false
+	}
+	return request, true
+}
+
 func NewUserHandler(r gin.IRoutes, ser domain.UserService) {
 	handler := &UserHandler{
 		ser: ser,
@@ -36,11 +47,8 @@ func NewUserHandler(r gin.IRoutes, ser domain.UserService) {
 // @Success 200 {object} string
 // @Router /userLogin [post]
 func (u *UserHandler) Login(c *gin.Context) {
-	request := dto.UserLoginRequest{}
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	request, ok := bindJSON[dto.UserLoginRequest](c)
+	if !ok {
 		return
 	}
 	token, err := u.ser.Login(request.Username, request.Password)
@@ -92,11 +100,8 @@ func (u *UserHandler) Login(c *gin.Context) {
 // @Success 200 {object} string
 // @Router /userAuthentication [post]
 func (u *UserHandler) Authentication(c *gin.Context) {
-	request := dto.UserTokenRequest{}
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	_, ok := bindJSON[dto.UserTokenRequest](c)
+	if !ok {
 		return
 	}
 	token, err := extractToken(c)
@@ -136,11 +141,8 @@ func (u *UserHandler) Authentication(c *gin.Context) {
 // @Success 200 {object} string
 // @Router /userLogout [post]
 func (u *UserHandler) Logout(c *gin.Context) {
-	request := dto.UserTokenRequest{}
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Message": err.Error(),
-		})
+	_, ok := bindJSON[dto.UserTokenRequest](c)
+	if !ok {
 		return
 	}
 
