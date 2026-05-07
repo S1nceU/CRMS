@@ -5,6 +5,7 @@ vite.config.*.timestamp*
 vitest.config.*.timestamp*
 
 node_modules
+.pnpm-store/
 /dist
 
 .idea/
