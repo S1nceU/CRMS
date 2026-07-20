@@ -74,26 +74,20 @@ func init() {
 
 	if db, dbErr = gorm.Open(mysql.Open(dsn), &gorm.Config{}); dbErr != nil {
 		log.Fatal("There was an error connecting to the DB using gorm, due to " + dbErr.Error())
-	} else {
-		log.Println("Connect to DB successfully")
-		var err error
-		needsSeed := !db.Migrator().HasTable("citizenships")
-		if err = db.AutoMigrate(&model.Citizenship{}); err != nil {
-			return
-		}
-		if needsSeed {
-			config.ImportCitizenshipData(db)
-			log.Println("Init citizenship data successfully")
-		}
-		if err = db.AutoMigrate(&model.Customer{}); err != nil {
-			return
-		}
-		if err = db.AutoMigrate(&model.History{}); err != nil {
-			return
-		}
-		if err = db.AutoMigrate(&model.User{}); err != nil {
-			return
-		}
+	}
+
+	log.Println("Connect to DB successfully")
+
+	needsSeed := !db.Migrator().HasTable("citizenships")
+	if err := db.AutoMigrate(&model.Citizenship{}); err != nil {
+		log.Fatal("There was an error migrating the citizenships table, due to " + err.Error())
+	}
+	if needsSeed {
+		config.ImportCitizenshipData(db)
+		log.Println("Init citizenship data successfully")
+	}
+	if err := db.AutoMigrate(&model.Customer{}, &model.History{}, &model.User{}); err != nil {
+		log.Fatal("There was an error migrating the tables, due to " + err.Error())
 	}
 }
 
