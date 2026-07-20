@@ -1,0 +1,27 @@
+# Copy this file to config.yaml and fill in real values.
+# config.yaml is git-ignored and MUST NOT be committed (it holds secrets).
+
+# Server Config
+MODE: "release"                          # "debug" | "release" | "test"
+PORT: 8080
+FRONTEND_ORIGIN: "http://localhost:4200" # 正式環境設為真正的網域，切勿使用 "*"
+COOKIE_SECURE: false                     # 對外走 HTTPS 時設為 true
+
+# Database Config
+DATABASE:
+  USERNAME: "crms_app"                   # 建議建立專用帳號，勿用 root
+  PASSWORD: "CHANGE_ME"                  # 強密碼，只放在本機 config.yaml
+  NETWORK: "tcp"
+  SERVER: "127.0.0.1"
+  PORT: 3306
+  DATABASE: "crms"
+
+# Initial admin (手動 seed，非自動套用)
+ADMIN:
+  USERNAME: "admin"
+  PASSWORD: "CHANGE_ME"
+
+# Token Config
+TOKEN_SECRET: "CHANGE_ME_generate_with_openssl_rand_base64_48"  # 至少 32 bytes 的隨機值
+TOKEN_ISSUER: "S1nceU"
+TOKEN_EXPIRATION_HOURS: 2
